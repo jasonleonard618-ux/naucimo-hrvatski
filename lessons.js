@@ -195,7 +195,24 @@ Object.assign(window.COURSE, {
     "mislim": ["I think", "*"], "da": ["that / yes", "da"], "nemam": ["I don't have", "imati"], "pijte": ["drink (instruction, formal)", "piti"], "puno": ["a lot", "*"], "vode": ["water (after 'puno')", "voda"], "odmarajte": ["rest (instruction, formal)", "*"], "doktorice": ["doctor! (talking to a woman doctor)", "*"],
     "radio": ["did / worked (said by or about a man)", "raditi"], "vikend": ["weekend", "*"], "subotu": ["Saturday (after 'u')", "subota"], "bio": ["was (man)", "biti"], "moru": ["seaside / sea (after 'na')", "more"], "bilo": ["was (it)", "biti"],
     "plivao": ["swam (man)", "plivati"], "čitao": ["read (past, man)", "čitati"], "knjigu": ["book (object form of knjiga)", "knjiga"], "u": ["in / on / at", "*"], "nedjelju": ["Sunday (after 'u')", "nedjelja"], "smo": ["are (we)", "*"], "ručali": ["had lunch (we)", "ručak"], "kod": ["at (someone's place)", "*"], "bake": ["grandma (after 'kod')", "baka"],
-    "ćeš": ["will (you)", "htjeti"], "ću": ["will (I)", "htjeti"], "raditi": ["to work / to do", "raditi"], "do": ["until", "*"], "sata": ["o'clock", "sat"], "kuhati": ["to cook", "kuhati"], "večeru": ["dinner (object form)", "večera"], "doći": ["to come", "*"], "ribu": ["fish (object form of riba)", "riba"], "vidimo": ["we see (vidimo se = see you)", "vidimo se"]
+    "ćeš": ["will (you)", "htjeti"], "ću": ["will (I)", "htjeti"], "raditi": ["to work / to do", "raditi"], "do": ["until", "*"], "sata": ["o'clock", "sat"], "kuhati": ["to cook", "kuhati"], "večeru": ["dinner (object form)", "večera"], "doći": ["to come", "*"], "ribu": ["fish (object form of riba)", "riba"], "vidimo": ["we see (vidimo se = see you)", "vidimo se"],
+    // Forms in the reading stories (content.js), so they show a meaning on tap and count as known once their base word is learned.
+    "marko": ["Marko (a name)", "*"], "ivane": ["Ivan! (calling him)", "*"], "maja": ["Maja (a name)", "*"], "sara": ["Sara (a name)", "*"], "petar": ["Petar (a name)", "*"],
+    "mia": ["Mia (a name)", "*"], "leo": ["Leo (a name)", "*"], "ovo": ["this", "*"], "moja": ["my (for feminine words)", "*"], "moje": ["my (for neuter words)", "*"],
+    "nas": ["us / of us", "*"], "velika": ["big (feminine)", "velik"], "vodu": ["water (object form of voda)", "voda"], "govorite": ["you speak (formal)", "govoriti"],
+    "engleski": ["English", "*"], "zovete": ["you are called (formal)", "zovem se"], "kuhinji": ["kitchen (after 'u')", "kuhinja"], "vrtu": ["garden (after 'u')", "vrt"],
+    "plažu": ["beach (object form: to the beach)", "plaža"], "radiš": ["you do / you work", "raditi"], "čitam": ["I read", "čitati"], "svaki": ["every", "svaki"], "bravo": ["well done", "*"],
+    "želiš": ["you want", "želim"], "kilograma": ["kilos (after 'dva')", "*"], "radim": ["I work", "raditi"], "posla": ["work (after 'poslije')", "posao"], "kući": ["home / at home", "kuća"],
+    "kuham": ["I cook", "kuhati"], "gledam": ["I watch", "gledati"], "televiziju": ["TV (object form)", "televizor"], "sati": ["o'clock (after 'deset')", "sat"], "laku": ["good (laku noć = good night)", "laku noć"],
+    "bila": ["was (feminine)", "biti"], "ujutro": ["in the morning", "jutro"], "navečer": ["in the evening", "večer"], "jeli": ["ate (we / they)", "jesti"], "dugo": ["for a long time", "dugo"],
+    "ćemo": ["will (we)", "htjeti"], "će": ["will (he / she / it)", "htjeti"], "prvo": ["first", "prvo"], "pekaru": ["bakery (after 'u': going to)", "pekara"],
+    "ljekarnu": ["pharmacy (after 'u': going to)", "ljekarna"], "autobusom": ["by bus", "autobus"], "kuće": ["home (kod kuće = at home)", "kuća"], "kišu": ["rain (object form)", "kiša"],
+    "crveno": ["red (for neuter words)", "crven"], "plavo": ["blue (for neuter words)", "plav"], "zeleno": ["green (for neuter words)", "zelen"], "žuto": ["yellow (for neuter words)", "žut"],
+    "crno": ["black (for neuter words)", "crn"], "bijelo": ["white (for neuter words)", "bijel"], "plava": ["blue (for feminine words)", "plav"], "koja": ["which (for feminine words)", "koji"],
+    "brojimo": ["let's count", "brojimo"], "prijatelji": ["friends", "prijatelj"], "vau": ["woof", "*"], "mijau": ["miaow", "*"], "baku": ["grandma (object form)", "baka"], "bako": ["grandma! (calling her)", "baka"], "djede": ["grandpa! (calling him)", "djed"], "oči": ["eyes", "oko"], "uši": ["ears", "uho"],
+    "mamu": ["mum (object form)", "mama"], "tatu": ["dad (object form)", "tata"], "brata": ["brother (object form)", "brat"], "imamo": ["we have", "imati"], "naš": ["our", "*"], "svoju": ["my own (object form)", "*"],
+    "sija": ["shines", "sija"], "čita": ["reads", "čitati"], "pliva": ["swims", "plivati"], "djeda": ["grandpa (object form)", "djed"], "kuha": ["cooks", "kuhati"], "juhu": ["soup (object form)", "juha"],
+    "peče": ["bakes", "peče"], "priča": ["tells", "priča"], "priče": ["stories", "priča"], "ručamo": ["we have lunch", "ručak"], "kroasana": ["croissants", "kroasana"]
   },
 
   // Grammar units. Each drill is a sentence with a gap: s with ___ replaced by a gives the full sentence (it gets a recording).
