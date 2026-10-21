@@ -2,6 +2,9 @@
 <html lang="hr">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="vendor/supabase-2.117.0.js"></script>
+<script src="config.js"></script>
+<script src="sync.js"></script>
 <title>Naučimo Hrvatski</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -701,6 +704,11 @@ body.kid .opt { font-size: 1.25rem; }
     const vn = voiceNotice(); if (vn) wrap.append(vn);
     if (!p) {
       wrap.append(h("h2", { class: "hello", text: "Dobro došli!" }));
+      // Learners already here (e.g. synced to a new device): pick one instead of adding a duplicate.
+      const known = Object.values(store.profiles).sort((a, b) => a.created - b.created);
+      if (known.length) wrap.append(h("section", { class: "panel" }, h("h2", { text: "Who's learning?" }),
+        h("div", { class: "row" }, known.map(q => h("button", { class: "btn", onclick: () => { store.activeId = q.id; saveLocal(); render(); } },
+          h("span", { class: "avatar", style: "background:" + q.color, text: q.name.slice(0, 1).toUpperCase() }), " " + q.name)))));
       wrap.append(h("section", { class: "panel today" },
         h("h2", { text: "Welcome" }),
         h("p", { text: "Add each family member who's learning. Everyone gets their own progress, streak and review schedule." }),
