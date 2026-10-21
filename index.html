@@ -1,0 +1,1886 @@
+<!doctype html>
+<html lang="hr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Naučimo Hrvatski</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one mobile-first column on a soft grey ground. White pill and circle controls, black for the one main action, big light headlines.
+   Top-level views share a floating tab bar; exercise sessions are full screen with a feedback card docked to the bottom. */
+:root {
+  --bg: #e9e9e6;
+  --surface: #ffffff;
+  --surface-2: #f2f2ef;
+  --ink: #121212;
+  --muted: #6f6f6a;
+  --line: #e1e1dc;
+  --cta: #121212;
+  --cta-ink: #ffffff;
+  --sea: #1f6fb2;
+  --sea-ink: #ffffff;
+  --sea-soft: #e3eef8;
+  --red: #e03a3e;
+  --checker-light: #ffffff;
+  --good: #1d7f47;
+  --good-soft: #e1f3e7;
+  --bad: #c0392b;
+  --bad-soft: #fbe5e2;
+  --sun: #f2b84b;
+  --p1: #ffe1dc; --p2: #fff0c7; --p3: #dcebfb; --p4: #dff3e4; --p5: #ece3fb; --p6: #fde3ef;
+  --scene-dim: 1;
+  --font-display: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius: 26px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f0f10; --surface: #1c1c1e; --surface-2: #29292c; --ink: #f2f2f0; --muted: #9d9d98; --line: #303033;
+    --cta: #f2f2f0; --cta-ink: #121212; --sea: #6cb4f0; --sea-ink: #0b1b2b; --sea-soft: #1a2c3d; --red: #ff5b60; --checker-light: #f2f2f0;
+    --good: #4fcf88; --good-soft: #15301f; --bad: #ff7a6e; --bad-soft: #3a1d1a; --sun: #f5c451;
+    --p1: #3a2422; --p2: #3a321c; --p3: #1c2c3d; --p4: #1c3324; --p5: #2b2440; --p6: #3a2230; --scene-dim: .82;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f0f10; --surface: #1c1c1e; --surface-2: #29292c; --ink: #f2f2f0; --muted: #9d9d98; --line: #303033;
+  --cta: #f2f2f0; --cta-ink: #121212; --sea: #6cb4f0; --sea-ink: #0b1b2b; --sea-soft: #1a2c3d; --red: #ff5b60; --checker-light: #f2f2f0;
+  --good: #4fcf88; --good-soft: #15301f; --bad: #ff7a6e; --bad-soft: #3a1d1a; --sun: #f5c451;
+  --p1: #3a2422; --p2: #3a321c; --p3: #1c2c3d; --p4: #1c3324; --p5: #2b2440; --p6: #3a2230; --scene-dim: .82;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--sea); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 500; line-height: 1.12; letter-spacing: -.02em; margin: 0; text-wrap: balance; }
+h2 { font-size: 1.35rem; }
+p { margin: 0; }
+
+.wrap { max-width: 760px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 16px calc(120px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 18px; }
+
+/* Header: brand circle with the šahovnica, learner pill on the right */
+.top { display: flex; align-items: center; gap: 12px; justify-content: space-between; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.checker { width: 48px; height: 48px; border-radius: 50%; flex: none; border: 9px solid var(--surface);
+  background: conic-gradient(var(--red) 25%, var(--checker-light) 0 50%, var(--red) 0 75%, var(--checker-light) 0) 0 0 / 15px 15px; }
+.brand h1 { font-size: 1.1rem; font-weight: 600; letter-spacing: -.01em; }
+.brand small { display: block; font-size: .8rem; color: var(--muted); font-weight: 400; }
+.chip { display: inline-flex; align-items: center; gap: 10px; border: 0; background: var(--surface); border-radius: 999px; padding: 4px 16px 4px 4px; font-weight: 500; max-width: 55%; min-height: 48px; }
+.chip span.nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 600; font-size: .95rem; flex: none; }
+.hello { font-size: clamp(2.1rem, 9vw, 2.7rem); line-height: 1.05; padding: 6px 4px 0; }
+
+.btn { border: 0; border-radius: 999px; padding: 12px 22px; font-weight: 500; background: var(--surface); color: var(--ink); display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; text-align: center; }
+.btn.primary { background: var(--cta); color: var(--cta-ink); }
+.btn.primary:active { transform: scale(.98); }
+.btn.ghost { background: transparent; box-shadow: inset 0 0 0 1px var(--line); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.small { min-height: 40px; padding: 6px 16px; font-size: .9rem; }
+.panel .btn:not(.primary), .hero-card .btn:not(.primary) { background: var(--surface-2); }
+.linkbtn { background: none; border: 0; color: var(--sea); font-weight: 500; padding: 4px 0; }
+
+.panel { background: var(--surface); border: 0; border-radius: var(--radius); padding: 20px; }
+.today { display: grid; gap: 16px; }
+.today-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.today-head h2 { font-size: 1.5rem; }
+.stats { display: flex; gap: 8px 16px; flex-wrap: wrap; color: var(--muted); font-weight: 400; font-size: .95rem; }
+.stats b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.goal { height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+.goal i { display: block; height: 100%; background: var(--cta); border-radius: 99px; transition: width .4s; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.actions .btn { flex: 1 1 200px; }
+
+/* Home: today's lesson as one big card with a picture on top */
+.hero-card { background: var(--surface); border-radius: 34px; padding: 6px; display: grid; }
+.scene { height: 210px; border-radius: 29px; position: relative; overflow: hidden; filter: brightness(var(--scene-dim));
+  background: linear-gradient(#f7d9b8 0%, #f3c1a0 40%, #9fd0e6 41%, #5aa7cf 72%, #2f7fb0 100%); }
+.scene .sun { position: absolute; width: 64px; height: 64px; border-radius: 50%; background: #fff3d6; left: 44px; top: 18px; box-shadow: 0 0 40px #ffe7b3; }
+.scene .isl { position: absolute; top: 46px; right: -24px; width: 210px; height: 32px; background: #6f8f6a; border-radius: 120px 120px 0 0; }
+.scene .town { position: absolute; top: 44px; right: 34px; display: flex; gap: 3px; align-items: flex-end; height: 34px; }
+.scene .town b { display: block; width: 14px; background: #f1e4cf; border-top: 5px solid #d0623f; }
+.scene .boat { position: absolute; left: 46%; bottom: 30px; font-size: 34px; line-height: 1; }
+.scene.photo { background: #6f8f9f center / cover no-repeat; }
+.scene.photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.72), rgba(0,0,0,.25) 45%, rgba(0,0,0,0) 70%); }
+.scene .lmcap { position: absolute; left: 16px; right: 16px; bottom: 14px; z-index: 1; color: #fff; display: grid; line-height: 1.2; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
+.scene .lmcap b { font-size: 1.3rem; font-weight: 600; letter-spacing: -.01em; }
+.scene .lmcap span { font-size: .85rem; opacity: .9; }
+.scene.photo .tagpill { top: 12px; bottom: auto; z-index: 1; }
+.lmcredit { display: block; margin-top: 4px; font-size: .72rem; color: var(--muted); text-decoration: none; }
+.lmcredit:hover { text-decoration: underline; }
+.lmfact { font-size: .9rem; color: var(--muted); }
+.lmfact b { color: var(--ink); font-weight: 600; }
+.scene .tagpill { position: absolute; left: 12px; bottom: 12px; background: rgba(255,255,255,.78); color: #121212; border-radius: 999px; padding: 6px 14px; font-size: .85rem; font-weight: 600; }
+.hero-body { padding: 16px 14px 14px; display: grid; gap: 14px; }
+.hero-body .t { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.hero-body .t h2 { font-size: 1.5rem; }
+.hero-body .pctbig { font-weight: 700; font-size: 1.7rem; letter-spacing: -.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.hero-body .pctbig small { display: block; font-size: .75rem; font-weight: 500; color: var(--muted); letter-spacing: 0; text-align: right; }
+
+.section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 12px; padding-inline: 4px; }
+.section-head p { color: var(--muted); font-size: .9rem; }
+.eyebrow { font-size: .8rem; font-weight: 500; color: var(--muted); }
+
+.practice { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.tile { text-align: left; background: var(--surface); border: 0; border-radius: var(--radius); padding: 8px 8px 14px; display: grid; gap: 2px; align-content: start; }
+.tile .ic { font-size: 1.7rem; line-height: 1; height: 64px; border-radius: 20px; display: grid; place-items: center; background: var(--p1); margin-bottom: 8px; }
+.tile:nth-child(6n+2) .ic { background: var(--p2); } .tile:nth-child(6n+3) .ic { background: var(--p3); } .tile:nth-child(6n+4) .ic { background: var(--p4); } .tile:nth-child(6n+5) .ic { background: var(--p5); } .tile:nth-child(6n) .ic { background: var(--p6); }
+.tile b, .tile small { padding-inline: 6px; }
+.tile b { font-weight: 600; font-size: 1rem; }
+.tile small { color: var(--muted); font-size: .85rem; }
+.tile:hover, .topic:hover { box-shadow: 0 0 0 2px var(--ink); }
+
+.topics { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+.topic { text-align: left; background: var(--surface); border: 0; border-radius: var(--radius); padding: 8px 8px 14px; display: grid; gap: 6px; }
+.topic .pic { font-size: 2rem; line-height: 1; height: 72px; border-radius: 20px; display: grid; place-items: center; background: var(--p3); }
+.topic:nth-child(6n+2) .pic { background: var(--p2); } .topic:nth-child(6n+3) .pic { background: var(--p4); } .topic:nth-child(6n+4) .pic { background: var(--p1); } .topic:nth-child(6n+5) .pic { background: var(--p5); } .topic:nth-child(6n) .pic { background: var(--p6); }
+.topic b, .topic small, .topic .bar, .topic .count { margin-inline: 6px; }
+.topic b { font-weight: 600; font-size: 1.05rem; }
+.topic small { color: var(--muted); font-size: .85rem; }
+.bar { height: 5px; background: var(--surface-2); border-radius: 99px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--cta); border-radius: 99px; }
+.count { font-variant-numeric: tabular-nums; font-size: .8rem; color: var(--muted); font-weight: 500; }
+
+.board { display: grid; gap: 4px; }
+.board-row { display: grid; grid-template-columns: 40px 1fr auto auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.board-row:last-child { border-bottom: 0; }
+.board-row .nm { font-weight: 500; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.board-row .num { font-variant-numeric: tabular-nums; font-weight: 700; text-align: right; }
+.board-row .sub { color: var(--muted); font-size: .85rem; text-align: right; font-variant-numeric: tabular-nums; }
+
+.notice { background: var(--surface); border-radius: 22px; padding: 14px 18px; font-size: .92rem; color: var(--muted); }
+.notice b { display: block; color: var(--ink); font-weight: 600; }
+
+/* Floating tab bar */
+.tabbar { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: min(420px, calc(100% - 32px)); background: var(--surface); border-radius: 999px; padding: 8px; display: flex; justify-content: center; gap: 8px; z-index: 6; box-shadow: 0 10px 30px rgba(0,0,0,.12); }
+.tabbar button { flex: 1 1 0; max-width: 92px; height: 56px; border: 0; border-radius: 999px; background: var(--surface-2); color: var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: .7rem; font-weight: 500; }
+.tabbar button svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.tabbar button[aria-current="page"] { background: var(--cta); color: var(--cta-ink); }
+
+/* Sub views */
+.subhead { display: flex; align-items: center; gap: 12px; }
+.subhead h2 { font-size: 1.6rem; }
+.back { width: 48px; height: 48px; border-radius: 50%; border: 0; background: var(--surface); font-size: 1.2rem; flex: none; }
+.wordlist { display: grid; gap: 0; background: var(--surface); border-radius: var(--radius); padding: 4px 16px; }
+.wordrow { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.wordrow:last-child { border-bottom: 0; }
+.wordrow .p { font-size: 1.5rem; text-align: center; }
+.wordrow .hr { font-weight: 600; font-size: 1.05rem; }
+.wordrow .en { color: var(--muted); font-size: .9rem; }
+.wordrow .note { color: var(--muted); font-size: .82rem; font-style: italic; }
+.say { width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--cta); color: var(--cta-ink); font-size: 1rem; flex: none; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line); margin-right: 6px; vertical-align: middle; }
+.dot.on { background: var(--good); box-shadow: none; }
+
+/* Session */
+.session { min-height: 100%; display: flex; flex-direction: column; }
+.sbar { display: flex; align-items: center; gap: 10px; padding-block: 14px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); max-width: 760px; width: 100%; margin: 0 auto; }
+.sbar .goal { flex: 1; height: 48px; border-radius: 999px; background: linear-gradient(var(--surface-2), var(--surface-2)) center / calc(100% - 36px) 6px no-repeat, var(--surface); padding: 0 18px; display: flex; align-items: center; }
+.sbar .goal i { height: 6px; border-radius: 9px; background: var(--cta); box-shadow: 0 0 0 0 transparent; }
+.close { width: 48px; height: 48px; border-radius: 50%; border: 0; background: var(--surface); font-size: 1.1rem; color: var(--ink); flex: none; }
+.stage { flex: 1; width: 100%; max-width: 640px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 8px 200px; display: flex; flex-direction: column; gap: 16px; }
+.prompt-label { font-weight: 500; color: var(--muted); font-size: .95rem; }
+.steplabel { font-size: .8rem; font-weight: 500; color: var(--muted); background: var(--surface); border-radius: 999px; padding: 6px 14px; align-self: flex-start; }
+.daily { display: grid; gap: 10px; justify-items: stretch; }
+.daily > .btn { width: 100%; }
+.plan { margin: 4px 0 0; padding-left: 1.3em; display: grid; gap: 4px; color: var(--muted); font-size: .95rem; }
+.plan b { color: var(--ink, inherit); }
+.rulecard { text-align: left; justify-items: stretch; }
+.writebox { min-height: 4.5em; resize: vertical; font: inherit; }
+.writeout { display: grid; gap: 10px; text-align: left; }
+.writeout .said { font-size: 1.15rem; font-weight: 600; line-height: 1.6; }
+.writeout .said .bad { text-decoration: underline wavy var(--bad, #c0392b); text-underline-offset: 4px; }
+.writeout ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+.writeout .later { color: var(--muted); }
+.helprow { display: grid; gap: 4px; justify-items: center; }
+.helprow .hint { letter-spacing: .08em; font-weight: 600; }
+.big { font-family: var(--font-display); font-weight: 600; font-size: clamp(2rem, 8vw, 2.8rem); letter-spacing: -.03em; line-height: 1.1; overflow-wrap: anywhere; }
+.bigpic { font-size: clamp(4rem, 18vw, 6rem); line-height: 1; text-align: center; }
+.card { background: var(--surface); border: 0; border-radius: 30px; padding: 24px 20px; display: grid; gap: 12px; justify-items: center; text-align: center; }
+.card .en { color: var(--muted); font-size: 1.15rem; font-weight: 500; }
+.card .note { color: var(--muted); font-size: .92rem; font-style: italic; max-width: 40ch; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.row.center { justify-content: center; }
+.playbig { width: 92px; height: 92px; border-radius: 50%; border: 0; background: var(--cta); color: var(--cta-ink); font-size: 2.2rem; margin: 8px auto; display: grid; place-items: center; }
+.playbig:active { transform: scale(.96); }
+.options { display: grid; gap: 10px; }
+.opt { text-align: left; background: var(--surface); border: 0; box-shadow: inset 0 0 0 2px transparent; border-radius: 22px; padding: 14px 20px; font-weight: 500; font-size: 1.05rem; min-height: 60px; }
+.opt:hover:not(:disabled) { box-shadow: inset 0 0 0 2px var(--ink); }
+.opt.right { box-shadow: inset 0 0 0 2px var(--good); background: var(--good-soft); }
+.opt.wrong { box-shadow: inset 0 0 0 2px var(--bad); background: var(--bad-soft); }
+.picopts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.picopt { background: var(--p1); border: 6px solid var(--surface); border-radius: 30px; font-size: clamp(3rem, 14vw, 4.5rem); aspect-ratio: 1.15; max-width: 100%; display: grid; place-items: center; position: relative; }
+.picopt:nth-child(4n+2) { background: var(--p2); } .picopt:nth-child(4n+3) { background: var(--p3); } .picopt:nth-child(4n) { background: var(--p4); }
+.picopt.right { box-shadow: 0 0 0 3px var(--good); }
+.picopt.right::after { content: "✓"; position: absolute; top: 8px; right: 8px; width: 30px; height: 30px; border-radius: 50%; background: var(--good); color: #fff; font-size: 15px; font-weight: 700; display: grid; place-items: center; }
+.picopt.wrong { box-shadow: 0 0 0 3px var(--bad); opacity: .7; }
+.typebox { width: 100%; font: inherit; font-size: 1.3rem; padding: 16px 20px; border-radius: 22px; border: 0; box-shadow: inset 0 0 0 2px var(--line); background: var(--surface); color: var(--ink); }
+.typebox:focus { box-shadow: inset 0 0 0 2px var(--ink); outline: none; }
+.keys { display: flex; gap: 8px; flex-wrap: wrap; }
+.key { min-width: 48px; height: 48px; border-radius: 50%; border: 0; background: var(--surface); font-size: 1.15rem; font-weight: 600; }
+.rate { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.rate .btn { flex-direction: column; gap: 0; padding: 8px 4px; font-size: .9rem; border-radius: 22px; }
+.rate .btn small { font-weight: 400; color: inherit; opacity: .75; font-size: .75rem; }
+.rate .again { background: var(--bad-soft); color: var(--bad); }
+.rate .good { background: var(--good-soft); color: var(--good); }
+
+.sheet { position: fixed; left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); bottom: calc(12px + env(safe-area-inset-bottom, 0px)); max-width: 640px; margin: 0 auto; background: var(--surface); border-radius: 30px; padding: 16px; z-index: 5; box-shadow: 0 10px 30px rgba(0,0,0,.14); }
+.sheet .in { max-width: 640px; margin: 0 auto; display: grid; gap: 12px; }
+.sheet.good { background: var(--good-soft); }
+.sheet.bad { background: var(--bad-soft); }
+.sheet .msg { font-family: var(--font-display); font-weight: 600; font-size: 1.3rem; letter-spacing: -.01em; }
+.sheet.good .msg { color: var(--good); }
+.sheet.bad .msg { color: var(--bad); }
+.sheet .detail { font-weight: 500; }
+.sheet .btn { width: 100%; }
+
+.done { text-align: center; display: grid; gap: 16px; justify-items: center; padding-top: 32px; }
+.done .bigpic { font-size: 5rem; }
+.done .stats { justify-content: center; }
+
+/* Reading */
+.story { font-size: 1.3rem; line-height: 1.9; background: var(--surface); border-radius: var(--radius); padding: 20px; }
+.story .w { cursor: pointer; border-bottom: 2px dotted var(--line); border-radius: 2px; }
+.story .w:hover, .story .w.sel { background: var(--sea-soft); border-bottom-color: var(--sea); }
+.gloss { position: sticky; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); background: var(--cta); color: var(--cta-ink); padding: 10px 10px 10px 20px; border-radius: 999px; display: flex; gap: 12px; align-items: center; justify-content: space-between; }
+.gloss b { font-size: 1.1rem; }
+.gloss .say { background: color-mix(in srgb, var(--cta-ink) 18%, transparent); color: var(--cta-ink); }
+.qblock { display: grid; gap: 10px; }
+.qblock .q { font-weight: 600; }
+.qblock .qen { color: var(--muted); font-size: .9rem; }
+
+.alpha { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.letter { text-align: left; background: var(--surface); border: 0; border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 2px; }
+.letter b { font-family: var(--font-display); font-weight: 600; font-size: 2rem; color: var(--ink); line-height: 1.1; }
+.letter small { color: var(--muted); font-size: .82rem; }
+.letter span { font-weight: 500; }
+
+/* Memory match */
+.match { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.mt { min-height: 76px; border-radius: 24px; border: 0; background: var(--surface); font-weight: 600; font-size: 1.15rem; padding: 8px; }
+.mt.pic { font-size: 2.4rem; background: var(--p3); }
+.mt.sel { box-shadow: 0 0 0 3px var(--ink); }
+.mt.gone { visibility: hidden; }
+.mt.shake { animation: shake .3s; box-shadow: 0 0 0 3px var(--bad); }
+@keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+/* Profiles */
+.plist { display: grid; gap: 8px; }
+.prow { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 0; border-radius: var(--radius); background: var(--surface); }
+.prow.active { box-shadow: inset 0 0 0 2px var(--ink); }
+.prow .meta { flex: 1; min-width: 0; }
+.prow .meta b { display: block; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.prow .meta small { color: var(--muted); }
+.prow > span:first-child:not(.avatar) { width: 52px; height: 52px; border-radius: 18px; background: var(--surface-2); display: grid; place-items: center; flex: none; }
+.form { display: grid; gap: 12px; }
+.form label { font-weight: 500; display: grid; gap: 6px; }
+.form input[type=text] { font: inherit; padding: 14px 18px; border-radius: 999px; border: 0; box-shadow: inset 0 0 0 2px var(--line); background: var(--surface); color: var(--ink); }
+.seg { display: flex; gap: 8px; flex-wrap: wrap; }
+.seg button { flex: 1 1 120px; border: 0; background: var(--surface-2); border-radius: 999px; padding: 12px; font-weight: 500; }
+.seg button[aria-pressed="true"] { background: var(--cta); color: var(--cta-ink); }
+.confirm { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: .9rem; }
+
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(96px + env(safe-area-inset-bottom, 0px)); background: var(--cta); color: var(--cta-ink); padding: 12px 20px; border-radius: 999px; font-weight: 500; z-index: 20; max-width: calc(100% - 32px); }
+
+/* Conversations */
+.chat { display: grid; gap: 10px; }
+.bubble { max-width: 88%; background: var(--surface); border: 0; border-radius: 24px 24px 24px 8px; padding: 12px 16px; display: grid; gap: 4px; justify-self: start; }
+.bubble.me { justify-self: end; background: var(--sea-soft); border-radius: 24px 24px 8px 24px; }
+.bubble.now { box-shadow: 0 0 0 2px var(--ink); }
+.bubble .who { font-size: .75rem; font-weight: 600; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.bubble .line { font-size: 1.15rem; line-height: 1.6; }
+.bubble .ten { color: var(--muted); font-size: .9rem; }
+.bubble .note { color: var(--muted); font-size: .82rem; font-style: italic; }
+.bubble .w { cursor: pointer; border-bottom: 2px dotted var(--line); }
+.bubble .w:hover, .bubble .w.sel { background: color-mix(in srgb, var(--sea) 18%, transparent); border-bottom-color: var(--sea); }
+.minisay { border: 0; background: transparent; color: var(--sea); font-size: 1rem; padding: 2px 4px; min-width: 32px; min-height: 32px; }
+.tag { display: inline-block; font-size: .75rem; font-weight: 500; border-radius: 99px; padding: 3px 10px; background: var(--surface-2); color: var(--muted); }
+.tag.hot { background: var(--cta); color: var(--cta-ink); }
+.tag.ok { background: var(--good-soft); color: var(--good); }
+.prow .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.tiles { display: flex; flex-wrap: wrap; gap: 8px; min-height: 56px; }
+.tiles.answer { border-bottom: 2px solid var(--line); padding-bottom: 10px; }
+.wtile { border: 0; background: var(--surface); border-radius: 999px; padding: 8px 16px; font-weight: 500; font-size: 1.05rem; min-height: 44px; }
+.wtile:disabled { opacity: .3; }
+.gapline { font-family: var(--font-display); font-weight: 500; font-size: clamp(1.4rem, 6vw, 2rem); letter-spacing: -.02em; line-height: 1.3; }
+.gapline .gap { display: inline-block; min-width: 2.4em; border-bottom: 3px solid var(--ink); text-align: center; color: var(--sea); }
+.hint { color: var(--muted); font-weight: 500; }
+.timer { height: 6px; border-radius: 99px; background: var(--surface); overflow: hidden; }
+.timer i { display: block; height: 100%; background: var(--cta); width: 100%; }
+/* Grammar */
+.examples { display: grid; gap: 4px; }
+.exrow { display: flex; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.exrow:last-child { border-bottom: 0; }
+.exrow .hr { font-weight: 600; }
+.exrow .en { color: var(--muted); font-size: .9rem; }
+.rule p { margin-bottom: 10px; }
+.rule p:last-child { margin-bottom: 0; }
+.gtable { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.gtable th, .gtable td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+.gtable th { font-size: .8rem; font-weight: 500; color: var(--muted); }
+.gtable td:first-child { color: var(--muted); font-weight: 500; }
+.gtable td { font-weight: 600; }
+.tablewrap { overflow-x: auto; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.wchip { border: 0; background: var(--surface); border-radius: 99px; padding: 8px 16px; font-weight: 500; font-size: 1.05rem; min-height: 44px; }
+.principle { display: grid; gap: 6px; }
+.principle h3 { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; }
+.principle p { color: var(--muted); font-size: .95rem; }
+.principle .where { color: var(--ink); font-weight: 500; font-size: .92rem; }
+
+/* Kids: bigger and simpler */
+body.kid .topic .pic { font-size: 2.8rem; height: 96px; }
+body.kid .big { font-size: clamp(2.4rem, 10vw, 3.2rem); }
+body.kid .opt { font-size: 1.25rem; }
+
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div id="app"></div>
+
+<script src="content.js"></script>
+<script src="lessons.js"></script>
+<script src="audio-packs.js"></script>
+<script src="landmarks.js"></script>
+<script>
+(() => {
+  const C = window.COURSE;
+  const COLORS = ["#0b5394", "#d01c2b", "#1d7f47", "#8a4fbf", "#c46a00", "#0f7c86", "#b0306a"];
+  // Adults get the most frequent words early (Zipf's law): the "core" topics are drawn from the top ~450 words of spoken Croatian.
+  const ADULT_ORDER = ["greet", "core1", "family", "core2", "numbers", "core3", "phrases", "core4", "questions", "verbs", "core5", "food", "time", "core6", "home", "town", "describe", "body", "nature", "colours", "animals", "clothes", "play"];
+  const KID_ORDER = ["greet", "colours", "numbers", "animals", "family", "food", "body", "clothes", "play", "home", "nature"];
+
+  // ---------- words ----------
+  const WORDS = [];
+  const BY_ID = {};
+  const TOPIC = {};
+  for (const t of C.topics) {
+    TOPIC[t.id] = t;
+    t.ids = [];
+    t.words.forEach((w, i) => {
+      const o = { id: t.id + ":" + i, topic: t.id, hr: w[0], en: w[1], pic: w[2] || "", note: w[3] || "" };
+      WORDS.push(o); BY_ID[o.id] = o; t.ids.push(o.id);
+    });
+  }
+
+  const TOPIC_WORDS = WORDS.length;
+  // Conversation lines are review items too, each conversation under a hidden topic ("d:<id>").
+  const DIALOGUES = C.dialogues || [], DLG = {};
+  for (const d of DIALOGUES) {
+    DLG[d.id] = d;
+    const tid = "d:" + d.id;
+    TOPIC[tid] = { id: tid, hr: d.hr, en: d.en, pic: d.pic, kids: false, ids: [] };
+    d.ids = d.lines.map(([who, hr, en, note], i) => {
+      const o = { id: tid + ":" + i, topic: tid, hr, en, pic: "", note: note || "", who, line: true };
+      WORDS.push(o); BY_ID[o.id] = o; TOPIC[tid].ids.push(o.id);
+      return o.id;
+    });
+  }
+  const GRAMMAR = C.grammar || [], GRAM = {};
+  for (const g of GRAMMAR) GRAM[g.id] = g;
+  const SOUNDS = C.sounds || [], SOUND = {};
+  for (const so of SOUNDS) SOUND[so.id] = so;
+  const LEX = C.lexicon || {};
+  const LANDMARKS = (window.LANDMARKS || []).filter(l => l.img);
+  // Must match fullOf() in tools/make-audio.js
+  const fullOf = d => d.s.replace("___", d.a);
+
+  // ---------- helpers ----------
+  const $ = (s, r = document) => r.querySelector(s);
+  function h(tag, attrs, ...kids) {
+    const el = document.createElement(tag);
+    if (attrs) for (const [k, v] of Object.entries(attrs)) {
+      if (v == null || v === false) continue;
+      if (k === "class") el.className = v;
+      else if (k === "text") el.textContent = v;
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? "" : v);
+    }
+    for (const k of kids.flat()) if (k != null && k !== false) el.append(k.nodeType ? k : document.createTextNode(String(k)));
+    return el;
+  }
+  const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const sample = (a, n) => shuffle(a).slice(0, n);
+  const today = () => Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000);
+  const uid = () => "p" + Math.random().toString(36).slice(2, 10);
+  function toast(msg) {
+    const t = h("div", { class: "toast", role: "status", text: msg });
+    document.body.append(t); setTimeout(() => t.remove(), 2600);
+  }
+  const norm = s => s.toLowerCase().replace(/[.,!?¿¡"'“”„()—–-]/g, " ").replace(/\s+/g, " ").trim();
+  const loose = s => norm(s).replace(/dj/g, "d").replace(/đ/g, "d").normalize("NFD").replace(/[̀-ͯ]/g, "");
+  function lev(a, b) {
+    const m = a.length, n = b.length, d = Array.from({ length: m + 1 }, (_, i) => [i]);
+    for (let j = 1; j <= n; j++) d[0][j] = j;
+    for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    return d[m][n];
+  }
+
+  // ---------- speech ----------
+  let voice = null, voiceKind = "none";
+  function pickVoice() {
+    try {
+      const vs = speechSynthesis.getVoices();
+      const hr = vs.find(v => /^hr/i.test(v.lang));
+      const near = vs.find(v => /^(bs|sr)/i.test(v.lang) && !/cyr/i.test(v.name));
+      voice = hr || near || null;
+      voiceKind = hr ? "hr" : near ? "near" : (vs.length ? "none" : "unknown");
+    } catch { voiceKind = "unsupported"; }
+  }
+  if ("speechSynthesis" in window) { pickVoice(); speechSynthesis.addEventListener?.("voiceschanged", () => { pickVoice(); if (view === "home") render(); }); }
+  else voiceKind = "unsupported";
+  // Built-in recordings (audio.js) play first; the device's voice is the backup.
+  // AUDIO_ALT is the second voice, used for speaker A in conversations.
+  // Clips live inside a few pack files (audio-packs.js maps text to [pack, offset, length]); plain audio.js paths also work.
+  const PACKED = window.AUDIO_PACKS;
+  const AUDIO = PACKED?.main || window.AUDIO || {}, AUDIO_ALT = PACKED?.alt || window.AUDIO_ALT || {};
+  const hasAudio = Object.keys(AUDIO).length > 0;
+  const clean = t => t.replace(/^—\s*/, "").trim();
+  const player = new Audio();
+  const packBuf = {}, packLoad = {}, clipUrls = new Map();
+  const loadPack = p => (packLoad[p] ||= fetch(p).then(r => (r.ok ? r.arrayBuffer() : Promise.reject())).then(b => { packBuf[p] = b; }).catch(() => { delete packLoad[p]; }));
+  function clipUrl(ref) {
+    if (typeof ref === "string") return ref;
+    const k = ref.join(":");
+    if (!clipUrls.has(k)) {
+      const b = packBuf[ref[0]]; if (!b) return null;
+      clipUrls.set(k, URL.createObjectURL(new Blob([b.slice(ref[1], ref[1] + ref[2])], { type: "audio/mpeg" })));
+    }
+    return clipUrls.get(k);
+  }
+  let pending = null;
+  function stopAudio() {
+    if (pending) { pending(false); pending = null; }
+    try { player.pause(); window.speechSynthesis?.cancel(); } catch {}
+  }
+  // Resolves true when the clip finishes, false if something else interrupted it.
+  function speak(text, rate = 0.85, alt = false) {
+    stopAudio();
+    const t = clean(text);
+    const ref = (alt && AUDIO_ALT[t]) || AUDIO[t] || AUDIO_ALT[t] || AUDIO[t.toLowerCase()];
+    return new Promise(resolve => {
+      pending = resolve;
+      const fin = ok => { if (pending === resolve) pending = null; resolve(ok); };
+      const play = src => {
+        player.src = src;
+        player.playbackRate = rate < 0.7 ? 0.7 : 1;
+        player.onended = () => fin(true);
+        player.play().catch(() => deviceSpeak(text, rate, fin));
+      };
+      if (!ref) return deviceSpeak(text, rate, fin);
+      const src = clipUrl(ref);
+      if (src) return play(src);
+      loadPack(ref[0]).then(() => { if (pending !== resolve) return; const u = clipUrl(ref); u ? play(u) : deviceSpeak(text, rate, fin); });
+    });
+  }
+  function deviceSpeak(text, rate, fin = () => {}) {
+    if (!("speechSynthesis" in window)) { toast("This browser can't play speech."); fin(false); return; }
+    try {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text.replace(/^—\s*/, ""));
+      u.lang = voice ? voice.lang : "hr-HR";
+      if (voice) u.voice = voice;
+      u.rate = rate;
+      u.onend = () => fin(true); u.onerror = () => fin(false);
+      speechSynthesis.speak(u);
+    } catch { toast("Couldn't play audio."); fin(false); }
+  }
+  const sayBtn = (text, label) => h("button", { class: "say", "aria-label": label || "Listen to " + text, onclick: e => { e.stopPropagation(); speak(text); } }, "🔊");
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let micBlocked = !SR;
+
+  // ---------- storage ----------
+  const LS_KEY = "naucimo.v1";
+  let store = { profiles: {}, activeId: null };
+  try { const raw = localStorage.getItem(LS_KEY); if (raw) store = Object.assign(store, JSON.parse(raw)); } catch {}
+  function saveLocal() { try { localStorage.setItem(LS_KEY, JSON.stringify(store)); } catch {} }
+  let db = null;
+  const dirty = new Set(), timers = {}, chains = {};
+  function saveProfile(p) {
+    p.updated = Date.now();
+    store.profiles[p.id] = p; saveLocal();
+    if (!db) return;
+    dirty.add(p.id);
+    clearTimeout(timers[p.id]);
+    timers[p.id] = setTimeout(() => {
+      chains[p.id] = (chains[p.id] || Promise.resolve()).then(async () => {
+        const cur = store.profiles[p.id]; if (!cur) return;
+        try { await db.doc("profiles/" + p.id).set(JSON.parse(JSON.stringify(cur))); dirty.delete(p.id); }
+        catch (e) { if (e && e.code === "invalid_argument") { db = null; toast("Progress is saved on this device only."); } }
+      });
+    }, 1200);
+  }
+  async function deleteProfile(id) {
+    delete store.profiles[id];
+    if (store.activeId === id) store.activeId = Object.keys(store.profiles)[0] || null;
+    saveLocal();
+    if (db) try { await db.doc("profiles/" + id).delete(); } catch {}
+  }
+  (async () => {
+    try { db = await window.claude?.use?.("db"); } catch { db = null; }
+    if (!db) return;
+    let first = true;
+    db.collection("profiles").onSnapshot(snap => {
+      const remote = {};
+      for (const d of snap.docs) remote[d.id] = d.data();
+      for (const [id, data] of Object.entries(remote)) {
+        if (dirty.has(id)) continue;
+        const local = store.profiles[id];
+        if (!local || (data.updated || 0) >= (local.updated || 0)) store.profiles[id] = JSON.parse(JSON.stringify(data));
+      }
+      for (const id of Object.keys(store.profiles)) {
+        if (remote[id] || dirty.has(id)) continue;
+        if (first) saveProfile(store.profiles[id]); // made on this device before syncing
+        else delete store.profiles[id];
+      }
+      first = false;
+      if (store.activeId && !store.profiles[store.activeId]) store.activeId = null;
+      saveLocal();
+      if (!session && ["home", "learn", "family", "profiles"].includes(view)) render();
+    }, () => { db = null; });
+  })();
+
+  // ---------- profile + SRS ----------
+  const me = () => store.profiles[store.activeId] || null;
+  const isKid = () => me()?.kind === "kid";
+  function newProfile(name, kind) {
+    const n = Object.keys(store.profiles).length;
+    return { id: uid(), name, kind, color: COLORS[n % COLORS.length], xp: 0, days: {}, streak: 0, last: 0, srs: {}, stories: {}, created: Date.now() };
+  }
+  function addXp(p, n) {
+    if (!n) return;
+    const t = today();
+    p.xp = (p.xp || 0) + n;
+    p.days = p.days || {};
+    p.days[t] = (p.days[t] || 0) + n;
+    for (const k of Object.keys(p.days)) if (+k < t - 30) delete p.days[k];
+    if (p.last !== t) p.streak = p.last === t - 1 ? (p.streak || 0) + 1 : 1;
+    p.last = t;
+  }
+  const streakOf = p => (p.last >= today() - 1 ? p.streak || 0 : 0);
+  const xpToday = p => (p.days || {})[today()] || 0;
+  const xpWeek = p => { const t = today(); let s = 0; for (const [k, v] of Object.entries(p.days || {})) if (+k > t - 7) s += v; return s; };
+  const goalOf = p => (p.kind === "kid" ? 30 : 50);
+  // srs entry: [ease, intervalDays, dueDay, reps]
+  const learned = (p, id) => p.srs[id] && p.srs[id][3] >= 1;
+  const dueIds = p => Object.entries(p.srs || {}).filter(([id, s]) => BY_ID[id] && s[2] <= today()).sort((a, b) => a[1][2] - b[1][2]).map(([id]) => id);
+  function nextState(s, grade) {
+    let [e, i, , r] = s || [2.5, 0, 0, 0];
+    if (grade === 0) { e = Math.max(1.3, e - 0.2); i = 0; r = Math.max(r, 1); }
+    else if (grade === 1) { e = Math.max(1.3, e - 0.15); i = Math.max(1, Math.round(i * 1.2)); r++; }
+    else if (grade === 2) { i = r === 0 ? 1 : r === 1 ? 3 : Math.round(Math.max(i, 1) * e); r++; }
+    else { i = Math.round(Math.max(i, 1) * e * 1.3) + 1; e += 0.15; r++; }
+    return [Math.round(e * 100) / 100, i, today() + i, r];
+  }
+  const ivlLabel = d => (d === 0 ? "now" : d < 30 ? d + "d" : Math.round(d / 30) + "mo");
+  function topicOrder() { return (isKid() ? KID_ORDER : ADULT_ORDER).map(id => TOPIC[id]); }
+  function nextTopic(p) {
+    for (const t of topicOrder()) if (t.ids.some(id => !p.srs[id])) return t;
+    return topicOrder()[0];
+  }
+  // Grammar units use the same schedule as words, stored in p.gram.
+  const dueUnits = p => Object.entries(p.gram || {}).filter(([id, s]) => GRAM[id] && s[2] <= today()).map(([id]) => id);
+  const dueCount = p => dueIds(p).length + dueUnits(p).length;
+  const nextUnit = p => GRAMMAR.find(g => !(p.gram || {})[g.id]) || null;
+  // Rough share of a text's words this learner already knows (for picking input that's about 80%+ familiar).
+  const WORD_BY_KEY = {};
+  for (const w of WORDS) if (!w.line) WORD_BY_KEY[norm(w.hr)] = w;
+  function knownShare(p, text) {
+    const toks = norm(text).split(" ").filter(Boolean);
+    let k = 0;
+    for (const tok of toks) {
+      const base = LEX[tok]?.[1];
+      if (base === "*") { k++; continue; }
+      const w = WORD_BY_KEY[tok] || (base && WORD_BY_KEY[norm(base)]);
+      if (w && p && learned(p, w.id)) k++;
+    }
+    return toks.length ? k / toks.length : 0;
+  }
+  const dialogueText = d => d.lines.map(l => l[1]).join(" ");
+  const dialogueList = () => DIALOGUES.filter(d => !isKid() || d.kids);
+  function nextDialogue(p) {
+    const fresh = dialogueList().filter(d => !(p?.dlg || {})[d.id]).map(d => [d, knownShare(p, dialogueText(d))]);
+    if (!fresh.length) return null;
+    return (fresh.find(([, k]) => k >= 0.75) || fresh.sort((a, b) => b[1] - a[1])[0])[0];
+  }
+  const pct = x => Math.round(x * 100) + "%";
+  function practicePool(p, picsOnly) {
+    let ids = Object.keys(p?.srs || {}).filter(id => BY_ID[id] && !BY_ID[id].line);
+    if (picsOnly) ids = ids.filter(id => TOPIC[BY_ID[id].topic].kids);
+    if (ids.length < 8) {
+      const base = picsOnly ? ["animals", "colours", "food", "numbers"] : ["greet", "family", "numbers", "food"];
+      ids = ids.concat(base.flatMap(t => TOPIC[t].ids));
+    }
+    return [...new Set(ids)].map(id => BY_ID[id]);
+  }
+
+  // ---------- views ----------
+  let view = "home", viewArg = null, session = null;
+  const app = $("#app");
+  function go(v, arg) { view = v; viewArg = arg; session = null; stopAudio(); render(); window.scrollTo(0, 0); }
+  function render() {
+    document.body.classList.toggle("kid", isKid());
+    app.replaceChildren();
+    if (session) return renderSession();
+    const fn = { home: viewHome, learn: viewLearn, family: viewFamily, topic: viewTopic, profiles: viewProfiles, reading: viewReading, story: viewStory, alphabet: viewAlphabet,
+      talk: viewTalk, dialogue: viewDialogue, grammar: viewGrammar, unit: viewUnit, sounds: viewSounds, sound: viewSound, method: viewMethod }[view] || viewHome;
+    app.append(fn(), tabBar());
+  }
+
+  // Floating tab bar. Every non-session view belongs to one tab; kids get no separate Talk tab (conversations live under Pictures).
+  const TAB_OF = { home: "home", learn: "learn", topic: "learn", reading: "learn", story: "learn", alphabet: "learn", grammar: "learn", unit: "learn", sounds: "learn", sound: "learn",
+    talk: "talk", dialogue: "talk", family: "family", profiles: "family", method: "family" };
+  const tabOf = v => { const t = TAB_OF[v] || "home"; return t === "talk" && isKid() ? "learn" : t; };
+  const ICON = {
+    home: "M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-5h-6v5H5a1 1 0 0 1-1-1z",
+    learn: "M4 5h6a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H4zM20 5h-6a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h6z",
+    talk: "M5 6h14v9h-9l-4 3v-3H5z",
+    family: "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3.5 19a5.5 5.5 0 0 1 11 0M16 11a2.5 2.5 0 1 0 0-5M17 14a4.5 4.5 0 0 1 3.5 5" };
+  function tabBar() {
+    const kid = isKid(), cur = tabOf(view);
+    const tabs = [["home", "Home"], ["learn", kid ? "Pictures" : "Learn"], kid ? null : ["talk", "Talk"], ["family", "Family"]].filter(Boolean);
+    return h("nav", { class: "tabbar", "aria-label": "Sections" }, tabs.map(([id, label]) => {
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("aria-hidden", "true");
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path"); path.setAttribute("d", ICON[id]); svg.append(path);
+      return h("button", { "aria-current": id === cur ? "page" : null, onclick: () => go(id) }, svg, h("span", { text: label }));
+    }));
+  }
+
+  function header() {
+    const p = me();
+    return h("header", { class: "top" },
+      h("div", { class: "brand" }, h("div", { class: "checker", "aria-hidden": "true" }),
+        h("div", null, h("h1", { text: "Naučimo!" }), h("small", { text: "Let's learn Croatian" }))),
+      h("button", { class: "chip", onclick: () => go("profiles"), "aria-label": "Switch learner" },
+        p ? h("span", { class: "avatar", style: "background:" + p.color, text: p.name.slice(0, 1).toUpperCase() }) : h("span", { class: "avatar", style: "background:var(--muted)", text: "+" }),
+        h("span", { class: "nm", text: p ? p.name : "Add learner" })));
+  }
+  function subhead(title, sub, back = tabOf(view) === view ? "home" : tabOf(view)) {
+    return h("div", { class: "subhead" }, h("button", { class: "back", "aria-label": "Back", onclick: () => go(back) }, "←"),
+      h("div", null, h("h2", { text: title }), sub ? h("small", { class: "count", text: sub }) : null));
+  }
+  function voiceNotice() {
+    if (hasAudio) return null;
+    if (voiceKind === "hr") return h("button", { class: "linkbtn", style: "justify-self:start;text-align:left", onclick: () => speak("Dobar dan! Kako ste?") }, "✓ Croatian voice: " + voice.name + " · Tap to test");
+    if (voiceKind === "near") return h("div", { class: "notice" }, h("b", { text: "Using a Bosnian or Serbian voice" }), "This device has no Croatian voice, so audio uses the closest one. It sounds very similar for these words.");
+    if (voiceKind === "unknown") return null;
+    return h("div", { class: "notice" }, h("b", { text: "No Croatian voice on this device" }),
+      "Audio may sound wrong. On iPhone or iPad, add one in Settings › Accessibility › Spoken Content › Voices › Croatian. On Android, install Croatian in Google Text-to-speech. Then reload this page.");
+  }
+
+  function dailyPanel(p) {
+    if (p.run) {
+      const r = p.run, ex = r.q[Math.min(r.idx, r.q.length - 1)] || {};
+      return h("div", { class: "daily" },
+        h("button", { class: "btn primary", onclick: () => startDaily() }, "▶ Continue today's lesson · Day " + r.day),
+        h("small", { class: "count", text: "You stopped at question " + (r.idx + 1) + " of " + r.q.length + (ex.stage ? ", in " + ex.stage + "." : ".") + " It picks up right there." }));
+    }
+    const P = dailyPlan(p);
+    const unitName = g => g.en.split(":")[0];
+    if (P.doneToday) return h("div", { class: "daily" },
+      h("p", null, h("b", { text: "✓ Day " + (P.day - 1) + " done." }), " The next lesson opens tomorrow and starts by asking for today's words from memory."),
+      (planOf(p).last?.fresh || []).length ? h("div", { class: "actions" }, h("button", { class: "btn", onclick: () => startRehearse() }, "🔁 Rehearse today's words (optional)")) : null);
+    const steps = [
+      P.warm.length ? "Remember last time: " + P.warm.length + " words" + (P.warmUnit ? " + " + unitName(P.warmUnit) : "") + ". New words unlock only if all of them come back." : null,
+      P.due.length || P.units.length ? "Review: " + (P.due.length ? P.due.length + " cards, English to Croatian" : "") + (P.units.length ? (P.due.length ? " + " : "") + unitName(GRAM[P.units[0]]) : "") : null,
+      P.fresh.length ? (P.warm.length ? "Then either relearn what you missed, or " + P.fresh.length + " new words from " + P.topic.en : "New: " + P.fresh.length + " words from " + P.topic.en) : null,
+      P.unit ? "Grammar: " + unitName(P.unit) + ((p.gram || {})[P.unit.id] ? " (practice, typed)" : " (new)") : null,
+      "Lock it in: everything from today again, typed from memory"].filter(Boolean);
+    return h("div", { class: "daily" },
+      h("button", { class: "btn primary", onclick: () => startDaily() }, "📅 Today's lesson · Day " + P.day),
+      h("ol", { class: "plan" }, steps.map(t => h("li", { text: isKid() ? t.replace(", typed from memory", " from memory").replace(", English to Croatian", "") : t }))),
+      h("small", { class: "count", text: "About 10 to 15 minutes. One lesson a day: memory needs the overnight gap." }));
+  }
+  function viewHome() {
+    const p = me();
+    const wrap = h("main", { class: "wrap" }, header());
+    const vn = voiceNotice(); if (vn) wrap.append(vn);
+    if (!p) {
+      wrap.append(h("h2", { class: "hello", text: "Dobro došli!" }));
+      wrap.append(h("section", { class: "panel today" },
+        h("h2", { text: "Welcome" }),
+        h("p", { text: "Add each family member who's learning. Everyone gets their own progress, streak and review schedule." }),
+        profileForm()));
+      return wrap;
+    }
+    const due = dueCount(p), xt = xpToday(p), goal = goalOf(p);
+    const kid = isKid(), nd = nextDialogue(p), nu = kid ? null : nextUnit(p);
+    const P = p.run ? null : dailyPlan(p), day = p.run ? p.run.day : P.doneToday ? P.day - 1 : P.day;
+    wrap.append(h("h2", { class: "hello" }, "Bok,", h("br"), p.name + "!"));
+    // A different Croatian landmark every day (the same one for the whole family), with the drawn coast as a fallback.
+    const lm = LANDMARKS.length ? LANDMARKS[today() % LANDMARKS.length] : null;
+    const tag = h("span", { class: "tagpill", text: "Day " + day + " · 🔥 " + streakOf(p) + " day streak" });
+    const scene = lm
+      ? h("div", { class: "scene photo", role: "img", "aria-label": lm.en, style: "background-image:url('" + lm.img + "')" }, tag,
+          h("div", { class: "lmcap" }, h("b", { text: lm.hr }), h("span", { text: lm.en })))
+      : h("div", { class: "scene", "aria-hidden": "true" }, h("div", { class: "sun" }), h("div", { class: "isl" }),
+          h("div", { class: "town" }, [26, 18, 34, 22, 15].map(ht => h("b", { style: "height:" + ht + "px" + (ht > 30 ? ";width:9px" : "") }))),
+          h("div", { class: "boat", text: "⛵" }), tag);
+    wrap.append(h("section", { class: "hero-card", "aria-label": "Today" }, scene,
+      h("div", { class: "hero-body" },
+        lm ? h("p", { class: "lmfact" }, h("b", { text: "Did you know? " }), isKid() && lm.kid ? lm.kid : lm.fact,
+          h("a", { class: "lmcredit", href: lm.page, target: "_blank", rel: "noopener", text: "📷 Photo: " + lm.by + " · " + lm.lic })) : null,
+        h("div", { class: "t" }, h("h2", { text: "Today's lesson" }),
+          h("span", { class: "pctbig" }, Math.min(100, Math.round((xt / goal) * 100)) + "%", h("small", { text: xt + " / " + goal + (kid ? " stars" : " XP") }))),
+        h("div", { class: "goal", role: "progressbar", "aria-valuemin": 0, "aria-valuemax": goal, "aria-valuenow": xt }, h("i", { style: "width:" + Math.min(100, (xt / goal) * 100) + "%" })),
+        dailyPanel(p))));
+    wrap.append(h("div", { class: "actions" },
+      h("button", { class: "btn", disabled: !due, onclick: () => startReview() }, due ? "🔁 Review " + due + " item" + (due > 1 ? "s" : "") : "✓ No reviews due"),
+      nd ? h("button", { class: "btn", onclick: () => go("dialogue", nd.id) }, "💬 " + (kid ? "Talk: " : "Conversation: ") + nd.en) : null,
+      nu ? h("button", { class: "btn", onclick: () => go("unit", nu.id) }, "📐 Grammar: " + nu.en.split(":")[0]) : null));
+    return wrap;
+  }
+
+  function viewLearn() {
+    const p = me(), kid = isKid();
+    const wrap = h("main", { class: "wrap" }, header(), h("h2", { class: "hello", text: kid ? "Pictures" : "Learn" }));
+    const tiles = kid
+      ? [["💬", "Talk", "Little conversations to copy", () => go("talk")],
+         ["🎧", "Listen & tap", "Hear a word, tap the picture", () => startPractice("pictap")],
+         ["🧩", "Memory match", "Match pictures to words", () => startMatch()],
+         ["🗣️", "Say it", "Copy the voice out loud", () => startPractice("speak")],
+         ["🔤", "Alphabet", "Letters and their sounds", () => go("alphabet")],
+         ["📖", "Stories", "Short stories to read", () => go("reading")]]
+      : [["📐", "Grammar", "Spot the pattern, then drill it", () => go("grammar")],
+         ["👂", "Pronunciation", "Sound rules and ear training", () => go("sounds")],
+         ["🎧", "Listening", "Hear it, pick the meaning", () => startPractice("listen")],
+         ["🗣️", "Speaking", "Shadow the voice", () => startPractice("speak")],
+         ["✍️", "Writing", "Type it in Croatian", () => startPractice("type")],
+         ["📖", "Reading", "Stories with tap-to-translate", () => go("reading")],
+         ["🧩", "Memory match", "A quick picture game", () => startMatch()],
+         ["🔤", "Alphabet", "Letters and their sounds", () => go("alphabet")]];
+    wrap.append(h("section", null,
+      h("div", { class: "section-head" }, h("h2", { text: "Practice" }), h("p", { text: p ? "Uses words you've learned" : "Starts with everyday words" })),
+      h("div", { class: "practice" }, tiles.map(([ic, t, s, fn]) => h("button", { class: "tile", onclick: () => { if (!me()) return toast("Add a learner first."); fn(); } }, h("span", { class: "ic", text: ic }), h("b", { text: t }), h("small", { text: s }))))));
+    wrap.append(h("section", null,
+      h("div", { class: "section-head" }, h("h2", { text: "Topics" }), h("p", { text: TOPIC_WORDS + " words and phrases" })),
+      h("div", { class: "topics" }, topicOrder().map(t => {
+        const n = p ? t.ids.filter(id => learned(p, id)).length : 0;
+        return h("button", { class: "topic", onclick: () => go("topic", t.id) },
+          h("span", { class: "pic", text: t.pic }), h("b", { text: t.hr }), h("small", { text: t.en + (t.core ? " · most-used" : "") }),
+          h("div", { class: "bar" }, h("i", { style: "width:" + (n / t.ids.length) * 100 + "%" })),
+          h("span", { class: "count", text: n + " / " + t.ids.length + " learned" }));
+      }))));
+    if (kid) wrap.append(h("p", { class: "count" }, "Showing the picture topics for kids. ", h("button", { class: "linkbtn", onclick: () => go("profiles") }, "Switch learner")));
+    return wrap;
+  }
+
+  function viewFamily() {
+    const wrap = h("main", { class: "wrap" }, header(), h("h2", { class: "hello", text: "Family" }));
+    const ps = Object.values(store.profiles).sort((a, b) => xpWeek(b) - xpWeek(a));
+    if (ps.length) wrap.append(h("section", { class: "panel" },
+      h("div", { class: "section-head", style: "padding-inline:0" }, h("h2", { text: "This week" }), h("button", { class: "linkbtn", onclick: () => go("profiles") }, "Manage")),
+      h("div", { class: "board" }, ps.map(q => h("div", { class: "board-row" },
+        h("span", { class: "avatar", style: "background:" + q.color, text: q.name.slice(0, 1).toUpperCase() }),
+        h("span", { class: "nm", text: q.name + (q.kind === "kid" ? " · kid" : "") }),
+        h("span", { class: "sub", text: "🔥 " + streakOf(q) }),
+        h("span", { class: "num", text: xpWeek(q) + " XP" }))))));
+    wrap.append(h("div", { class: "actions" },
+      h("button", { class: "btn primary", onclick: () => go("profiles") }, "Switch or add a learner"),
+      isKid() ? null : h("button", { class: "btn", onclick: () => go("method") }, "How this app teaches")));
+    return wrap;
+  }
+
+  function viewTopic() {
+    const t = TOPIC[viewArg], p = me();
+    const wrap = h("main", { class: "wrap" }, subhead(t.pic + " " + t.hr, t.en + " · " + t.ids.length + " words"));
+    wrap.append(h("div", { class: "actions" }, h("button", { class: "btn primary", onclick: () => { if (!p) return toast("Add a learner first."); startLesson(t); } }, "Practise learned words"),
+      h("button", { class: "btn", onclick: () => { if (!p) return toast("Add a learner first."); startPractice("listen", t.ids.map(id => BY_ID[id])); } }, "Listening drill")));
+    wrap.append(h("div", { class: "wordlist" }, t.ids.map(id => {
+      const w = BY_ID[id];
+      return h("div", { class: "wordrow" }, h("span", { class: "p", text: w.pic, "aria-hidden": "true" }),
+        h("div", null, h("div", { class: "hr" }, h("span", { class: "dot" + (p && learned(p, id) ? " on" : ""), title: p && learned(p, id) ? "Learned" : "Not learned yet" }), w.hr),
+          h("div", { class: "en", text: w.en }), w.note ? h("div", { class: "note", text: w.note }) : null),
+        sayBtn(w.hr));
+    })));
+    return wrap;
+  }
+
+  function profileForm(onDone) {
+    let kind = "adult";
+    const name = h("input", { type: "text", id: "pname", maxlength: 24, placeholder: "e.g. Jason", autocomplete: "off" });
+    const segA = h("button", { type: "button", "aria-pressed": "true" }, "🧑 Adult or teen");
+    const segK = h("button", { type: "button", "aria-pressed": "false" }, "🧒 Kid (pictures, no typing)");
+    segA.onclick = () => { kind = "adult"; segA.setAttribute("aria-pressed", "true"); segK.setAttribute("aria-pressed", "false"); };
+    segK.onclick = () => { kind = "kid"; segK.setAttribute("aria-pressed", "true"); segA.setAttribute("aria-pressed", "false"); };
+    const f = h("form", { class: "form", onsubmit: e => {
+      e.preventDefault();
+      const n = name.value.trim(); if (!n) { name.focus(); return; }
+      const p = newProfile(n, kind); saveProfile(p); store.activeId = p.id; saveLocal();
+      toast("Added " + n + "."); onDone ? onDone() : go("home");
+    } },
+      h("label", null, "Name", name),
+      h("div", { class: "seg", role: "group", "aria-label": "Learner type" }, segA, segK),
+      h("button", { class: "btn primary", type: "submit" }, "Add learner"));
+    return f;
+  }
+
+  function viewProfiles() {
+    const wrap = h("main", { class: "wrap" }, subhead("Who's learning?", "Tap a name to switch"));
+    const list = h("div", { class: "plist" });
+    for (const p of Object.values(store.profiles).sort((a, b) => a.created - b.created)) {
+      const n = Object.keys(p.srs || {}).filter(id => learned(p, id)).length;
+      const del = h("button", { class: "btn small ghost", "aria-label": "Remove " + p.name }, "Remove");
+      const row = h("div", { class: "prow" + (p.id === store.activeId ? " active" : "") },
+        h("span", { class: "avatar", style: "background:" + p.color, text: p.name.slice(0, 1).toUpperCase() }),
+        h("div", { class: "meta" }, h("b", { text: p.name }), h("small", { text: (p.kind === "kid" ? "Kid" : "Adult") + " · " + n + " words learned · " + (p.xp || 0) + " XP" })),
+        h("button", { class: "btn small primary", onclick: () => { store.activeId = p.id; saveLocal(); go("home"); } }, p.id === store.activeId ? "Current" : "Switch"), del);
+      del.onclick = () => {
+        row.replaceChildren(h("div", { class: "confirm" }, "Remove " + p.name + " and all their progress?",
+          h("button", { class: "btn small", style: "background:var(--bad);color:#fff", onclick: async () => { await deleteProfile(p.id); go("profiles"); } }, "Remove"),
+          h("button", { class: "btn small ghost", onclick: () => go("profiles") }, "Keep")));
+      };
+      list.append(row);
+    }
+    wrap.append(list);
+    wrap.append(h("section", { class: "panel" }, h("h2", { text: "Add a family member" }), h("div", { style: "height:12px" }), profileForm(() => go("home"))));
+    wrap.append(h("p", { class: "count", text: db ? "Progress syncs for everyone who opens this page while signed in." : "Progress is saved in this browser." }));
+    return wrap;
+  }
+
+  function viewAlphabet() {
+    const wrap = h("main", { class: "wrap" }, subhead("Abeceda", "The Croatian alphabet · 30 letters"));
+    wrap.append(h("p", { class: "notice", text: "Croatian is written exactly as it sounds: every letter always makes the same sound. Tap a letter to hear its example word." }));
+    wrap.append(h("div", { class: "alpha" }, C.alphabet.map(([l, s, ex]) => h("button", { class: "letter", onclick: () => speak(ex) },
+      h("b", { text: l }), h("small", { text: s }), h("span", { text: "🔊 " + ex })))));
+    return wrap;
+  }
+
+  function viewReading() {
+    const p = me();
+    const wrap = h("main", { class: "wrap" }, subhead("Čitanje", "Reading · tap any word for its meaning"));
+    wrap.append(h("div", { class: "plist" }, C.stories.map(s => h("button", { class: "prow", style: "text-align:left", onclick: () => go("story", s.id) },
+      h("span", { style: "font-size:1.6rem", text: (p?.stories || {})[s.id] ? "✅" : "📖" }),
+      h("div", { class: "meta" }, h("b", { text: s.hr }), h("small", { text: s.en + " · " + s.level + " · ≈" + pct(knownShare(p, s.lines ? s.lines.join(" ") : s.text)) + " familiar" }))))));
+    return wrap;
+  }
+
+  function viewStory() {
+    const s = C.stories.find(x => x.id === viewArg);
+    const wrap = h("main", { class: "wrap" }, subhead(s.hr, s.en, "reading"));
+    const full = s.lines ? s.lines.join(" ") : s.text;
+    const gloss = h("div", { class: "gloss", hidden: true });
+    const showGloss = (word, meaning) => {
+      gloss.hidden = false;
+      gloss.replaceChildren(h("div", null, h("b", { text: word }), h("div", { text: meaning })), sayBtn(word));
+      speak(word);
+    };
+    const para = text => {
+      const el = h("p", { class: "story" });
+      for (const tok of text.split(/(\s+)/)) {
+        const key = tok.toLowerCase().replace(/[.,!?—–]/g, "");
+        if (!key.trim()) { el.append(tok); continue; }
+        const meaning = s.gloss[key] || WORDS.find(w => w.hr.toLowerCase() === key)?.en;
+        if (!meaning) { el.append(tok); continue; }
+        const m = tok.match(/^(—?)(.*?)([.,!?]*)$/);
+        const span = h("span", { class: "w", tabindex: 0, role: "button", text: m[2] });
+        const act = () => { wrap.querySelectorAll(".w.sel").forEach(x => x.classList.remove("sel")); span.classList.add("sel"); showGloss(m[2], meaning); };
+        span.onclick = act; span.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(); } };
+        el.append(m[1], span, m[3]);
+      }
+      return el;
+    };
+    const body = h("div", { class: "panel", style: "display:grid;gap:8px" });
+    (s.lines || [s.text]).forEach(l => body.append(para(l)));
+    const tr = h("p", { class: "notice", hidden: true, text: s.translation });
+    wrap.append(h("div", { class: "actions" },
+      h("button", { class: "btn primary", onclick: () => speak(full, 0.8) }, "🔊 Listen"),
+      h("button", { class: "btn", onclick: () => speak(full, 0.6) }, "🐢 Slowly"),
+      h("button", { class: "btn ghost", onclick: () => { tr.hidden = !tr.hidden; } }, "Show translation")));
+    wrap.append(body, tr);
+    const qs = quiz(s.questions, () => {
+      const p = me(); if (!p) return "";
+      p.stories = p.stories || {}; const gained = p.stories[s.id] ? 10 : 20; p.stories[s.id] = true; addXp(p, gained); saveProfile(p);
+      return " +" + gained + " XP.";
+    });
+    wrap.append(qs, gloss);
+    return wrap;
+  }
+
+  // Multiple-choice questions shared by stories and conversations. onDone gets the number right.
+  function quiz(questions, onDone) {
+    const qs = h("section", { class: "panel", style: "display:grid;gap:20px" }, h("h2", { text: "Pitanja · Questions" }));
+    let right = 0, answered = 0;
+    questions.forEach(q => {
+      const opts = h("div", { class: "options" });
+      q.options.forEach((o, i) => opts.append(h("button", { class: "opt", onclick: e => {
+        opts.querySelectorAll("button").forEach(b => (b.disabled = true));
+        opts.children[q.answer].classList.add("right");
+        if (i !== q.answer) e.currentTarget.classList.add("wrong"); else right++;
+        if (++answered === questions.length) qs.append(h("p", { class: "notice", text: right + " of " + questions.length + " right." + onDone(right) }));
+      } }, o)));
+      qs.append(h("div", { class: "qblock" }, h("div", null, h("div", { class: "q", text: q.q }), h("div", { class: "qen", text: q.en })), opts));
+    });
+    return qs;
+  }
+  // Turns a line of Croatian into tappable words; onTap(word, meaning).
+  const meaningOf = key => LEX[key]?.[0] || WORD_BY_KEY[key]?.en || C.stories.map(s => s.gloss[key]).find(Boolean);
+  function tappable(text, onTap, cls = "line") {
+    const el = h("div", { class: cls });
+    for (const tok of text.split(/(\s+)/)) {
+      const key = tok.toLowerCase().replace(/[.,!?—–]/g, "");
+      const meaning = key.trim() && meaningOf(key);
+      if (!meaning) { el.append(tok); continue; }
+      const m = tok.match(/^(—?)(.*?)([.,!?]*)$/);
+      const span = h("span", { class: "w", tabindex: 0, role: "button", text: m[2] });
+      const act = () => { document.querySelectorAll(".w.sel").forEach(x => x.classList.remove("sel")); span.classList.add("sel"); onTap(m[2], meaning); };
+      span.onclick = act; span.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(); } };
+      el.append(m[1], span, m[3]);
+    }
+    return el;
+  }
+  const VOICE_ICON = { A: "👩", B: "👨" };
+
+  function viewTalk() {
+    const p = me(), kid = isKid(), nd = nextDialogue(p);
+    const wrap = h("main", { class: "wrap" }, subhead("Razgovori", kid ? "Little conversations" : "Conversations · listen first, then take a part"));
+    if (!kid) wrap.append(h("p", { class: "notice", text: "Each scene uses words from the course. Start with the one marked Up next: you'll already know most of its words, and you can work out the rest from context." }));
+    wrap.append(h("div", { class: "plist" }, dialogueList().map(d => {
+      const done = (p?.dlg || {})[d.id];
+      return h("button", { class: "prow", style: "text-align:left", onclick: () => go("dialogue", d.id) },
+        h("span", { style: "font-size:1.6rem", text: d.pic }),
+        h("div", { class: "meta" }, h("b", { text: d.hr }), h("small", { text: d.en + " · " + d.level }),
+          h("div", { class: "tags" }, done ? h("span", { class: "tag ok", text: "✓ Done" }) : null, d === nd ? h("span", { class: "tag hot", text: "Up next" }) : null,
+            kid ? null : h("span", { class: "tag", text: "≈" + pct(knownShare(p, dialogueText(d))) + " familiar" }))));
+    })));
+    return wrap;
+  }
+
+  function viewDialogue() {
+    const d = DLG[viewArg], p = me(), kid = isKid();
+    const wrap = h("main", { class: "wrap" }, subhead(d.pic + " " + d.hr, d.en + " · " + d.level, "talk"));
+    const gloss = h("div", { class: "gloss", hidden: true });
+    const showGloss = (word, meaning) => { gloss.hidden = false; gloss.replaceChildren(h("div", null, h("b", { text: word }), h("div", { text: meaning })), sayBtn(word)); speak(word); };
+    const chat = h("div", { class: "chat" });
+    const bubbles = d.lines.map(([who, hr, en, note]) => {
+      const alt = who === "A";
+      const b = h("div", { class: "bubble" + (alt ? "" : " me") },
+        h("div", { class: "who" }, h("span", { text: VOICE_ICON[who] }), h("button", { class: "minisay", "aria-label": "Play this line", onclick: () => speak(hr, 0.85, alt) }, "🔊")),
+        tappable(hr, showGloss), h("div", { class: "ten", hidden: true, text: en }), note ? h("div", { class: "note", text: note }) : null);
+      chat.append(b);
+      return b;
+    });
+    let run = 0;
+    async function playAll(rate) {
+      const my = ++run;
+      for (let i = 0; i < d.lines.length; i++) {
+        bubbles.forEach((b, j) => b.classList.toggle("now", j === i));
+        const ok = await speak(d.lines[i][1], rate, d.lines[i][0] === "A");
+        if (!ok || my !== run || !wrap.isConnected) break;
+        await new Promise(r => setTimeout(r, 400));
+        if (my !== run || !wrap.isConnected) break;
+      }
+      bubbles.forEach(b => b.classList.remove("now"));
+    }
+    const firstTime = !kid && !(p?.dlg || {})[d.id];
+    const text = h("div", { class: "panel", hidden: firstTime, style: "display:grid;gap:12px" }, chat,
+      h("button", { class: "linkbtn", style: "justify-self:start", onclick: e => { const on = e.currentTarget.dataset.on !== "1"; e.currentTarget.dataset.on = on ? "1" : ""; e.currentTarget.textContent = on ? "Hide English" : "Show English"; chat.querySelectorAll(".ten").forEach(x => (x.hidden = !on)); } }, "Show English"));
+    const listenFirst = h("div", { class: "notice" }, h("b", { text: "Listen first, without reading." }),
+      "Play it once or twice and see how much you catch. Then show the words and tap any you don't know. ",
+      h("button", { class: "linkbtn", onclick: () => { text.hidden = false; listenFirst.remove(); } }, "Show the words"));
+    wrap.append(h("div", { class: "actions" },
+      h("button", { class: "btn primary", onclick: () => playAll(0.85) }, "🔊 Play"),
+      h("button", { class: "btn", onclick: () => playAll(0.6) }, "🐢 Slowly")));
+    if (firstTime) wrap.append(listenFirst);
+    wrap.append(text);
+    if (d.questions && !kid) wrap.append(quiz(d.questions, right => {
+      const p = me(); if (!p) return "";
+      p.stories = p.stories || {}; const gained = p.stories["d:" + d.id] ? 5 : 10; p.stories["d:" + d.id] = true; addXp(p, gained); saveProfile(p);
+      return " +" + gained + " XP.";
+    }));
+    const turn = h("section", { class: "panel", style: "display:grid;gap:12px" }, h("h2", { text: kid ? "Your turn" : "Take a part" }));
+    if (kid) turn.append(h("p", { text: "Listen to each line and say it out loud." }),
+      h("button", { class: "btn primary", onclick: () => { if (!me()) return toast("Add a learner first."); startShadow(d.ids.map(id => BY_ID[id]), d.en, d.id); } }, "🗣️ Say it with me"));
+    else turn.append(h("p", { text: "The app speaks the other part. You pick your reply, rebuild it from word tiles, then say it from memory." }),
+      h("div", { class: "actions" },
+        h("button", { class: "btn primary", onclick: () => { if (!me()) return toast("Add a learner first."); startRoleplay(d, "B"); } }, "Play " + VOICE_ICON.B + " part"),
+        h("button", { class: "btn", onclick: () => { if (!me()) return toast("Add a learner first."); startRoleplay(d, "A"); } }, "Play " + VOICE_ICON.A + " part")));
+    wrap.append(turn);
+    if (d.grammar && GRAM[d.grammar] && !kid) wrap.append(h("button", { class: "linkbtn", style: "justify-self:start", onclick: () => go("unit", d.grammar) }, "📐 Grammar in this scene: " + GRAM[d.grammar].en + " →"));
+    wrap.append(gloss);
+    return wrap;
+  }
+
+  function unitStatus(p, g) {
+    const s = (p?.gram || {})[g.id];
+    if (!s) return ["New", ""];
+    if (s[2] <= today()) return ["Review due", "hot"];
+    return ["Learned · review in " + ivlLabel(s[2] - today()), "ok"];
+  }
+  function viewGrammar() {
+    const p = me(), nu = p ? nextUnit(p) : GRAMMAR[0];
+    const wrap = h("main", { class: "wrap" }, subhead("Gramatika", "Grammar · " + GRAMMAR.length + " units"));
+    wrap.append(h("p", { class: "notice", text: "Each unit shows examples first and asks you to spot the pattern. Then you read the rule, drill it, and do speed rounds until the answer comes without thinking. Units come back for review on the same schedule as words." }));
+    wrap.append(h("div", { class: "plist" }, GRAMMAR.map(g => {
+      const [st, cls] = unitStatus(p, g);
+      return h("button", { class: "prow", style: "text-align:left", onclick: () => go("unit", g.id) },
+        h("span", { style: "font-size:1.6rem", text: g.pic }),
+        h("div", { class: "meta" }, h("b", { text: g.hr }), h("small", { text: g.en }),
+          h("div", { class: "tags" }, h("span", { class: "tag " + cls, text: st }), g === nu ? h("span", { class: "tag hot", text: "Up next" }) : null)));
+    })));
+    return wrap;
+  }
+
+  function viewUnit() {
+    const g = GRAM[viewArg], p = me();
+    const known = !!(p?.gram || {})[g.id];
+    const wrap = h("main", { class: "wrap" }, subhead(g.pic + " " + g.hr, g.en, "grammar"));
+    wrap.append(h("section", { class: "panel" }, h("div", { class: "eyebrow", text: "1 · Listen to the examples" }),
+      h("div", { class: "examples" }, g.examples.map(([hr, en]) => h("div", { class: "exrow" }, sayBtn(hr), h("div", null, h("div", { class: "hr", text: hr }), h("div", { class: "en", text: en })))))));
+    const rule = h("section", { class: "panel rule", hidden: !known }, h("div", { class: "eyebrow", text: "3 · The rule" }), g.rule.map(t => h("p", { text: t })),
+      h("div", { class: "tablewrap" }, h("table", { class: "gtable" }, h("thead", null, h("tr", null, g.table.head.map(x => h("th", { text: x })))),
+        h("tbody", null, g.table.rows.map(r => h("tr", null, r.map(c => h("td", { text: c }))))))));
+    const spot = h("section", { class: "panel", style: "display:grid;gap:10px" }, h("div", { class: "eyebrow", text: "2 · Spot the pattern" }), h("div", { class: "q", style: "font-weight:800", text: g.spot.q }));
+    const opts = h("div", { class: "options" });
+    g.spot.options.forEach((o, i) => opts.append(h("button", { class: "opt", onclick: e => {
+      opts.querySelectorAll("button").forEach(b => (b.disabled = true));
+      opts.children[g.spot.answer].classList.add("right");
+      if (i !== g.spot.answer) e.currentTarget.classList.add("wrong");
+      spot.append(h("p", { class: "notice", text: i === g.spot.answer ? "Good eye! Here's the full rule." : "Not quite. The highlighted answer is right, and the rule below explains why." }));
+      rule.hidden = false;
+    } }, o)));
+    spot.append(opts);
+    if (!known) spot.append(h("button", { class: "linkbtn", style: "justify-self:start", onclick: () => { rule.hidden = false; } }, "Skip to the rule"));
+    wrap.append(spot, rule);
+    wrap.append(h("section", { class: "panel", style: "display:grid;gap:12px" }, h("div", { class: "eyebrow", text: "4 · Make it automatic" }),
+      h("p", { text: "Practise fills the gaps with feedback on each one. The speed round gives you a few seconds per question, and that time pressure is what turns a rule you know into a reflex." }),
+      h("div", { class: "actions" },
+        h("button", { class: "btn primary", onclick: () => { if (!me()) return toast("Add a learner first."); startGrammar(g, false); } }, "Practise (" + (g.drills.length + 4) + ")"),
+        h("button", { class: "btn", onclick: () => { if (!me()) return toast("Add a learner first."); startGrammar(g, true); } }, "⚡ Speed round"))));
+    const used = DIALOGUES.filter(d => d.grammar === g.id);
+    if (used.length) wrap.append(h("p", { class: "count" }, "Hear it in a conversation: ", used.flatMap((d, i) => [i ? ", " : "", h("button", { class: "linkbtn", onclick: () => go("dialogue", d.id) }, d.en)])));
+    return wrap;
+  }
+
+  function viewSounds() {
+    const p = me();
+    const wrap = h("main", { class: "wrap" }, subhead("Izgovor", "Pronunciation · sounds and ear training"));
+    wrap.append(h("p", { class: "notice", text: "Learners who can hear small differences in sounds pick up pronunciation faster. Train your ear on the sounds English merges, then shadow whole phrases: listen slowly, repeat, then match the normal speed." }));
+    wrap.append(h("div", { class: "actions" },
+      h("button", { class: "btn primary", onclick: () => { if (!me()) return toast("Add a learner first."); startEar(null); } }, "👂 Ear training mix"),
+      h("button", { class: "btn", onclick: () => { if (!me()) return toast("Add a learner first."); startShadowPhrases(); } }, "🗣️ Shadow phrases"),
+      h("button", { class: "btn ghost", onclick: () => go("alphabet") }, "🔤 Alphabet")));
+    wrap.append(h("div", { class: "plist" }, SOUNDS.map(so => {
+      const best = (p?.snd || {})[so.id];
+      const drill = so.which || so.pairs;
+      return h("button", { class: "prow", style: "text-align:left", onclick: () => go("sound", so.id) },
+        h("span", { style: "font-size:1.6rem", text: so.pic }),
+        h("div", { class: "meta" }, h("b", { text: so.hr }), h("small", { text: so.en }),
+          drill ? h("div", { class: "tags" }, h("span", { class: "tag" + (best >= 0.8 ? " ok" : ""), text: best != null ? "Best " + pct(best) : "Ear drill" })) : null));
+    })));
+    return wrap;
+  }
+
+  function viewSound() {
+    const so = SOUND[viewArg];
+    let slow = false;
+    const wrap = h("main", { class: "wrap" }, subhead(so.pic + " " + so.hr, so.en, "sounds"));
+    wrap.append(h("section", { class: "panel rule" }, h("p", { text: so.rule })));
+    const segN = h("button", { type: "button", "aria-pressed": "true" }, "🔊 Normal"), segS = h("button", { type: "button", "aria-pressed": "false" }, "🐢 Slow");
+    segN.onclick = () => { slow = false; segN.setAttribute("aria-pressed", "true"); segS.setAttribute("aria-pressed", "false"); };
+    segS.onclick = () => { slow = true; segS.setAttribute("aria-pressed", "true"); segN.setAttribute("aria-pressed", "false"); };
+    wrap.append(h("section", { class: "panel", style: "display:grid;gap:12px" }, h("div", { class: "eyebrow", text: "Tap to hear, then say it yourself" }),
+      h("div", { class: "seg", role: "group", "aria-label": "Speed" }, segN, segS),
+      h("div", { class: "chips" }, so.examples.map(x => h("button", { class: "wchip", onclick: () => speak(x, slow ? 0.55 : 0.85) }, x)))));
+    if (so.which || so.pairs) wrap.append(h("button", { class: "btn primary", onclick: () => { if (!me()) return toast("Add a learner first."); startEar(so.id); } }, so.which ? "👂 Which sound do you hear?" : "👂 Which word do you hear?"));
+    return wrap;
+  }
+
+  function viewMethod() {
+    const wrap = h("main", { class: "wrap" }, subhead("How Naučimo teaches", "The research, and where it lives in the app"));
+    const P = [
+      ["Comprehensible input", "You learn most from Croatian you can mostly understand, where context fills the gaps.",
+        "Conversations and stories show roughly how much of them you already know, and Up next is the one that's about 75% familiar or more. Conversations start with listening before you see the text, and you tap words for their meaning instead of translating everything."],
+      ["Auditory precision", "Learners who hear small sound differences pick up pronunciation faster and lean less on English.",
+        "Pronunciation has ear drills for sounds English merges (č/ć, s/š, z/ž, l/lj, n/nj) and for words that differ by one sound, like kosa and koza. Every recording has a slow version."],
+      ["Output and interaction", "Trying to say things, and getting feedback, makes you test what you know.",
+        "In conversations you take a part: the other voice speaks, you choose your reply, rebuild it from tiles, then say it from memory and check. Speaking is self-rated here because this page can't use the microphone."],
+      ["Spaced repetition", "Short sessions spread over days beat cramming, and getting something right inside a lesson mostly shows short-term memory, not learning.",
+        "Today's lesson opens by asking for yesterday's words and grammar from memory before you see them, and ends by asking for today's new words again after the grammar has pushed them out of short-term memory. New words only unlock when everything from the last lesson comes back, a grammar point moves on only after two clean days, and there's one lesson a day, because the overnight gap is part of the method. Words, conversation lines and grammar units come back on a schedule that stretches each time you remember them. The daily goal is small on purpose."],
+      ["From knowing to doing", "Fluency is when rules stop being facts you remember and become habits.",
+        "Grammar goes rule → drill with feedback → timed speed rounds, then the same patterns come back inside conversations and reviews."],
+      ["Most common words first", "A few hundred words make up most of everyday speech (Zipf's law): the top 100 Croatian words cover nearly half of what people say.",
+        "Between the themed topics, adults get six \"most-used\" topics: little words like i, ali, još, u, na, the key verbs (mogu, želim, moram, znam) and everyday words like vrijeme and posao. Conversations reuse them constantly."],
+      ["Adult pattern-finding", "Adults learn grammar fast early on because they're good at spotting patterns.",
+        "Grammar units ask you to spot the pattern in examples before showing the rule. Kids' profiles skip grammar and learn by listening, pictures and copying."]
+    ];
+    wrap.append(...P.map(([t, why, where]) => h("section", { class: "panel principle" }, h("h3", { text: t }), h("p", { text: why }), h("div", { class: "where", text: "In Naučimo: " + where }))));
+    wrap.append(h("p", { class: "count", text: "The course was written without a native speaker and the voices are synthetic, so have a Croatian speaker check it when you can." }));
+    return wrap;
+  }
+
+  // ---------- sessions ----------
+  function distractors(w, n, key) {
+    const same = TOPIC[w.topic].ids.map(id => BY_ID[id]);
+    const pool = shuffle(same).concat(shuffle(WORDS));
+    const out = [], seen = new Set([w[key]]);
+    for (const x of pool) { if (out.length >= n) break; if (!x[key] || seen.has(x[key]) || !!x.line !== !!w.line) continue; if (key === "pic" && !TOPIC[x.topic].kids) continue; seen.add(x[key]); out.push(x); }
+    return out;
+  }
+  function startLesson(t) {
+    const p = me(); if (!p) return;
+    const kid = isKid();
+    // New words only arrive through the daily lesson; topic lessons practise words already learned.
+    const fresh = [];
+    if (!t.ids.some(id => p.srs[id])) return toast("New words arrive in Today's lesson, one set a day.");
+    const review = t.ids.filter(id => p.srs[id]).sort((a, b) => p.srs[a][1] - p.srs[b][1]).slice(0, fresh.length ? 3 : 8).map(id => BY_ID[id]);
+    const q = [], prod = [];
+    for (const w of fresh) {
+      q.push({ type: "intro", w });
+      q.push({ type: kid ? (Math.random() < .5 ? "pictap" : "listenpic") : (Math.random() < .5 ? "mcHrEn" : "listen"), w });
+      prod.push({ type: kid ? "speak" : sample(["mcEnHr", "type", "speak"], 1)[0], w });
+    }
+    for (const w of review) prod.push({ type: kid ? sample(["pictap", "listenpic", "speak"], 1)[0] : sample(["mcEnHr", "type", "listen", "speak"], 1)[0], w });
+    q.push(...shuffle(prod));
+    session = { kind: "lesson", title: t.en, topic: t, queue: q, idx: 0, right: 0, xp: 0, wrong: {}, fresh: fresh.map(w => w.id), review: review.map(w => w.id) };
+    render();
+  }
+  function startPractice(type, pool) {
+    const p = me(); if (!p) return;
+    const kid = isKid();
+    let words = pool || practicePool(p, type === "pictap" || kid);
+    if (type === "pictap" || (kid && type === "listen")) words = words.filter(w => TOPIC[w.topic].kids);
+    const types = kid && type === "listen" ? ["listenpic"] : [type];
+    const q = sample(words, Math.min(10, words.length)).map(w => ({ type: types[0], w }));
+    const names = { listen: "Listening", speak: "Speaking", type: "Writing", pictap: "Listen & tap", listenpic: "Listening" };
+    session = { kind: "practice", title: names[type], queue: q, idx: 0, right: 0, xp: 0, wrong: {} };
+    render();
+  }
+  // ---------- daily lesson plan ----------
+  // One lesson a day, built for long-term memory rather than in-lesson scores:
+  // it opens by recalling the last lesson from memory, and new words only unlock when all of them come back.
+  // Missed words are relearned instead, and the grammar unit only moves on after two clean days.
+  const planOf = p => (p.plan = p.plan || { day: 0, date: null, unit: null, last: null, clean: {} });
+  function currentUnit(p) {
+    if (isKid()) return null;
+    const pl = planOf(p); pl.clean = pl.clean || {};
+    if (pl.unit && GRAM[pl.unit] && (pl.clean[pl.unit] || 0) < 2) return GRAM[pl.unit];
+    return GRAMMAR.find(g => (pl.clean[g.id] || 0) < 2 && g.id !== pl.unit) || null;
+  }
+  function dailyPlan(p) {
+    const kid = isKid(), pl = planOf(p);
+    const warm = (pl.last?.fresh || []).filter(id => BY_ID[id] && p.srs[id]);
+    const warmUnit = !kid && GRAM[pl.last?.unit] ? GRAM[pl.last.unit] : null;
+    const due = dueIds(p).filter(id => !warm.includes(id)).slice(0, kid ? 5 : 8);
+    const topic = nextTopic(p);
+    const fresh = topic.ids.filter(id => !p.srs[id]).slice(0, kid ? 4 : 5);
+    const unit = currentUnit(p);
+    const units = kid ? [] : dueUnits(p).filter(u => u !== unit?.id).slice(0, 1);
+    return { day: pl.day + 1, doneToday: pl.date === today(), warm, warmUnit, due, topic, fresh, unit, units, dlg: nextDialogue(p) };
+  }
+  const dWords = ids => ids.map(id => BY_ID[id]);
+  // Recall = producing the word from the English (adults type it; kids hear it and find the picture, or say it).
+  const recallEx = w => isKid() ? { type: TOPIC[w.topic].kids && w.pic ? "listenpic" : "speak", w } : { type: "type", w };
+  // Material the learner has met: words on their learned cards and conversation lines (and lexicon forms of those words),
+  // today's new words, and the forms in the tables of grammar units they've had. Prompts are built only from these.
+  function knownSet(p, extraIds, units) {
+    const k = new Set(), addText = t => norm(t).split(" ").forEach(x => x && k.add(x));
+    for (const id of [...Object.keys(p.srs || {}), ...extraIds]) if (BY_ID[id]) addText(BY_ID[id].hr);
+    for (const g of units) for (const r of g.table.rows) r.forEach(c => addText(String(c).replace(/[()\/→]/g, " ")));
+    return k;
+  }
+  const unknownIn = (k, text) => norm(text).split(" ").filter(t => t && !k.has(t) && !(LEX[t] && LEX[t][1] !== "*" && k.has(norm(LEX[t][1]))));
+  const unitsFor = (p, unit) => [...new Set([...taughtUnits(p), unit].filter(Boolean))];
+  // Fill-in drills with only known words come first; if a unit has too few, the rest show the meaning of any new word.
+  const cost = un => un.length + 10 * un.filter(t => !meaningOf(t)).length; // a new word we can't gloss is worst
+  const gapsOf = (g, n, typed, k) => {
+    const idx = shuffle(g.drills.map((_, i) => i)).map(i => [i, k ? unknownIn(k, fullOf(g.drills[i]).replace(g.drills[i].a, "")) : []]).sort((a, b) => cost(a[1]) - cost(b[1])).slice(0, n);
+    return idx.map(([i, un]) => ({ type: typed || Math.random() < 0.5 ? "gaptype" : "gap", ...gapItem(g, i), ...(un.length ? { gloss: un } : {}) }));
+  };
+  function startDaily() {
+    const p = me(); if (!p) return;
+    if (p.run && resumeDaily(p)) return;
+    const P = dailyPlan(p), kid = isKid();
+    if (P.doneToday) return toast("Today's lesson is done. The next one opens tomorrow.");
+    const q = [], add = (stage, items) => q.push(...items.map(e => Object.assign(e, { stage })));
+    const K0 = knownSet(p, [], unitsFor(p, P.unit));
+    // No instant retries here: a miss means the word is relearned properly after the check.
+    add("Remember last time", [...shuffle(dWords(P.warm)).map(w => ({ ...recallEx(w), once: true })),
+      ...(P.warmUnit ? gapsOf(P.warmUnit, 2, true, K0).map(e => ({ ...e, once: true })) : [])]);
+    add("Review", [...dWords(P.due).map(w => ({ type: "flash", reverse: !kid, w })), ...P.units.flatMap(u => gapsOf(GRAM[u], 2, true, K0))]);
+    q.push({ type: "gate", w: { id: "gate", hr: "", en: "" } });
+    session = { kind: "daily", title: "Day " + P.day, day: P.day, plan: P, queue: q, idx: 0, right: 0, xp: 0, wrong: {},
+      stages: ["Remember last time", "Review", "New words", "Practice", "Grammar", "Lock it in"].filter(x => q.some(e => e.stage === x) || !["Remember last time", "Review"].includes(x)),
+      fresh: [], relearn: [], review: P.warm, warm: P.warm, unit: P.unit?.id, units: P.units,
+      next: P.dlg ? ["💬 Use it in a conversation: " + P.dlg.en, () => go("dialogue", P.dlg.id)] : null };
+    render();
+  }
+  // An unfinished daily lesson is saved on the profile after every question (p.run), so leaving resumes it
+  // at the same question instead of counting it as done.
+  const EX_KEYS = ["stage", "once", "retry", "reverse", "dictate", "en", "ref", "gloss"];
+  function packEx(e) {
+    const o = { t: e.type };
+    for (const k of EX_KEYS) if (e[k] !== undefined) o[k] = e[k];
+    if (e.g) o.g = e.g.id;
+    if (e.w) o.w = e.w.id;
+    return o;
+  }
+  function unpackEx(o) {
+    const e = { type: o.t };
+    for (const k of EX_KEYS) if (o[k] !== undefined) e[k] = o[k];
+    if (o.t === "gap" || o.t === "gaptype") { const [, u, i] = String(o.w).split(":"); if (!GRAM[u]?.drills[+i]) throw 0; return Object.assign(e, gapItem(GRAM[u], +i)); }
+    if (o.t === "rule") { e.g = GRAM[o.g]; if (!e.g) throw 0; }
+    if (o.t === "write") e.w = { id: o.w, hr: o.ref, en: o.en };
+    else if (o.t === "rule" || o.t === "gate") e.w = { id: o.w, hr: "", en: "" };
+    else { e.w = BY_ID[o.w]; if (!e.w) throw 0; }
+    return e;
+  }
+  function saveRun(s) {
+    const p = me(); if (!p || s.kind !== "daily") return;
+    const P = s.plan;
+    p.run = { day: s.day, idx: s.idx, q: s.queue.map(packEx), stages: s.stages, wrong: s.wrong, right: s.right, xp: s.xp,
+      fresh: s.fresh, relearn: s.relearn, warm: s.warm, review: s.review, unit: s.unit || null, units: s.units, gated: !!s.gated,
+      plan: { day: P.day, warm: P.warm, warmUnit: P.warmUnit?.id || null, due: P.due, fresh: P.fresh, unit: P.unit?.id || null, units: P.units, dlg: P.dlg?.id || null } };
+    saveProfile(p);
+  }
+  function resumeDaily(p) {
+    const r = p.run;
+    try {
+      const P = { ...r.plan, warmUnit: GRAM[r.plan.warmUnit] || null, unit: GRAM[r.plan.unit] || null, dlg: DLG[r.plan.dlg] || null };
+      session = { kind: "daily", title: "Day " + r.day, day: r.day, plan: P, queue: r.q.map(unpackEx), stages: r.stages, idx: Math.min(r.idx, r.q.length - 1),
+        right: r.right, xp: r.xp, wrong: r.wrong || {}, fresh: r.fresh, relearn: r.relearn, review: r.review, warm: r.warm, unit: r.unit || undefined, units: r.units || [], gated: r.gated,
+        next: P.dlg ? ["💬 Use it in a conversation: " + P.dlg.en, () => go("dialogue", P.dlg.id)] : null };
+    } catch { delete p.run; saveProfile(p); return false; } // the course changed under it: start fresh
+    render();
+    return true;
+  }
+  // Runs after the recall check and builds the rest of the lesson from how it went.
+  function dailyRest(s) {
+    const p = me(), P = s.plan, kid = isKid(), q = [], add = (stage, items) => q.push(...items.map(e => Object.assign(e, { stage })));
+    const missed = s.warm.filter(id => s.wrong[id]);
+    const unitMissed = P.warmUnit && Object.keys(s.wrong).some(k => k.startsWith("g:" + P.warmUnit.id + ":"));
+    s.relearn = missed; s.gated = true;
+    s.fresh = missed.length ? [] : P.fresh;
+    const target = [...missed, ...s.fresh];
+    const meet = w => kid ? { type: Math.random() < .5 ? "pictap" : "listenpic", w } : { type: "type", dictate: true, w };
+    if (target.length) {
+      add(missed.length ? "Relearn" : "New words", dWords(target).flatMap(w => [{ type: "intro", w }, meet(w)]));
+      add("Practice", shuffle(dWords(target)).map(recallEx));
+    }
+    if (P.unit) add("Grammar", [...((p.gram || {})[P.unit.id] ? [] : [{ type: "rule", g: P.unit, w: { id: "rule:" + P.unit.id, hr: "", en: "" } }]), ...gapsOf(P.unit, 4, !kid, knownSet(p, target, unitsFor(p, P.unit)))]);
+    if (!kid) add("Write it yourself", writePrompts(p, P, target));
+    if (target.length) add("Lock it in", shuffle(dWords(target)).map(recallEx));
+    s.queue.push(...q);
+    s.stages = [...new Set(s.queue.map(e => e.stage).filter(Boolean))];
+    if (!P.warm.length) return null;
+    if (missed.length) return "You recalled " + (P.warm.length - missed.length) + " of " + P.warm.length + " words from last time. Today relearns " + dWords(missed).map(w => w.hr).join(", ") + " instead of adding new words. New words unlock when everything from the last lesson comes back." + (unitMissed ? " The grammar point stays the same too." : "");
+    return "All " + P.warm.length + " words from last time came back. " + (s.fresh.length ? s.fresh.length + " new words unlocked." : "");
+  }
+  function startRehearse() {
+    const p = me(), pl = planOf(p), kid = isKid();
+    const ids = (pl.last?.fresh || []).filter(id => BY_ID[id]);
+    const q = shuffle(dWords(ids)).map(w => kid ? recallEx(w) : { type: "type", dictate: Math.random() < .4, w });
+    if (!kid && GRAM[pl.unit]) q.push(...gapsOf(GRAM[pl.unit], 3, true, knownSet(p, [], unitsFor(p, GRAM[pl.unit]))));
+    if (!q.length) return toast("Nothing to rehearse yet.");
+    session = { kind: "practice", title: "Rehearsal", queue: q, idx: 0, right: 0, xp: 0, wrong: {} };
+    render();
+  }
+  // ---------- free writing, checked by Claude ----------
+  // Adults translate a sentence in their own words and Claude checks cases, clitic order and verb aspect.
+  // A miss first gets only a hint and one more try; errors in grammar not yet taught show as "coming later" and don't count.
+  const WRITE_HINT_FIRST = true, WRITE_TAUGHT_ONLY = true;
+  let samplerP = null, writeOff = false;
+  const sampler = () => (samplerP = samplerP || (window.claude?.use ? Promise.resolve(window.claude.use("sample")).catch(() => null) : Promise.resolve(null)));
+  function taughtUnits(p) {
+    const pl = planOf(p);
+    return GRAMMAR.filter(g => (p.gram || {})[g.id] || (pl.clean || {})[g.id] || g.id === pl.unit || g.id === session?.unit);
+  }
+  // Two sentences to write, using only words and grammar the learner has met (see knownSet):
+  // today's grammar unit first, then a learned conversation line or another unit, then learned phrases.
+  function writePrompts(p, P, target) {
+    const units = unitsFor(p, P.unit), k = knownSet(p, target, units), ok = t => !unknownIn(k, t).length;
+    const drills = g => shuffle(g.drills.map(d => ({ en: d.en, ref: fullOf(d) })).filter(x => ok(x.ref)));
+    const lines = shuffle(Object.keys(p.srs).map(id => BY_ID[id]).filter(w => w?.line && ok(w.hr)
+      && (!DLG[w.topic.slice(2)]?.grammar || units.some(g => g.id === DLG[w.topic.slice(2)].grammar))).map(w => ({ en: w.en, ref: w.hr })));
+    const cur = P.unit ? drills(P.unit) : [], others = shuffle(units.filter(g => g.id !== P.unit?.id).flatMap(drills));
+    const phrases = shuffle(Object.keys(p.srs).map(id => BY_ID[id]).filter(w => w && !w.line && norm(w.hr).split(" ").length >= 2).map(w => ({ en: w.en, ref: w.hr })));
+    const out = [];
+    for (const x of [cur[0], lines[0], others[0], cur[1], phrases[0], phrases[1], phrases[2]]) if (x && out.length < 2 && !out.some(y => y.ref === x.ref)) out.push(x);
+    return out.map((x, i) => ({ type: "write", ...x, w: { id: "x:" + i + ":" + x.ref, hr: x.ref, en: x.en } }));
+  }
+  function checkPrompt(ex, text, taught) {
+    return `You are the grammar checker for a Croatian learning app (standard Croatian, ijekavian). Analyse the learner's sentence and reply with ONLY one minified JSON object, no other text.
+
+The learner was asked to translate: "${ex.en}"
+One correct answer: "${ex.ref}" (other correct wordings are fine: judge the learner's sentence on its own merits, including word order and natural phrasing).
+The learner wrote: "${text}"
+
+Check three pillars:
+A. Case declension (all 7 cases): do noun, adjective and pronoun endings fit the context (motion towards = akuzativ, static location = lokativ, quantities and some prepositions = genitiv, and so on)?
+B. Clitic placement (Wackernagel's law): unstressed clitics (sam, si, je, smo, ste, su, ću, ćeš, će, bih, bi, me, te, ga, mu, joj, nas, vas, ih, se, li) must sit in the second position of the clause. Flag English-style word order.
+C. Verbal aspect: flag a perfective verb used for an ongoing or habitual present action, and the reverse where it is clearly wrong.
+Also flag wrong person/number endings, gender agreement and wrong words. A missing č/ć/š/ž/đ is a spelling slip: flag it, but say so.
+
+Grammar the learner has studied so far: ${taught}. Spelling, word choice and anything in that list are "taught": true. Errors that need grammar outside that list are "taught": false.
+
+Reply with exactly this shape:
+{"is_correct":bool,"is_correct_taught":bool,"analysis":{"detected_case":string,"verbal_aspect":string},"clitic_check":{"is_correct_position":bool,"explanation":string},"grammar_breakdown":[{"word":string,"is_lemma":bool,"root_form":string,"morphology":string,"has_error":bool,"taught":bool,"hint":string,"correction_tip":string}],"natural_response":string,"english_explanation":string}
+- is_correct: no errors at all. is_correct_taught: no errors marked taught.
+- detected_case / verbal_aspect: the main case and aspect in the sentence, or "N/A".
+- clitic_check.explanation: "" when the order is right; otherwise the rule, without writing out the corrected sentence.
+- grammar_breakdown: one entry per word of the LEARNER's sentence, in order.
+- hint (error words only, else ""): a short English nudge that names the problem WITHOUT giving the corrected form, e.g. "After 'u' with a verb of motion, which case do you need?"
+- correction_tip: the correct form and exactly why.
+- natural_response: one short, encouraging line in natural Croatian, as a native speaker would say it; if the sentence was wrong, include the corrected sentence.
+- english_explanation: one to three sentences on the grammar mechanics.`;
+  }
+  const gapItem = (g, i) => ({ d: g.drills[i], w: { id: "g:" + g.id + ":" + i, hr: fullOf(g.drills[i]), en: g.drills[i].en } });
+  function startReview() {
+    const p = me(); if (!p) return;
+    const ids = dueIds(p).slice(0, 20), units = dueUnits(p).slice(0, 3);
+    const q = ids.map(id => ({ type: "flash", w: BY_ID[id] }));
+    // Due grammar units come back as a few gap questions each, mixed in with the cards.
+    for (const u of units) for (const i of sample(GRAM[u].drills.map((_, i) => i), 3)) q.push({ type: Math.random() < 0.5 ? "gap" : "gaptype", ...gapItem(GRAM[u], i) });
+    session = { kind: "review", title: "Review", queue: shuffle(q), idx: 0, right: 0, xp: 0, wrong: {}, units };
+    render();
+  }
+  function startRoleplay(d, role) {
+    const mine = d.lines.map((_, i) => i).filter(i => d.lines[i][0] === role);
+    const round = type => mine.map(i => ({ type, w: BY_ID[d.ids[i]], d, i }));
+    const q = [...round("reply"), ...round("build").filter(e => e.w.hr.split(/\s+/).length <= 10), ...round("say")];
+    session = { kind: "roleplay", title: d.en, dlg: d.id, role, queue: q, idx: 0, right: 0, xp: 0, wrong: {},
+      next: ["Play the other part", () => startRoleplay(d, role === "A" ? "B" : "A")] };
+    render();
+  }
+  function startShadow(words, title, dlg) {
+    session = { kind: "practice", title, dlg, queue: words.map(w => ({ type: "speak", w })), idx: 0, right: 0, xp: 0, wrong: {} };
+    render();
+  }
+  function startShadowPhrases() {
+    const p = me();
+    let lines = Object.keys(p.srs || {}).filter(id => BY_ID[id]?.line).map(id => BY_ID[id]);
+    if (lines.length < 6) lines = lines.concat((nextDialogue(p) || DIALOGUES[0]).ids.map(id => BY_ID[id]));
+    startShadow(sample([...new Set(lines)], 8), "Shadowing");
+  }
+  function startGrammar(g, speed) {
+    const items = g.drills.map((_, i) => gapItem(g, i));
+    const q = speed ? sample(items, 8).map(x => ({ type: "gap", timed: 7000, ...x }))
+      : [...shuffle(items).map(x => ({ type: "gap", ...x })), ...sample(items, 4).map(x => ({ type: "gaptype", ...x }))];
+    session = { kind: speed ? "speed" : "grammar", title: speed ? "Speed round" : g.hr, unit: g.id, queue: q, idx: 0, right: 0, xp: 0, wrong: {},
+      next: [speed ? "Another speed round" : "⚡ Speed round", () => startGrammar(g, true)] };
+    render();
+  }
+  function startEar(id) {
+    const q = [];
+    for (const so of id ? [SOUND[id]] : SOUNDS) {
+      for (const [word, ans] of so.which?.items || []) q.push({ type: "whichsound", choices: so.which.choices, ans, w: { id: "s:" + word, hr: word, en: WORD_BY_KEY[norm(word)]?.en || "" } });
+      for (const pair of so.pairs || []) for (const t of pair) q.push({ type: "whichword", pair, w: { id: "s:" + t, hr: t, en: WORD_BY_KEY[norm(t)]?.en || "" } });
+    }
+    session = { kind: "ear", title: id ? SOUND[id].en : "Ear training", sound: id || "mix", queue: sample(q, 10), idx: 0, right: 0, xp: 0, wrong: {},
+      next: ["Again", () => startEar(id)] };
+    render();
+  }
+  function startMatch() {
+    const p = me(); if (!p) return;
+    const words = [];
+    const seenPic = new Set();
+    for (const w of shuffle(practicePool(p, true))) { if (words.length >= 5) break; if (seenPic.has(w.pic)) continue; seenPic.add(w.pic); words.push(w); }
+    session = { kind: "match", title: "Memory match", queue: [{ type: "match", words }], idx: 0, right: 0, xp: 0, wrong: {} };
+    render();
+  }
+
+  function renderSession() {
+    const s = session;
+    const pct = (s.idx / Math.max(1, s.queue.length)) * 100;
+    const root = h("div", { class: "session" },
+      h("div", { class: "sbar" }, h("button", { class: "close", "aria-label": "End session", onclick: () => { if (s.idx > 0 && s.kind !== "match" && finishedSession !== s) finish(true); else go("home"); } }, "✕"),
+        h("div", { class: "goal", role: "progressbar", "aria-valuenow": Math.round(pct), "aria-valuemin": 0, "aria-valuemax": 100 }, h("i", { style: "width:" + pct + "%" }))));
+    const stage = h("div", { class: "stage" });
+    root.append(stage);
+    app.append(root);
+    if (s.idx >= s.queue.length) return finishScreen(stage);
+    const ex = s.queue[s.idx];
+    if (s.kind === "daily") saveRun(s);
+    if (s.stages && ex.stage) stage.append(h("div", { class: "steplabel", text: ex.retry ? "One more try" : "Step " + (s.stages.indexOf(ex.stage) + 1) + " of " + s.stages.length + " · " + ex.stage }));
+    (EX[ex.type])(ex, stage);
+  }
+
+  function answer(ex, ok, detail, opts = {}) {
+    const s = session;
+    if (ok) { s.right++; s.xp += opts.xp ?? (s.kind === "practice" ? 5 : 10); }
+    else {
+      s.wrong[ex.w.id] = (s.wrong[ex.w.id] || 0) + 1;
+      if (!ex.retry && !ex.once && !["practice", "speed", "ear"].includes(s.kind)) s.queue.push(Object.assign({}, ex, { retry: true, hinted: false }));
+    }
+    const kid = isKid();
+    const sheet = h("div", { class: "sheet " + (ok ? "good" : "bad"), role: "status" }, h("div", { class: "in" },
+      h("div", { class: "msg", text: ok ? sample(kid ? ["Bravo! ⭐", "Super! ⭐", "Točno! ⭐"] : ["Točno!", "Bravo!", "Odlično!"], 1)[0] : opts.msg || (opts.near ? "Almost!" : "Not quite") }),
+      detail ? h("div", { class: "detail" }, detail) : null,
+      h("button", { class: "btn primary", id: "continue", onclick: () => { s.idx++; render(); } }, "Continue")));
+    document.querySelectorAll(".sheet").forEach(x => x.remove());
+    app.append(sheet);
+    $("#continue").focus({ preventScroll: true });
+    if (ex.w && !opts.silent) speak(ex.w.hr);
+  }
+  // Hint and Show answer on questions answered from scratch. Using either scores the question as a miss,
+  // so it comes back for another try (in the daily lesson a missed word from last time is relearned).
+  const letterHint = t => t.split(/\s+/).map(x => x.replace(/^([^\p{L}]*\p{L})(.*)$/u, (m, a, b) => a + b.replace(/\p{L}/gu, "_"))).join("   ");
+  function helpRow(ex, hintText, reveal) {
+    const out = h("p", { class: "hint", "aria-live": "polite" });
+    const hb = h("button", { class: "linkbtn", type: "button", onclick: () => { ex.hinted = true; hb.disabled = true; out.textContent = "Hint: " + hintText; } }, "💡 Hint");
+    const ab = h("button", { class: "linkbtn", type: "button", onclick: () => { ex.hinted = true; hb.disabled = ab.disabled = true; reveal(); } }, "Show answer");
+    return h("div", { class: "helprow" }, h("div", { class: "row center" }, hb, ab), out);
+  }
+  const helped = (shown) => h("span", null, "Right, but you used a hint, so it will come back for another try: ", h("b", { text: shown }));
+  const correctLine = w => h("span", null, w.hr + " = " + w.en);
+
+  function choiceList(stage, items, labelOf, isRight, onPick, cls = "options", btnCls = "opt") {
+    const box = h("div", { class: cls });
+    items.forEach(it => box.append(h("button", { class: btnCls, onclick: e => {
+      box.querySelectorAll("button").forEach(b => (b.disabled = true));
+      const ok = isRight(it);
+      e.currentTarget.classList.add(ok ? "right" : "wrong");
+      if (!ok) [...box.children][items.findIndex(isRight)].classList.add("right");
+      onPick(ok, it);
+    } }, labelOf(it))));
+    stage.append(box);
+  }
+
+  function partnerBubble(ex, withEn) {
+    const prev = ex.d.lines[ex.i - 1];
+    if (!prev || prev[0] === ex.w.who) return null;
+    const alt = prev[0] === "A";
+    speak(prev[1], 0.85, alt);
+    return h("div", { class: "chat" }, h("div", { class: "bubble" + (alt ? "" : " me") },
+      h("div", { class: "who" }, h("span", { text: VOICE_ICON[prev[0]] + " says" }), h("button", { class: "minisay", "aria-label": "Play again", onclick: () => speak(prev[1], 0.85, alt) }, "🔊")),
+      h("div", { class: "line", text: prev[1] }), withEn ? h("div", { class: "ten", text: prev[2] }) : null));
+  }
+  const gapLine = (d, fill) => h("div", { class: "gapline" }, d.s.split("___").flatMap((part, i) => [i ? h("span", { class: "gap", text: fill || "?" }) : null, part]));
+  const glossLine = ex => ex?.gloss?.length ? h("div", { class: "hint", text: "New word: " + ex.gloss.map(t => t + " = " + (meaningOf(t) || "?")).join(", ") }) : null;
+  const gapHints = d => [d.h ? h("div", { class: "hint", text: "(" + d.h + ")" }) : null, h("div", { class: "hint", text: d.en })].filter(Boolean);
+
+  const EX = {
+    reply(ex, stage) {
+      const w = ex.w;
+      const pool = DIALOGUES.flatMap(d => d.ids).map(id => BY_ID[id]).filter(x => x.hr !== w.hr);
+      const near = sample(pool.filter(x => x.topic === w.topic), 1), far = sample(pool.filter(x => x.topic !== w.topic), 1);
+      const pb = partnerBubble(ex, true);
+      stage.append(h("div", { class: "prompt-label", text: pb ? "Your turn. Pick the best reply." : "You start. How do you say this?" }),
+        pb || h("div", { class: "big", text: w.en }));
+      choiceList(stage, shuffle([w, ...near, ...far]), x => x.hr, x => x === w, ok => answer(ex, ok, correctLine(w)));
+    },
+    build(ex, stage) {
+      const w = ex.w, toks = w.hr.split(/\s+/), picked = [];
+      const ans = h("div", { class: "tiles answer", "aria-label": "Your sentence" }), bank = h("div", { class: "tiles" });
+      const check = h("button", { class: "btn primary", id: "continue", disabled: true }, "Check");
+      for (const o of shuffle(toks.map((t, i) => ({ t, i })))) {
+        const b = h("button", { class: "wtile", type: "button", text: o.t });
+        b.onclick = () => {
+          b.disabled = true; picked.push(o);
+          const a = h("button", { class: "wtile", type: "button", text: o.t });
+          a.onclick = () => { if (check.dataset.done) return; picked.splice(picked.indexOf(o), 1); a.remove(); b.disabled = false; check.disabled = true; };
+          ans.append(a); check.disabled = picked.length !== toks.length;
+        };
+        bank.append(b);
+      }
+      check.onclick = () => {
+        check.dataset.done = "1"; check.remove(); bank.querySelectorAll("button").forEach(b => (b.disabled = true));
+        const ok = norm(picked.map(o => o.t).join(" ")) === norm(w.hr);
+        answer(ex, ok, ok ? null : h("span", null, "In order: ", h("b", { text: w.hr })));
+      };
+      stage.append(h("div", { class: "prompt-label", text: "Rebuild your line from the tiles" }), partnerBubble(ex, false), h("div", { class: "hint", text: w.en }), ans, bank, check);
+    },
+    say(ex, stage) {
+      const w = ex.w, alt = w.who === "A";
+      const reveal = h("div", { class: "card", hidden: true }, h("div", { class: "big", text: w.hr }), w.note ? h("div", { class: "note", text: w.note }) : null,
+        h("div", { class: "row center" }, h("button", { class: "btn", onclick: () => speak(w.hr, 0.85, alt) }, "🔊 Listen"), h("button", { class: "btn ghost", onclick: () => speak(w.hr, 0.55, alt) }, "🐢 Slowly")));
+      stage.append(h("div", { class: "prompt-label", text: "From memory: say your line out loud, then check" }), partnerBubble(ex, false),
+        h("div", { class: "card" }, h("div", { class: "en", text: w.en })), reveal);
+      const inner = h("div", { class: "in" });
+      const show = h("button", { class: "btn primary", id: "continue", onclick: () => {
+        reveal.hidden = false; speak(w.hr, 0.85, alt);
+        inner.replaceChildren(h("div", { class: "row" },
+          h("button", { class: "btn", style: "flex:1", onclick: () => answer(ex, false, h("span", null, "It'll come back for practice."), { silent: true }) }, "Not yet"),
+          h("button", { class: "btn primary", style: "flex:2", id: "continue", onclick: () => answer(ex, true, null, { silent: true }) }, "I said it")));
+      } }, "Check my answer");
+      inner.append(show);
+      app.append(h("div", { class: "sheet" }, inner));
+    },
+    gap(ex, stage) {
+      const d = ex.d;
+      let timer = null;
+      stage.append(h("div", { class: "prompt-label", text: ex.timed ? "Quick! Fill the gap" : "Fill the gap" }), gapLine(d), ...gapHints(d), ...[glossLine(ex)].filter(Boolean));
+      if (ex.timed) {
+        const bar = h("i");
+        stage.append(h("div", { class: "timer" }, bar));
+        requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.transition = "width " + ex.timed + "ms linear"; bar.style.width = "0%"; }));
+        timer = setTimeout(() => {
+          if (session?.queue[session.idx] !== ex || document.querySelector(".sheet")) return;
+          stage.querySelectorAll(".opt").forEach(b => (b.disabled = true));
+          answer(ex, false, h("span", null, "Time's up: ", h("b", { text: fullOf(d) })));
+        }, ex.timed);
+      }
+      choiceList(stage, shuffle(d.o), x => x, x => x === d.a, ok => { clearTimeout(timer); answer(ex, ok, ok ? h("span", null, fullOf(d)) : h("span", null, "Correct: ", h("b", { text: fullOf(d) }))); });
+    },
+    gaptype(ex, stage) {
+      const d = ex.d;
+      const input = h("input", { class: "typebox", id: "typed", type: "text", autocomplete: "off", autocapitalize: "off", spellcheck: "false", "aria-label": "The missing word", placeholder: "Type the missing word" });
+      const keys = h("div", { class: "keys" }, ["č", "ć", "đ", "š", "ž"].map(k => h("button", { class: "key", type: "button", onclick: () => {
+        const a = input.selectionStart ?? input.value.length, b = input.selectionEnd ?? a;
+        input.value = input.value.slice(0, a) + k + input.value.slice(b); input.focus(); input.setSelectionRange(a + 1, a + 1);
+      } }, k)));
+      const check = h("button", { class: "btn primary", type: "submit" }, "Check");
+      const form = h("form", { class: "form", onsubmit: e => {
+        e.preventDefault();
+        const v = input.value; if (!v.trim()) return input.focus();
+        input.disabled = true; check.disabled = true; keys.querySelectorAll("button").forEach(b => (b.disabled = true));
+        if ((norm(v) === norm(d.a) || loose(v) === loose(d.a)) && ex.hinted) answer(ex, false, helped(fullOf(d)), { msg: "Used a hint" });
+        else if (norm(v) === norm(d.a)) answer(ex, true, h("span", null, fullOf(d)));
+        else if (loose(v) === loose(d.a)) answer(ex, true, h("span", null, "Watch the accents: ", h("b", { text: fullOf(d) })), { near: true, xp: 5 });
+        else answer(ex, false, h("span", null, "Correct: ", h("b", { text: fullOf(d) })));
+      } }, input, keys, check);
+      const help = helpRow(ex, letterHint(d.a), () => { input.disabled = true; check.disabled = true; answer(ex, false, h("span", null, "Answer: ", h("b", { text: fullOf(d) })), { msg: "Here's the answer" }); });
+      stage.append(h("div", { class: "prompt-label", text: "Type the missing word" }), gapLine(d), ...gapHints(d), ...[glossLine(ex)].filter(Boolean), form, help);
+      setTimeout(() => input.focus(), 50);
+    },
+    whichsound(ex, stage) {
+      const w = ex.w;
+      stage.append(h("div", { class: "prompt-label", text: "Listen. Which sound do you hear?" }),
+        h("button", { class: "playbig", "aria-label": "Play again", onclick: () => speak(w.hr) }, "🔊"),
+        h("div", { class: "row center" }, h("button", { class: "linkbtn", onclick: () => speak(w.hr, 0.55) }, "🐢 Play slowly")));
+      choiceList(stage, ex.choices, x => x, x => x === ex.ans, ok => answer(ex, ok, h("span", null, h("b", { text: w.hr }), w.en ? " (" + w.en + ")" : "", " has " + ex.ans + ".")), "picopts", "picopt");
+      speak(w.hr);
+    },
+    whichword(ex, stage) {
+      const w = ex.w;
+      stage.append(h("div", { class: "prompt-label", text: "Listen. Which word was it?" }),
+        h("button", { class: "playbig", "aria-label": "Play again", onclick: () => speak(w.hr) }, "🔊"),
+        h("div", { class: "row center" }, h("button", { class: "linkbtn", onclick: () => speak(w.hr, 0.55) }, "🐢 Play slowly")));
+      const opt = t => ({ t, en: WORD_BY_KEY[norm(t)]?.en || "" });
+      choiceList(stage, ex.pair.map(opt), x => x.t, x => x.t === w.hr, ok => answer(ex, ok, h("span", null, ex.pair.map(opt).map(o => o.t + (o.en ? " = " + o.en : "")).join(" · "))), "picopts", "picopt");
+      speak(w.hr);
+    },
+    write(ex, stage) {
+      const p = me(), taught = taughtUnits(p), tids = taught.map(g => g.id);
+      const cliticsTaught = !WRITE_TAUGHT_ONLY || tids.some(id => ["biti", "past", "future"].includes(id));
+      const input = h("textarea", { class: "typebox writebox", id: "typed", autocomplete: "off", autocapitalize: "sentences", spellcheck: "false", "aria-label": "Your Croatian sentence", placeholder: "Write it in Croatian" });
+      const keys = h("div", { class: "keys" }, ["č", "ć", "đ", "š", "ž"].map(k => h("button", { class: "key", type: "button", onclick: () => {
+        const a = input.selectionStart ?? input.value.length, b = input.selectionEnd ?? a;
+        input.value = input.value.slice(0, a) + k + input.value.slice(b); input.focus(); input.setSelectionRange(a + 1, a + 1);
+      } }, k)));
+      const check = h("button", { class: "btn primary", type: "submit" }, "Check");
+      const out = h("div", { class: "writeout", "aria-live": "polite" });
+      let tries = 0;
+      const lock = on => { input.disabled = on; check.disabled = on; keys.querySelectorAll("button").forEach(b => (b.disabled = on)); };
+      const said = (words, showBad) => h("div", { class: "said" }, words.flatMap((x, i) => [i ? " " : "", h("span", { class: showBad && x.has_error && (x.taught !== false || !WRITE_TAUGHT_ONLY) ? "bad" : "", text: String(x.word || "") })]));
+      // A hint (yours or the checker's) or a revealed answer makes this a miss, so the sentence comes back later.
+      const finishWith = (ok, nodes) => {
+        out.replaceChildren(...nodes.filter(Boolean));
+        if (ok && (ex.hinted || tries > 1)) return answer(ex, false, h("span", null, (ex.hinted ? "Right, with a hint" : "Right on the second try") + ", so it will come back once more. Model answer: ", h("b", { text: ex.ref })), { msg: "Nearly there" });
+        answer(ex, ok, h("span", null, "Model answer: ", h("b", { text: ex.ref })));
+      };
+      // Without Claude (declined, unavailable, or the check failed) the learner compares with the model answer.
+      const selfCheck = (v, why) => {
+        lock(true);
+        out.replaceChildren(why ? h("p", { class: "count", text: why }) : null, h("div", null, "You wrote: ", h("b", { text: v })), h("div", null, "Model answer: ", h("b", { text: ex.ref })),
+          h("div", { class: "actions" }, h("button", { class: "btn good", type: "button", onclick: () => ex.hinted ? answer(ex, false, helped(ex.ref), { msg: "Used a hint" }) : answer(ex, true, null) }, "Mine matches"),
+            h("button", { class: "btn again", type: "button", onclick: () => answer(ex, false, null) }, "Mine was different")));
+      };
+      const form = h("form", { class: "form", onsubmit: async e => {
+        e.preventDefault();
+        const v = input.value.trim(); if (!v) return input.focus();
+        lock(true);
+        const smp = writeOff ? null : await sampler();
+        if (!smp) return selfCheck(v, "The grammar check needs Claude, which isn't available here, so compare with the model answer.");
+        out.replaceChildren(h("p", { class: "count", text: "Checking your sentence…" }));
+        let r;
+        try { r = await smp.json(checkPrompt(ex, v, taught.length ? taught.map(g => g.en).join("; ") : "only basic vocabulary so far"), { modelTier: "default", effort: "low", cache: false }); }
+        catch (err) {
+          if (["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed"].includes(err?.code)) writeOff = true;
+          return selfCheck(v, err?.code === "rate_limited" ? "Claude is busy for you right now, so compare with the model answer." : writeOff ? "The grammar check is turned off for this page, so compare with the model answer." : "The check didn't come back, so compare with the model answer.");
+        }
+        if (!r || typeof r !== "object") return selfCheck(v, "The check didn't come back, so compare with the model answer.");
+        tries++;
+        const words = Array.isArray(r.grammar_breakdown) ? r.grammar_breakdown : [];
+        const counts = x => x.has_error && (!WRITE_TAUGHT_ONLY || x.taught !== false);
+        const errs = words.filter(counts), later = WRITE_TAUGHT_ONLY ? words.filter(x => x.has_error && x.taught === false) : [];
+        const clitBad = r.clitic_check?.is_correct_position === false;
+        const ok = !errs.length && !(clitBad && cliticsTaught) && (WRITE_TAUGHT_ONLY ? r.is_correct_taught !== false || r.is_correct === true : r.is_correct === true);
+        const laterNote = later.length || (clitBad && !cliticsTaught) ? h("div", { class: "later" }, h("b", { text: "Coming later: " }),
+          [...later.map(x => x.word + ": " + x.correction_tip), clitBad && !cliticsTaught ? r.clitic_check.explanation : ""].filter(Boolean).join(" ")) : null;
+        if (!ok && tries === 1 && WRITE_HINT_FIRST) {
+          // Hint only: show where the problem is and why, but not the fix. One more try.
+          const hints = errs.map(x => h("li", null, h("b", { text: x.word }), ": " + (x.hint || "check this word")));
+          if (clitBad && cliticsTaught) hints.push(h("li", null, h("b", { text: "Word order" }), ": short words like sam, je, ću, ga or se go in second place."));
+          out.replaceChildren(h("p", { class: "notice", text: "Not quite. Here's where to look, then try again:" }), said(words, true), h("ul", null, hints));
+          lock(false); check.textContent = "Check again"; input.focus();
+          session.wrong[ex.w.id] = 1;
+          return;
+        }
+        const tips = errs.map(x => h("li", null, h("b", { text: x.word }), " → " + (x.correction_tip || "")));
+        if (clitBad && cliticsTaught && r.clitic_check.explanation) tips.push(h("li", null, h("b", { text: "Word order" }), ": " + r.clitic_check.explanation));
+        finishWith(ok, [
+          said(words, !ok),
+          r.natural_response ? h("div", null, "🗣️ ", h("b", { text: r.natural_response })) : null,
+          tips.length ? h("ul", null, tips) : null,
+          laterNote,
+          r.english_explanation ? h("p", { class: "count", text: r.english_explanation }) : null]);
+      } }, input, keys, check);
+      const help = helpRow(ex, "starts like " + letterHint(ex.ref), () => { lock(true); out.replaceChildren(); answer(ex, false, h("span", null, "Answer: ", h("b", { text: ex.ref })), { msg: "Here's the answer" }); });
+      stage.append(h("div", { class: "prompt-label", text: "Write this in Croatian, your own way" }), h("div", { class: "big", text: ex.en }), form, help, out);
+      setTimeout(() => input.focus(), 50);
+    },
+    gate(ex, stage) {
+      const msg = dailyRest(session);
+      if (!msg) { session.idx++; return render(); }
+      stage.append(h("div", { class: "card" }, h("div", { class: "bigpic", text: session.relearn.length ? "🔁" : "🔓" }), h("p", { text: msg })));
+      app.append(h("div", { class: "sheet" }, h("div", { class: "in" }, h("button", { class: "btn primary", id: "continue", onclick: () => { session.idx++; render(); } }, "Continue"))));
+    },
+    rule(ex, stage) {
+      const g = ex.g;
+      stage.append(h("div", { class: "prompt-label", text: "New grammar point" }),
+        h("div", { class: "card rulecard" }, h("div", { class: "big", text: g.pic + " " + g.hr }), h("div", { class: "en", text: g.en }),
+          h("div", { class: "examples" }, g.examples.slice(0, 3).map(([hr, en]) => h("div", { class: "exrow" }, sayBtn(hr), h("div", null, h("div", { class: "hr", text: hr }), h("div", { class: "en", text: en }))))),
+          g.rule.map(t => h("p", { text: t })),
+          h("div", { class: "tablewrap" }, h("table", { class: "gtable" }, h("thead", null, h("tr", null, g.table.head.map(x => h("th", { text: x })))),
+            h("tbody", null, g.table.rows.map(r => h("tr", null, r.map(c => h("td", { text: c })))))))));
+      app.append(h("div", { class: "sheet" }, h("div", { class: "in" }, h("button", { class: "btn primary", id: "continue", onclick: () => { session.idx++; render(); } }, "Got it, let's practise"))));
+    },
+    intro(ex, stage) {
+      const w = ex.w;
+      stage.append(h("div", { class: "prompt-label", text: "New word" }),
+        h("div", { class: "card" }, w.pic ? h("div", { class: "bigpic", text: w.pic, "aria-hidden": "true" }) : null,
+          h("div", { class: "big", text: w.hr }), h("div", { class: "en", text: w.en }), w.note ? h("div", { class: "note", text: w.note }) : null,
+          h("div", { class: "row center" }, h("button", { class: "btn", onclick: () => speak(w.hr) }, "🔊 Listen"), h("button", { class: "btn ghost", onclick: () => speak(w.hr, 0.55) }, "🐢 Slowly"))));
+      const sheet = h("div", { class: "sheet" }, h("div", { class: "in" }, h("button", { class: "btn primary", id: "continue", onclick: () => { session.idx++; render(); } }, "Got it")));
+      app.append(sheet);
+      speak(w.hr);
+    },
+    mcHrEn(ex, stage) {
+      const w = ex.w;
+      stage.append(h("div", { class: "prompt-label", text: "What does this mean?" }),
+        h("div", { class: "row" }, sayBtn(w.hr), h("div", { class: "big", text: w.hr })));
+      choiceList(stage, shuffle([w, ...distractors(w, 3, "en")]), x => x.en, x => x === w, ok => answer(ex, ok, ok ? null : correctLine(w)));
+      speak(w.hr);
+    },
+    mcEnHr(ex, stage) {
+      const w = ex.w;
+      stage.append(h("div", { class: "prompt-label", text: "How do you say this in Croatian?" }),
+        h("div", { class: "row" }, w.pic ? h("span", { style: "font-size:2.4rem", text: w.pic, "aria-hidden": "true" }) : null, h("div", { class: "big", text: w.en })));
+      choiceList(stage, shuffle([w, ...distractors(w, 3, "hr")]), x => x.hr, x => x === w, ok => answer(ex, ok, ok ? null : correctLine(w)));
+    },
+    listen(ex, stage) {
+      const w = ex.w;
+      stage.append(h("div", { class: "prompt-label", text: "Listen. What did you hear?" }),
+        h("button", { class: "playbig", "aria-label": "Play again", onclick: () => speak(w.hr) }, "🔊"),
+        h("div", { class: "row center" }, h("button", { class: "linkbtn", onclick: () => speak(w.hr, 0.55) }, "🐢 Play slowly")));
+      choiceList(stage, shuffle([w, ...distractors(w, 3, "en")]), x => x.en, x => x === w, ok => answer(ex, ok, correctLine(w), { silent: true }));
+      speak(w.hr);
+    },
+    listenpic(ex, stage) {
+      const w = ex.w;
+      stage.append(h("div", { class: "prompt-label", text: "Listen and tap the picture" }),
+        h("button", { class: "playbig", "aria-label": "Play again", onclick: () => speak(w.hr) }, "🔊"));
+      choiceList(stage, shuffle([w, ...distractors(w, 3, "pic")]), x => x.pic, x => x === w, ok => answer(ex, ok, correctLine(w), { silent: true }), "picopts", "picopt");
+      speak(w.hr);
+    },
+    pictap(ex, stage) {
+      const w = ex.w;
+      stage.append(h("div", { class: "prompt-label", text: "Tap the picture for…" }),
+        h("div", { class: "row" }, sayBtn(w.hr), h("div", { class: "big", text: w.hr })));
+      choiceList(stage, shuffle([w, ...distractors(w, 3, "pic")]), x => x.pic, x => x === w, ok => answer(ex, ok, correctLine(w), { silent: true }), "picopts", "picopt");
+      speak(w.hr);
+    },
+    type(ex, stage) {
+      const w = ex.w;
+      const input = h("input", { class: "typebox", id: "typed", type: "text", autocomplete: "off", autocapitalize: "off", spellcheck: "false", "aria-label": "Type the Croatian", placeholder: "Type in Croatian" });
+      const keys = h("div", { class: "keys" }, ["č", "ć", "đ", "š", "ž"].map(k => h("button", { class: "key", type: "button", onclick: () => {
+        const a = input.selectionStart ?? input.value.length, b = input.selectionEnd ?? a;
+        input.value = input.value.slice(0, a) + k + input.value.slice(b); input.focus(); input.setSelectionRange(a + 1, a + 1);
+      } }, k)));
+      const check = h("button", { class: "btn primary", type: "submit" }, "Check");
+      const form = h("form", { class: "form", onsubmit: e => {
+        e.preventDefault();
+        const v = input.value; if (!v.trim()) return input.focus();
+        input.disabled = true; check.disabled = true; keys.querySelectorAll("button").forEach(b => (b.disabled = true));
+        const right = norm(v) === norm(w.hr), near = !right && loose(v) === loose(w.hr);
+        if ((right || near) && ex.hinted) answer(ex, false, helped(w.hr), { msg: "Used a hint" });
+        else if (right) answer(ex, true, null);
+        else if (near) answer(ex, true, h("span", null, "Watch the accents: ", h("b", { text: w.hr })), { near: true, xp: 5 });
+        else answer(ex, false, h("span", null, "Correct answer: ", h("b", { text: w.hr })));
+      } }, input, keys, check);
+      const help = helpRow(ex, letterHint(w.hr), () => { input.disabled = true; check.disabled = true; answer(ex, false, h("span", null, "Answer: ", h("b", { text: w.hr })), { msg: "Here's the answer" }); });
+      if (ex.dictate) {
+        stage.append(h("div", { class: "prompt-label", text: "Listen, then write what you hear" }),
+          h("button", { class: "playbig", type: "button", "aria-label": "Play again", onclick: () => speak(w.hr) }, "🔊"),
+          h("div", { class: "row center" }, h("button", { class: "linkbtn", type: "button", onclick: () => speak(w.hr, 0.55) }, "🐢 Play slowly")), form, help);
+        speak(w.hr);
+      } else stage.append(h("div", { class: "prompt-label", text: "Write this in Croatian" }),
+        h("div", { class: "row" }, w.pic ? h("span", { style: "font-size:2.4rem", text: w.pic, "aria-hidden": "true" }) : null, h("div", { class: "big", text: w.en })), form, help);
+      setTimeout(() => input.focus(), 50);
+    },
+    speak(ex, stage) {
+      const w = ex.w;
+      const status = h("p", { class: "count", "aria-live": "polite" });
+      const kid = isKid();
+      const card = h("div", { class: "card" }, w.pic ? h("div", { class: "bigpic", text: w.pic, "aria-hidden": "true" }) : null,
+        h("div", { class: "big", text: w.hr }), h("div", { class: "en", text: w.en }),
+        h("div", { class: "row center" }, h("button", { class: "btn", onclick: () => speak(w.hr) }, "🔊 Listen"), h("button", { class: "btn ghost", onclick: () => speak(w.hr, 0.55) }, "🐢 Slowly")));
+      stage.append(h("div", { class: "prompt-label", text: kid ? "Listen, then say it out loud!" : "Listen, then say it out loud. Copy the rhythm." }), card);
+      if (!micBlocked) {
+        const mic = h("button", { class: "btn ghost" }, "🎙️ Check my pronunciation");
+        mic.onclick = () => {
+          try {
+            const r = new SR(); r.lang = "hr-HR"; r.maxAlternatives = 3; r.interimResults = false;
+            status.textContent = "Listening…";
+            r.onresult = e => {
+              const alts = [...e.results[0]].map(a => a.transcript);
+              const best = Math.min(...alts.map(a => lev(loose(a), loose(w.hr)) / Math.max(1, loose(w.hr).length)));
+              status.textContent = "I heard: " + alts[0];
+              if (best <= 0.25) answer(ex, true, h("span", null, "Great pronunciation."), { silent: true });
+              else status.textContent += ". Try again, or rate yourself below.";
+            };
+            r.onerror = e => {
+              if (e.error === "not-allowed" || e.error === "service-not-allowed") { micBlocked = true; mic.remove(); status.textContent = "The microphone isn't available here, so rate yourself."; }
+              else status.textContent = "I didn't catch that. Try again.";
+            };
+            r.start();
+          } catch { micBlocked = true; mic.remove(); status.textContent = "The microphone isn't available here, so rate yourself."; }
+        };
+        stage.append(h("div", { class: "row center" }, mic));
+      }
+      stage.append(status);
+      const sheet = h("div", { class: "sheet" }, h("div", { class: "in" }, h("div", { class: "row" },
+        h("button", { class: "btn", style: "flex:1", onclick: () => { sheet.remove(); answer(ex, false, h("span", null, "We'll practise it again."), { silent: true }); } }, "Not yet"),
+        h("button", { class: "btn primary", style: "flex:2", id: "continue", onclick: () => { sheet.remove(); answer(ex, true, null, { silent: true }); } }, kid ? "I said it! ⭐" : "I said it"))));
+      app.append(sheet);
+      speak(w.hr);
+    },
+    flash(ex, stage) {
+      const w = ex.w, p = me();
+      const back = h("div", { hidden: true, style: "display:grid;gap:8px;justify-items:center" }, h("div", { class: ex.reverse ? "big" : "en", text: ex.reverse ? w.hr : w.en }), w.note ? h("div", { class: "note", text: w.note }) : null);
+      stage.append(h("div", { class: "prompt-label", text: ex.reverse ? "Say it in Croatian, out loud, then check" : "Do you remember this?" }),
+        h("div", { class: "card" }, isKid() && w.pic ? h("div", { class: "bigpic", text: w.pic }) : null, h("div", { class: "big", text: ex.reverse ? w.en : w.hr }), back,
+          ex.reverse ? null : h("div", { class: "row center" }, sayBtn(w.hr))));
+      if (ex.reverse) back.append(sayBtn(w.hr));
+      const s = p.srs[w.id];
+      const rate = h("div", { class: "rate" }, [["Again", 0, "again"], ["Hard", 1, ""], ["Good", 2, "good"], ["Easy", 3, ""]].map(([label, g, cls]) => {
+        const nxt = nextState(s, g);
+        return h("button", { class: "btn " + cls, onclick: () => {
+          p.srs[w.id] = nxt;
+          if (g === 0) { session.wrong[w.id] = 1; if (!ex.retry) session.queue.push(Object.assign({}, ex, { retry: true })); }
+          else { session.right++; session.xp += 5; }
+          session.idx++; render();
+        } }, label, h("small", { text: ivlLabel(nxt[1]) }));
+      }));
+      const reveal = h("button", { class: "btn primary", id: "continue", onclick: () => { back.hidden = false; reveal.replaceWith(rate); speak(w.hr); } }, "Show answer");
+      app.append(h("div", { class: "sheet" }, h("div", { class: "in" }, reveal)));
+      if (!ex.reverse) speak(w.hr);
+    },
+    match(ex, stage) {
+      const words = ex.words;
+      stage.append(h("div", { class: "prompt-label", text: "Match each picture to its word" }));
+      const left = shuffle(words), right = shuffle(words);
+      const grid = h("div", { class: "match" });
+      let sel = null, left_n = words.length, misses = 0;
+      const tiles = [];
+      for (let i = 0; i < words.length; i++) {
+        tiles.push(h("button", { class: "mt pic", "data-id": left[i].id, "data-side": "p", "aria-label": "Picture", text: left[i].pic }));
+        tiles.push(h("button", { class: "mt", "data-id": right[i].id, "data-side": "w", text: right[i].hr }));
+      }
+      tiles.forEach(t => {
+        t.onclick = () => {
+          if (t.dataset.side === "w") speak(t.textContent);
+          if (!sel || sel.dataset.side === t.dataset.side) { if (sel) sel.classList.remove("sel"); sel = t; t.classList.add("sel"); return; }
+          if (sel.dataset.id === t.dataset.id) {
+            sel.classList.add("gone"); t.classList.add("gone"); sel = null; left_n--;
+            if (!left_n) { session.right = words.length; session.xp = Math.max(5, 15 - misses * 2); session.idx++; setTimeout(render, 400); }
+          } else {
+            misses++; const a = sel; a.classList.remove("sel"); [a, t].forEach(x => { x.classList.add("shake"); setTimeout(() => x.classList.remove("shake"), 350); }); sel = null;
+          }
+        };
+        grid.append(t);
+      });
+      stage.append(grid);
+    }
+  };
+
+  function applyLesson(s, p) {
+    const t = today();
+    for (const id of s.fresh || []) p.srs[id] = s.wrong[id] ? [2.3, 0, t, 0] : [2.5, 1, t + 1, 1];
+    for (const id of s.review || []) if (s.wrong[id]) { const [e, , , r] = p.srs[id]; p.srs[id] = [Math.max(1.3, e - 0.2), 0, t, r]; }
+  }
+  function finish(early) {
+    const s = session, p = me();
+    if (s.kind === "daily" && early) { saveRun(s); return go("home"); } // resumes from here next time
+    if (p) {
+      if (s.kind === "lesson" || s.kind === "daily") {
+        if (early) { // keep only words that were actually practised
+          const seen = new Set(s.queue.slice(0, s.idx).map(e => e.w?.id));
+          s.fresh = s.fresh.filter(id => seen.has(id)); s.review = s.review.filter(id => seen.has(id));
+        }
+        applyLesson(s, p);
+      }
+      if (s.kind === "daily") {
+        const t = today(), pl = planOf(p);
+        // Words from last time that came back move on in the schedule (misses were reset above).
+        for (const id of s.warm) if (!s.wrong[id] && p.srs[id] && p.srs[id][2] <= t) p.srs[id] = nextState(p.srs[id], 2);
+        delete p.run;
+        {
+          // Relearned words are asked for again tomorrow.
+          for (const id of s.relearn) if (p.srs[id]) { const [e, , , r] = p.srs[id]; p.srs[id] = [Math.max(1.3, e - 0.2), 1, t + 1, r]; }
+          pl.clean = pl.clean || {};
+          const gm = k => Object.keys(s.wrong).some(x => x.startsWith("g:" + k + ":"));
+          if (s.unit && !gm(s.unit)) pl.clean[s.unit] = (pl.clean[s.unit] || 0) + 1;
+          if (s.plan.warmUnit && gm(s.plan.warmUnit.id)) pl.clean[s.plan.warmUnit.id] = 0;
+          pl.day = s.day; pl.date = t; pl.unit = s.unit || null;
+          pl.last = { fresh: [...s.relearn, ...s.fresh], unit: s.unit || null };
+        }
+      }
+      if (!early) finishExtras(s, p);
+      addXp(p, s.xp); saveProfile(p);
+    }
+    if (early) go("home");
+  }
+  // Progress for conversations, grammar and ear training (only when a session is completed).
+  function finishExtras(s, p) {
+    const t = today(), misses = pre => Object.entries(s.wrong).filter(([k]) => k.startsWith(pre)).reduce((a, [, v]) => a + v, 0);
+    if (s.dlg) {
+      p.dlg = p.dlg || {}; p.dlg[s.dlg] = true;
+      if (s.kind === "roleplay") for (const id of new Set(s.queue.map(e => e.w.id))) if (!p.srs[id]) p.srs[id] = s.wrong[id] ? [2.3, 0, t, 0] : [2.5, 1, t + 1, 1];
+    }
+    if (s.unit) {
+      p.gram = p.gram || {};
+      const m = misses("g:" + s.unit + ":"), grade = m === 0 ? (s.kind === "speed" ? 3 : 2) : m <= 2 ? 1 : 0;
+      const cur = p.gram[s.unit];
+      p.gram[s.unit] = cur ? nextState(cur, grade) : grade ? [2.5, 1, t + 1, 1] : [2.3, 0, t, 0];
+    }
+    for (const u of s.units || []) { const m = misses("g:" + u + ":"); p.gram[u] = nextState(p.gram[u], m ? (m > 1 ? 0 : 1) : 2); }
+    if (s.kind === "ear") { p.snd = p.snd || {}; p.snd[s.sound] = Math.max(p.snd[s.sound] || 0, s.right / Math.max(1, s.queue.length)); }
+  }
+  let finishedSession = null;
+  function finishScreen(stage) {
+    const s = session;
+    if (finishedSession !== s) { finishedSession = s; finish(false); }
+    document.querySelectorAll(".sheet").forEach(x => x.remove());
+    const kid = isKid(), p = me();
+    const total = s.kind === "match" ? s.right : s.queue.filter(e => e.type !== "intro").length;
+    stage.append(h("div", { class: "done" },
+      h("div", { class: "bigpic", text: kid ? "🌟" : "🎉" }),
+      h("h2", { text: kid ? "Bravo!" : "Odlično! " + s.title + " done." }),
+      h("div", { class: "stats" },
+        h("span", null, kid ? "⭐ " : "", h("b", { text: "+" + s.xp }), kid ? " stars" : " XP"),
+        s.kind !== "match" ? h("span", null, h("b", { text: s.right + " / " + total }), " correct") : null,
+        p ? h("span", null, "🔥 ", h("b", { text: streakOf(p) }), " day streak") : null),
+      s.kind === "daily" ? h("p", { text: ([...s.relearn, ...s.fresh].length ? "Tomorrow starts by asking for " + [...s.relearn, ...s.fresh].map(id => BY_ID[id].hr).join(", ") + " from memory. New words unlock only if they all come back. " : "") + "The next lesson opens tomorrow." }) : null,
+      s.kind === "lesson" && s.fresh.length ? h("p", { text: "New words: " + s.fresh.map(id => BY_ID[id].hr).join(", ") + ". They'll come back for review tomorrow." }) : null,
+      h("div", { class: "actions", style: "width:100%" },
+        s.kind === "match" ? h("button", { class: "btn primary", onclick: () => { session = null; startMatch(); } }, "Play again") : null,
+        s.next ? h("button", { class: "btn primary", onclick: () => { session = null; s.next[1](); } }, s.next[0]) : null,
+        h("button", { class: "btn", onclick: () => go("home") }, "Home"))));
+  }
+
+  document.addEventListener("keydown", e => {
+    if (!session) return;
+    if (e.key === "Enter" && document.activeElement?.id !== "typed") { const c = $("#continue"); if (c && document.activeElement !== c) { e.preventDefault(); c.click(); } }
+  });
+
+  render();
+  // Fetch the audio packs in the background so taps play straight away.
+  if (PACKED) setTimeout(() => PACKED.packs.reduce((ch, p) => ch.then(() => loadPack(p)), Promise.resolve()), 800);
+})();
+</script>
