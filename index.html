@@ -192,6 +192,12 @@ p { margin: 0; }
 .plan { margin: 4px 0 0; padding-left: 1.3em; display: grid; gap: 4px; color: var(--muted); font-size: .95rem; }
 .plan b { color: var(--ink, inherit); }
 .rulecard { text-align: left; justify-items: stretch; }
+.card.rulecard p, .card.rulecard .steptitle { text-align: left; }
+.steptitle { font-size: 1.05rem; font-weight: 700; margin: 4px 0 0; }
+.worked { background: var(--bg); border-radius: 18px; padding: 10px 14px; }
+.worked p { margin: 4px 0 0; }
+.rule .step { display: grid; gap: 6px; margin-bottom: 14px; }
+.why { margin-top: 6px; font-weight: 500; }
 .writebox { min-height: 4.5em; resize: vertical; font: inherit; }
 .writeout { display: grid; gap: 10px; text-align: left; }
 .writeout .said { font-size: 1.15rem; font-weight: 600; line-height: 1.6; }
@@ -1039,9 +1045,9 @@ body.kid .opt { font-size: 1.25rem; }
     const wrap = h("main", { class: "wrap" }, subhead(g.pic + " " + g.hr, g.en, "grammar"));
     wrap.append(h("section", { class: "panel" }, h("div", { class: "eyebrow", text: "1 · Listen to the examples" }),
       h("div", { class: "examples" }, g.examples.map(([hr, en]) => h("div", { class: "exrow" }, sayBtn(hr), h("div", null, h("div", { class: "hr", text: hr }), h("div", { class: "en", text: en })))))));
-    const rule = h("section", { class: "panel rule", hidden: !known }, h("div", { class: "eyebrow", text: "3 · The rule" }), g.rule.map(t => h("p", { text: t })),
-      h("div", { class: "tablewrap" }, h("table", { class: "gtable" }, h("thead", null, h("tr", null, g.table.head.map(x => h("th", { text: x })))),
-        h("tbody", null, g.table.rows.map(r => h("tr", null, r.map(c => h("td", { text: c }))))))));
+    const rule = h("section", { class: "panel rule", hidden: !known }, h("div", { class: "eyebrow", text: "3 · The rule, step by step" }),
+      g.steps.map((st, j) => h("div", { class: "step" }, h("h3", { class: "steptitle", text: (j + 1) + ". " + st.t }), ...stepBody(st))),
+      h("div", { class: "eyebrow", text: "All together" }), stepTable(g));
     const spot = h("section", { class: "panel", style: "display:grid;gap:10px" }, h("div", { class: "eyebrow", text: "2 · Spot the pattern" }), h("div", { class: "q", style: "font-weight:800", text: g.spot.q }));
     const opts = h("div", { class: "options" });
     g.spot.options.forEach((o, i) => opts.append(h("button", { class: "opt", onclick: e => {
@@ -1054,8 +1060,12 @@ body.kid .opt { font-size: 1.25rem; }
     spot.append(opts);
     if (!known) spot.append(h("button", { class: "linkbtn", style: "justify-self:start", onclick: () => { rule.hidden = false; } }, "Skip to the rule"));
     wrap.append(spot, rule);
-    wrap.append(h("section", { class: "panel", style: "display:grid;gap:12px" }, h("div", { class: "eyebrow", text: "4 · Make it automatic" }),
-      h("p", { text: "Practise fills the gaps with feedback on each one. The speed round gives you a few seconds per question, and that time pressure is what turns a rule you know into a reflex." }),
+    wrap.append(h("section", { class: "panel", style: "display:grid;gap:12px" }, h("div", { class: "eyebrow", text: "4 · Build the forms" }),
+      h("p", { text: "Practise each step on its own first: just the forms, with no sentence around them. Each miss shows the step it tests." }),
+      h("div", { class: "actions" },
+        h("button", { class: "btn primary", onclick: () => { if (!me()) return toast("Add a learner first."); startForms(g); } }, "Build the forms (" + g.steps.length * 3 + ")"))));
+    wrap.append(h("section", { class: "panel", style: "display:grid;gap:12px" }, h("div", { class: "eyebrow", text: "5 · Use it in sentences, then make it automatic" }),
+      h("p", { text: "Practise fills the gaps in whole sentences with feedback on each one. The speed round gives you a few seconds per question, and that time pressure is what turns a rule you know into a reflex." }),
       h("div", { class: "actions" },
         h("button", { class: "btn primary", onclick: () => { if (!me()) return toast("Add a learner first."); startGrammar(g, false); } }, "Practise (" + (g.drills.length + 4) + ")"),
         h("button", { class: "btn", onclick: () => { if (!me()) return toast("Add a learner first."); startGrammar(g, true); } }, "⚡ Speed round"))));
@@ -1114,7 +1124,7 @@ body.kid .opt { font-size: 1.25rem; }
       ["Most common words first", "A few hundred words make up most of everyday speech (Zipf's law): the top 100 Croatian words cover nearly half of what people say.",
         "Between the themed topics, adults get six \"most-used\" topics: little words like i, ali, još, u, na, the key verbs (mogu, želim, moram, znam) and everyday words like vrijeme and posao. Conversations reuse them constantly."],
       ["Adult pattern-finding", "Adults learn grammar fast early on because they're good at spotting patterns.",
-        "Grammar units ask you to spot the pattern in examples before showing the rule. Kids' profiles skip grammar and learn by listening, pictures and copying."]
+        "Grammar units ask you to spot the pattern in examples before showing the rule. The rule is then taught one small step at a time, each with a worked example and a few questions on just that form, before the forms go back into whole sentences. Kids' profiles skip grammar and learn by listening, pictures and copying."]
     ];
     wrap.append(...P.map(([t, why, where]) => h("section", { class: "panel principle" }, h("h3", { text: t }), h("p", { text: why }), h("div", { class: "where", text: "In Naučimo: " + where }))));
     wrap.append(h("p", { class: "count", text: "The course was written without a native speaker and the voices are synthetic, so have a Croatian speaker check it when you can." }));
@@ -1184,11 +1194,12 @@ body.kid .opt { font-size: 1.25rem; }
   // Recall = producing the word from the English (adults type it; kids hear it and find the picture, or say it).
   const recallEx = w => isKid() ? { type: TOPIC[w.topic].kids && w.pic ? "listenpic" : "speak", w } : { type: "type", w };
   // Material the learner has met: words on their learned cards and conversation lines (and lexicon forms of those words),
-  // today's new words, and the forms in the tables of grammar units they've had. Prompts are built only from these.
+  // today's new words, and the forms in the tables and form drills of grammar units they've had. Prompts are built only from these.
   function knownSet(p, extraIds, units) {
     const k = new Set(), addText = t => norm(t).split(" ").forEach(x => x && k.add(x));
     for (const id of [...Object.keys(p.srs || {}), ...extraIds]) if (BY_ID[id]) addText(BY_ID[id].hr);
     for (const g of units) for (const r of g.table.rows) r.forEach(c => addText(String(c).replace(/[()\/→]/g, " ")));
+    for (const g of units) for (const st of g.steps) if (!st.o) st.f.forEach(f => addText(f.a));
     return k;
   }
   const unknownIn = (k, text) => norm(text).split(" ").filter(t => t && !k.has(t) && !(LEX[t] && LEX[t][1] !== "*" && k.has(norm(LEX[t][1]))));
@@ -1199,6 +1210,18 @@ body.kid .opt { font-size: 1.25rem; }
     const idx = shuffle(g.drills.map((_, i) => i)).map(i => [i, k ? unknownIn(k, fullOf(g.drills[i]).replace(g.drills[i].a, "")) : []]).sort((a, b) => cost(a[1]) - cost(b[1])).slice(0, n);
     return idx.map(([i, un]) => ({ type: typed || Math.random() < 0.5 ? "gaptype" : "gap", ...gapItem(g, i), ...(un.length ? { gloss: un } : {}) }));
   };
+  // Form drills practise one step of a rule on its own, before it has to work inside a sentence.
+  const formItem = (g, k, i) => {
+    const f = g.steps[k].f[i];
+    return { type: "form", g, k, f, w: { id: "g:" + g.id + ":f" + k + "." + i, hr: f.a, en: f.en || "" } };
+  };
+  const formsOf = (g, k, n) => sample(g.steps[k].f.map((_, i) => formItem(g, k, i)), n);
+  // One form from each step (up to n), for days after the rule has been taught.
+  const mixedForms = (g, n) => shuffle(g.steps.map((_, k) => formsOf(g, k, 1)[0])).slice(0, n);
+  // The first time: each step of the rule, then two forms of just that step. Later: forms from memory.
+  const grammarStage = (p, g, n, k) => [
+    ...((p.gram || {})[g.id] ? mixedForms(g, 4) : g.steps.flatMap((_, j) => [{ type: "rule", g, k: j, w: { id: "rule:" + g.id + ":" + j, hr: "", en: "" } }, ...formsOf(g, j, 2)])),
+    ...gapsOf(g, n, true, k)];
   function startDaily() {
     const p = me(); if (!p) return;
     if (p.run && resumeDaily(p)) return;
@@ -1219,7 +1242,7 @@ body.kid .opt { font-size: 1.25rem; }
   }
   // An unfinished daily lesson is saved on the profile after every question (p.run), so leaving resumes it
   // at the same question instead of counting it as done.
-  const EX_KEYS = ["stage", "once", "retry", "reverse", "dictate", "en", "ref", "gloss"];
+  const EX_KEYS = ["stage", "once", "retry", "reverse", "dictate", "en", "ref", "gloss", "k"];
   function packEx(e) {
     const o = { t: e.type };
     for (const k of EX_KEYS) if (e[k] !== undefined) o[k] = e[k];
@@ -1231,7 +1254,8 @@ body.kid .opt { font-size: 1.25rem; }
     const e = { type: o.t };
     for (const k of EX_KEYS) if (o[k] !== undefined) e[k] = o[k];
     if (o.t === "gap" || o.t === "gaptype") { const [, u, i] = String(o.w).split(":"); if (!GRAM[u]?.drills[+i]) throw 0; return Object.assign(e, gapItem(GRAM[u], +i)); }
-    if (o.t === "rule") { e.g = GRAM[o.g]; if (!e.g) throw 0; }
+    if (o.t === "form") { const [, u, f] = String(o.w).split(":"), [k, i] = f.slice(1).split(".").map(Number); if (!GRAM[u]?.steps[k]?.f[i]) throw 0; return Object.assign(e, formItem(GRAM[u], k, i)); }
+    if (o.t === "rule") { e.g = GRAM[o.g]; if (!e.g || (e.k !== undefined && !e.g.steps[e.k])) throw 0; }
     if (o.t === "write") e.w = { id: o.w, hr: o.ref, en: o.en };
     else if (o.t === "rule" || o.t === "gate") e.w = { id: o.w, hr: "", en: "" };
     else { e.w = BY_ID[o.w]; if (!e.w) throw 0; }
@@ -1269,7 +1293,7 @@ body.kid .opt { font-size: 1.25rem; }
       add(missed.length ? "Relearn" : "New words", dWords(target).flatMap(w => [{ type: "intro", w }, meet(w)]));
       add("Practice", shuffle(dWords(target)).map(recallEx));
     }
-    if (P.unit) add("Grammar", [...((p.gram || {})[P.unit.id] ? [] : [{ type: "rule", g: P.unit, w: { id: "rule:" + P.unit.id, hr: "", en: "" } }]), ...gapsOf(P.unit, 4, !kid, knownSet(p, target, unitsFor(p, P.unit)))]);
+    if (P.unit) add("Grammar", grammarStage(p, P.unit, 4, knownSet(p, target, unitsFor(p, P.unit))));
     if (!kid) add("Write it yourself", writePrompts(p, P, target));
     if (target.length) add("Lock it in", shuffle(dWords(target)).map(recallEx));
     s.queue.push(...q);
@@ -1336,7 +1360,7 @@ Reply with exactly this shape:
 - natural_response: one short, encouraging line in natural Croatian, as a native speaker would say it; if the sentence was wrong, include the corrected sentence.
 - english_explanation: one to three sentences on the grammar mechanics.`;
   }
-  const gapItem = (g, i) => ({ d: g.drills[i], w: { id: "g:" + g.id + ":" + i, hr: fullOf(g.drills[i]), en: g.drills[i].en } });
+  const gapItem = (g, i) => ({ g, d: g.drills[i], w: { id: "g:" + g.id + ":" + i, hr: fullOf(g.drills[i]), en: g.drills[i].en } });
   function startReview() {
     const p = me(); if (!p) return;
     const ids = dueIds(p).slice(0, 20), units = dueUnits(p).slice(0, 3);
@@ -1363,6 +1387,12 @@ Reply with exactly this shape:
     let lines = Object.keys(p.srs || {}).filter(id => BY_ID[id]?.line).map(id => BY_ID[id]);
     if (lines.length < 6) lines = lines.concat((nextDialogue(p) || DIALOGUES[0]).ids.map(id => BY_ID[id]));
     startShadow(sample([...new Set(lines)], 8), "Shadowing");
+  }
+  // Forms step by step, in rule order, so each step is practised alone before they mix.
+  function startForms(g) {
+    session = { kind: "grammar", title: g.hr + " · forms", unit: g.id, queue: g.steps.flatMap((_, k) => formsOf(g, k, 3)), idx: 0, right: 0, xp: 0, wrong: {},
+      next: ["Practise in sentences", () => startGrammar(g, false)] };
+    render();
   }
   function startGrammar(g, speed) {
     const items = g.drills.map((_, i) => gapItem(g, i));
@@ -1460,6 +1490,21 @@ Reply with exactly this shape:
   const gapLine = (d, fill) => h("div", { class: "gapline" }, d.s.split("___").flatMap((part, i) => [i ? h("span", { class: "gap", text: fill || "?" }) : null, part]));
   const glossLine = ex => ex?.gloss?.length ? h("div", { class: "hint", text: "New word: " + ex.gloss.map(t => t + " = " + (meaningOf(t) || "?")).join(", ") }) : null;
   const gapHints = d => [d.h ? h("div", { class: "hint", text: "(" + d.h + ")" }) : null, h("div", { class: "hint", text: d.en })].filter(Boolean);
+  // After a missed grammar question: the one-line rule from the step it tests.
+  const whyLine = ex => { const st = ex.g?.steps?.[ex.k ?? ex.d?.r]; return st ? h("div", { class: "why" }, h("b", { text: "Why: " }), st.short) : null; };
+  const hasClip = t => !!(AUDIO[clean(t)] || AUDIO[clean(t).toLowerCase()]);
+  // A typing box with the Croatian letters most keyboards lack.
+  function typeBox(label, placeholder) {
+    const input = h("input", { class: "typebox", id: "typed", type: "text", autocomplete: "off", autocapitalize: "off", spellcheck: "false", "aria-label": label, placeholder });
+    const keys = h("div", { class: "keys" }, ["č", "ć", "đ", "š", "ž"].map(k => h("button", { class: "key", type: "button", onclick: () => {
+      const a = input.selectionStart ?? input.value.length, b = input.selectionEnd ?? a;
+      input.value = input.value.slice(0, a) + k + input.value.slice(b); input.focus(); input.setSelectionRange(a + 1, a + 1);
+    } }, k)));
+    return { input, keys };
+  }
+  const stepTable = g => h("div", { class: "tablewrap" }, h("table", { class: "gtable" }, h("thead", null, h("tr", null, g.table.head.map(x => h("th", { text: x })))),
+    h("tbody", null, g.table.rows.map(r => h("tr", null, r.map(c => h("td", { text: c })))))));
+  const stepBody = st => [h("p", { text: st.x }), h("div", { class: "worked" }, h("div", { class: "eyebrow", text: "Worked example" }), h("p", { text: st.how }))];
 
   const EX = {
     reply(ex, stage) {
@@ -1519,18 +1564,14 @@ Reply with exactly this shape:
         timer = setTimeout(() => {
           if (session?.queue[session.idx] !== ex || document.querySelector(".sheet")) return;
           stage.querySelectorAll(".opt").forEach(b => (b.disabled = true));
-          answer(ex, false, h("span", null, "Time's up: ", h("b", { text: fullOf(d) })));
+          answer(ex, false, h("span", null, "Time's up: ", h("b", { text: fullOf(d) }), whyLine(ex)));
         }, ex.timed);
       }
-      choiceList(stage, shuffle(d.o), x => x, x => x === d.a, ok => { clearTimeout(timer); answer(ex, ok, ok ? h("span", null, fullOf(d)) : h("span", null, "Correct: ", h("b", { text: fullOf(d) }))); });
+      choiceList(stage, shuffle(d.o), x => x, x => x === d.a, ok => { clearTimeout(timer); answer(ex, ok, ok ? h("span", null, fullOf(d)) : h("span", null, "Correct: ", h("b", { text: fullOf(d) }), whyLine(ex))); });
     },
     gaptype(ex, stage) {
       const d = ex.d;
-      const input = h("input", { class: "typebox", id: "typed", type: "text", autocomplete: "off", autocapitalize: "off", spellcheck: "false", "aria-label": "The missing word", placeholder: "Type the missing word" });
-      const keys = h("div", { class: "keys" }, ["č", "ć", "đ", "š", "ž"].map(k => h("button", { class: "key", type: "button", onclick: () => {
-        const a = input.selectionStart ?? input.value.length, b = input.selectionEnd ?? a;
-        input.value = input.value.slice(0, a) + k + input.value.slice(b); input.focus(); input.setSelectionRange(a + 1, a + 1);
-      } }, k)));
+      const { input, keys } = typeBox("The missing word", "Type the missing word");
       const check = h("button", { class: "btn primary", type: "submit" }, "Check");
       const form = h("form", { class: "form", onsubmit: e => {
         e.preventDefault();
@@ -1539,9 +1580,9 @@ Reply with exactly this shape:
         if ((norm(v) === norm(d.a) || loose(v) === loose(d.a)) && ex.hinted) answer(ex, false, helped(fullOf(d)), { msg: "Used a hint" });
         else if (norm(v) === norm(d.a)) answer(ex, true, h("span", null, fullOf(d)));
         else if (loose(v) === loose(d.a)) answer(ex, true, h("span", null, "Watch the accents: ", h("b", { text: fullOf(d) })), { near: true, xp: 5 });
-        else answer(ex, false, h("span", null, "Correct: ", h("b", { text: fullOf(d) })));
+        else answer(ex, false, h("span", null, "Correct: ", h("b", { text: fullOf(d) }), whyLine(ex)));
       } }, input, keys, check);
-      const help = helpRow(ex, letterHint(d.a), () => { input.disabled = true; check.disabled = true; answer(ex, false, h("span", null, "Answer: ", h("b", { text: fullOf(d) })), { msg: "Here's the answer" }); });
+      const help = helpRow(ex, letterHint(d.a), () => { input.disabled = true; check.disabled = true; answer(ex, false, h("span", null, "Answer: ", h("b", { text: fullOf(d) }), whyLine(ex)), { msg: "Here's the answer" }); });
       stage.append(h("div", { class: "prompt-label", text: "Type the missing word" }), gapLine(d), ...gapHints(d), ...[glossLine(ex)].filter(Boolean), form, help);
       setTimeout(() => input.focus(), 50);
     },
@@ -1632,21 +1673,46 @@ Reply with exactly this shape:
       stage.append(h("div", { class: "prompt-label", text: "Write this in Croatian, your own way" }), h("div", { class: "big", text: ex.en }), form, help, out);
       setTimeout(() => input.focus(), 50);
     },
+    form(ex, stage) {
+      const st = ex.g.steps[ex.k], f = ex.f, choices = f.o || st.o;
+      const done = (ok, detail, opts = {}) => answer(ex, ok, detail, { ...opts, silent: !hasClip(f.a) });
+      const miss = shown => h("span", null, shown, h("b", { text: f.a }), whyLine(ex));
+      stage.append(h("div", { class: "prompt-label", text: "Build the form · " + st.ask }), h("div", { class: "big", text: f.q }), f.en ? h("div", { class: "hint", text: f.en }) : null);
+      if (choices) return choiceList(stage, f.o ? shuffle(choices) : choices, x => x, x => x === f.a, ok => done(ok, ok ? null : miss("Correct: ")));
+      const { input, keys } = typeBox("Your answer", "Type the answer");
+      const check = h("button", { class: "btn primary", type: "submit" }, "Check");
+      const accepted = [f.a, ...(f.alt || [])], is = (fn, v) => accepted.some(a => fn(a) === fn(v));
+      const form = h("form", { class: "form", onsubmit: e => {
+        e.preventDefault();
+        const v = input.value; if (!v.trim()) return input.focus();
+        input.disabled = true; check.disabled = true; keys.querySelectorAll("button").forEach(b => (b.disabled = true));
+        if ((is(norm, v) || is(loose, v)) && ex.hinted) done(false, helped(f.a), { msg: "Used a hint" });
+        else if (is(norm, v)) done(true, h("span", null, f.a));
+        else if (is(loose, v)) done(true, h("span", null, "Watch the accents: ", h("b", { text: f.a })), { near: true, xp: 5 });
+        else done(false, miss("Correct: "));
+      } }, input, keys, check);
+      const help = helpRow(ex, letterHint(f.a), () => { input.disabled = true; check.disabled = true; done(false, miss("Answer: "), { msg: "Here's the answer" }); });
+      stage.append(form, help);
+      setTimeout(() => input.focus(), 50);
+    },
     gate(ex, stage) {
       const msg = dailyRest(session);
       if (!msg) { session.idx++; return render(); }
       stage.append(h("div", { class: "card" }, h("div", { class: "bigpic", text: session.relearn.length ? "🔁" : "🔓" }), h("p", { text: msg })));
       app.append(h("div", { class: "sheet" }, h("div", { class: "in" }, h("button", { class: "btn primary", id: "continue", onclick: () => { session.idx++; render(); } }, "Continue"))));
     },
+    // One step of a new grammar point (k), followed in the queue by forms of just that step.
+    // The first step also introduces the unit with examples, and the last adds the full table.
+    // A lesson saved before steps existed has no k and shows every step at once.
     rule(ex, stage) {
-      const g = ex.g;
-      stage.append(h("div", { class: "prompt-label", text: "New grammar point" }),
-        h("div", { class: "card rulecard" }, h("div", { class: "big", text: g.pic + " " + g.hr }), h("div", { class: "en", text: g.en }),
-          h("div", { class: "examples" }, g.examples.slice(0, 3).map(([hr, en]) => h("div", { class: "exrow" }, sayBtn(hr), h("div", null, h("div", { class: "hr", text: hr }), h("div", { class: "en", text: en }))))),
-          g.rule.map(t => h("p", { text: t })),
-          h("div", { class: "tablewrap" }, h("table", { class: "gtable" }, h("thead", null, h("tr", null, g.table.head.map(x => h("th", { text: x })))),
-            h("tbody", null, g.table.rows.map(r => h("tr", null, r.map(c => h("td", { text: c })))))))));
-      app.append(h("div", { class: "sheet" }, h("div", { class: "in" }, h("button", { class: "btn primary", id: "continue", onclick: () => { session.idx++; render(); } }, "Got it, let's practise"))));
+      const g = ex.g, n = g.steps.length, ks = ex.k === undefined ? g.steps.map((_, j) => j) : [ex.k], first = ks[0] === 0, last = ks.at(-1) === n - 1;
+      stage.append(h("div", { class: "prompt-label", text: "New grammar point" + (ks.length === 1 ? " · step " + (ex.k + 1) + " of " + n : "") }),
+        h("div", { class: "card rulecard" },
+          first ? [h("div", { class: "big", text: g.pic + " " + g.hr }), h("div", { class: "en", text: g.en }),
+            h("div", { class: "examples" }, g.examples.slice(0, 3).map(([hr, en]) => h("div", { class: "exrow" }, sayBtn(hr), h("div", null, h("div", { class: "hr", text: hr }), h("div", { class: "en", text: en })))))] : null,
+          ks.flatMap(j => [h("h3", { class: "steptitle", text: (j + 1) + ". " + g.steps[j].t }), ...stepBody(g.steps[j])]),
+          last ? [h("div", { class: "eyebrow", text: "All together" }), stepTable(g)] : null));
+      app.append(h("div", { class: "sheet" }, h("div", { class: "in" }, h("button", { class: "btn primary", id: "continue", onclick: () => { session.idx++; render(); } }, ks.length === 1 ? "Try it" : "Got it, let's practise"))));
     },
     intro(ex, stage) {
       const w = ex.w;
