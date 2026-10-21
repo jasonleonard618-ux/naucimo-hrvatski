@@ -501,10 +501,17 @@ body.kid .opt { font-size: 1.25rem; }
       pending = resolve;
       const fin = ok => { if (pending === resolve) pending = null; resolve(ok); };
       const play = src => {
+        // Changing src resets playbackRate to defaultPlaybackRate, and Safari also resets it on load,
+        // so set both and apply the speed again once the clip is loaded and playing.
+        const r = rate < 0.7 ? 0.65 : 1;
+        player.defaultPlaybackRate = r;
         player.src = src;
-        player.playbackRate = rate < 0.7 ? 0.7 : 1;
+        player.preservesPitch = player.webkitPreservesPitch = true;
+        const keep = () => { if (player.playbackRate !== r) player.playbackRate = r; };
+        keep();
+        player.onloadedmetadata = player.onplaying = keep;
         player.onended = () => fin(true);
-        player.play().catch(() => deviceSpeak(text, rate, fin));
+        player.play().then(keep).catch(() => deviceSpeak(text, rate, fin));
       };
       if (!ref) return deviceSpeak(text, rate, fin);
       const src = clipUrl(ref);
