@@ -193,6 +193,7 @@ p { margin: 0; }
 .plan b { color: var(--ink, inherit); }
 .rulecard { text-align: left; justify-items: stretch; }
 .card.rulecard p, .card.rulecard .steptitle { text-align: left; }
+.card.rulecard p, .rule .step p { white-space: pre-line; }
 .steptitle { font-size: 1.05rem; font-weight: 700; margin: 4px 0 0; }
 .worked { background: var(--bg); border-radius: 18px; padding: 10px 14px; }
 .worked p { margin: 4px 0 0; }
@@ -747,7 +748,7 @@ body.kid .opt { font-size: 1.25rem; }
       P.warm.length ? "Remember last time: " + P.warm.length + " words" + (P.warmUnit ? " + " + unitName(P.warmUnit) : "") + ". New words unlock only if all of them come back." : null,
       P.due.length || P.units.length ? "Review: " + (P.due.length ? P.due.length + " cards, English to Croatian" : "") + (P.units.length ? (P.due.length ? " + " : "") + unitName(GRAM[P.units[0]]) : "") : null,
       P.fresh.length ? (P.warm.length ? "Then either relearn what you missed, or " + P.fresh.length + " new words from " + P.topic.en : "New: " + P.fresh.length + " words from " + P.topic.en) : null,
-      P.unit ? "Grammar: " + unitName(P.unit) + ((p.gram || {})[P.unit.id] ? " (practice, typed and timed)" : " (new)") : null,
+      P.unit ? "Grammar: " + unitName(P.unit) + (ruleSeen(p, P.unit) ? " (practice, typed and timed)" : (p.gram || {})[P.unit.id] ? " (clearer explanation, step by step)" : " (new)") : null,
       "A short story to read and listen to, and a one-minute quick round",
       "Lock it in: everything from today again, typed from memory"].filter(Boolean);
     return h("div", { class: "daily" },
@@ -1300,8 +1301,10 @@ body.kid .opt { font-size: 1.25rem; }
   // One form from each step (up to n), for days after the rule has been taught.
   const mixedForms = (g, n) => shuffle(g.steps.map((_, k) => formsOf(g, k, 1)[0])).slice(0, n);
   // The first time: each step of the rule, then two forms of just that step. Later: forms from memory.
+  // A unit whose rule was rewritten (rev) is taught step by step again once, so the daily lesson carries the new explanation.
+  const ruleSeen = (p, g) => (p.gram || {})[g.id] && ((p.ruleRev || {})[g.id] || 1) >= (g.rev || 1);
   const grammarStage = (p, g, n, k) => [
-    ...((p.gram || {})[g.id] ? mixedForms(g, 4) : g.steps.flatMap((_, j) => [{ type: "rule", g, k: j, w: { id: "rule:" + g.id + ":" + j, hr: "", en: "" } }, ...formsOf(g, j, 2)])),
+    ...(ruleSeen(p, g) ? mixedForms(g, 4) : g.steps.flatMap((_, j) => [{ type: "rule", g, k: j, w: { id: "rule:" + g.id + ":" + j, hr: "", en: "" } }, ...formsOf(g, j, 2)])),
     ...gapsOf(g, n, true, k)];
   function startDaily() {
     const p = me(); if (!p) return;
@@ -1317,7 +1320,7 @@ body.kid .opt { font-size: 1.25rem; }
     q.push({ type: "gate", w: { id: "gate", hr: "", en: "" } });
     session = { kind: "daily", title: "Day " + P.day, day: P.day, plan: P, queue: q, idx: 0, right: 0, xp: 0, wrong: {},
       stages: ["Remember last time", "Review", "New words", "Practice", "Grammar", "Lock it in"].filter(x => q.some(e => e.stage === x) || !["Remember last time", "Review"].includes(x)),
-      fresh: [], relearn: [], review: P.warm, warm: P.warm, unit: P.unit?.id, units: P.units, timed: !!P.unit && !!(p.gram || {})[P.unit.id],
+      fresh: [], relearn: [], review: P.warm, warm: P.warm, unit: P.unit?.id, units: P.units, timed: !!P.unit && !!ruleSeen(p, P.unit),
       next: P.dlg ? ["💬 Use it in a conversation: " + P.dlg.en, () => go("dialogue", P.dlg.id)] : null };
     render();
   }
@@ -2181,6 +2184,7 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
       const m = misses("g:" + s.unit + ":"), grade = m === 0 ? (s.kind === "speed" ? 3 : 2) : m <= 2 ? 1 : 0;
       const cur = p.gram[s.unit];
       p.gram[s.unit] = cur ? nextState(cur, grade) : grade ? [2.5, 1, t + 1, 1] : [2.3, 0, t, 0];
+      if (s.kind === "daily" && s.queue.some(e => e.type === "rule" && e.g?.id === s.unit)) (p.ruleRev = p.ruleRev || {})[s.unit] = GRAM[s.unit].rev || 1;
     }
     for (const u of s.units || []) { const m = misses("g:" + u + ":"); p.gram[u] = nextState(p.gram[u], m ? (m > 1 ? 0 : 1) : 2); }
     if (s.kind === "ear") { p.snd = p.snd || {}; p.snd[s.sound] = Math.max(p.snd[s.sound] || 0, s.right / Math.max(1, s.queue.length)); }
