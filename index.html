@@ -425,6 +425,8 @@ body.kid .opt { font-size: 1.25rem; }
 .prog-sub { margin: 0; color: var(--muted); font-size: .9rem; }
 .prog-bar { display: flex; gap: 4px; height: 8px; }
 .prog-seg { background: var(--line); border-radius: 99px; overflow: hidden; min-width: 8px; }
+.prog-tn { display: inline-flex; align-items: center; gap: 8px; }
+.prog-tn .art, .prog-tn .emo { width: 20px; height: 20px; font-size: 16px; line-height: 20px; flex: none; }
 .prog-seg i { display: block; height: 100%; background: var(--terra); border-radius: 99px; transition: width .4s; }
 .prog-seg.prog-done i { background: var(--good); }
 .prog-more { justify-self: start; }
@@ -945,7 +947,7 @@ body.kid .opt { font-size: 1.25rem; }
       h("p", { class: "prog-sub", text: m.en + " · " + m.words[0] + " of " + m.words[1] + " words" + (m.grammar.length ? " · " + m.grammar.filter(g => g.done).length + " of " + m.grammar.length + " grammar points" : "") }),
       h("div", { class: "prog-bar" }, h("div", { class: "prog-seg" + (m.done ? " prog-done" : ""), style: "flex:1" }, h("i", { style: "width:" + Math.round(m.pct * 100) + "%" }))),
       h("ul", { class: "prog-items" },
-        m.topics.map(x => h("li", { class: x.have >= x.total ? "prog-done" : "" }, h("span", { text: (x.t.pic ? x.t.pic + " " : "") + x.t.hr + " · " + x.t.en }), h("small", { class: "count", text: x.have + " / " + x.total }))),
+        m.topics.map(x => h("li", { class: x.have >= x.total ? "prog-done" : "" }, h("span", { class: "prog-tn" }, x.t.pic ? art(x.t.pic) : null, x.t.hr + " · " + x.t.en), h("small", { class: "count", text: x.have + " / " + x.total }))),
         m.grammar.map(x => h("li", { class: x.done ? "prog-done" : "" }, h("span", null, "📐 " + x.g.en.split(":")[0]), h("small", { class: "count", text: x.done ? "✓" : "" })))))));
     wrap.append(h("p", { class: "count", text: kid
       ? "Each day's lesson brings a few new words. Finish a lesson every day to fill the bar!"
