@@ -9,49 +9,54 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Instrument+Sans:wght@400..700&family=Noto+Sans+Glagolitic&display=swap">
 <style>
-/* Layout: one mobile-first column on a soft grey ground. White pill and circle controls, black for the one main action, big light headlines.
+/* Riva, hrvatski: an editorial look on warm stone paper. Fraunces serif for headlines and Croatian words, Instrument Sans for the interface,
+   Adriatic navy ink with roof-tile terracotta. Croatian motifs each have a job: the šahovnica board shows lesson progress, the licitar heart
+   counts streaks and rewards, pleter knotwork divides sections, red vez cross-stitch marks success, and stories open with a Glagolitic initial.
    Top-level views share a floating tab bar; exercise sessions are full screen with a feedback card docked to the bottom. */
 :root {
-  --bg: #e9e9e6;
-  --surface: #ffffff;
-  --surface-2: #f2f2ef;
-  --ink: #121212;
-  --muted: #6f6f6a;
-  --line: #e1e1dc;
-  --cta: #121212;
-  --cta-ink: #ffffff;
-  --sea: #1f6fb2;
+  --bg: #f5f0e6;
+  --surface: #fffdf8;
+  --surface-2: #efe8da;
+  --ink: #13233a;
+  --muted: #6b675b;
+  --line: #e3d9c6;
+  --cta: #13233a;
+  --cta-ink: #f5f0e6;
+  --sea: #2d6a8a;
   --sea-ink: #ffffff;
-  --sea-soft: #e3eef8;
-  --red: #e03a3e;
-  --checker-light: #ffffff;
-  --good: #1d7f47;
-  --good-soft: #e1f3e7;
-  --bad: #c0392b;
-  --bad-soft: #fbe5e2;
-  --sun: #f2b84b;
-  --p1: #ffe1dc; --p2: #fff0c7; --p3: #dcebfb; --p4: #dff3e4; --p5: #ece3fb; --p6: #fde3ef;
+  --sea-soft: #e1ebef;
+  --red: #b04a31;
+  --terra: #c4553b;
+  --lic: #b3262e;
+  --checker-light: #fffdf8;
+  --good: #56703a;
+  --good-soft: #e8eddd;
+  --bad: #b3262e;
+  --bad-soft: #f6e1dd;
+  --sun: #e0a93b;
+  --p1: #f0e4d4; --p2: #f3e8cf; --p3: #e2ebee; --p4: #e8eddd; --p5: #ebe5ef; --p6: #f6e1dd;
+  --art-tile: #f0e4d4;
   --scene-dim: 1;
-  --font-display: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --radius: 26px;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius: 22px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0f0f10; --surface: #1c1c1e; --surface-2: #29292c; --ink: #f2f2f0; --muted: #9d9d98; --line: #303033;
-    --cta: #f2f2f0; --cta-ink: #121212; --sea: #6cb4f0; --sea-ink: #0b1b2b; --sea-soft: #1a2c3d; --red: #ff5b60; --checker-light: #f2f2f0;
-    --good: #4fcf88; --good-soft: #15301f; --bad: #ff7a6e; --bad-soft: #3a1d1a; --sun: #f5c451;
-    --p1: #3a2422; --p2: #3a321c; --p3: #1c2c3d; --p4: #1c3324; --p5: #2b2440; --p6: #3a2230; --scene-dim: .82;
+    --bg: #0f1a28; --surface: #18263a; --surface-2: #22324a; --ink: #f2ebdd; --muted: #a9a497; --line: #2b3b52;
+    --cta: #f2ebdd; --cta-ink: #13233a; --sea: #8cc0da; --sea-ink: #0b1b2b; --sea-soft: #1b3044; --red: #ec9479; --terra: #e07a5f; --lic: #d8434b; --checker-light: #18263a;
+    --good: #a9c47f; --good-soft: #1f2e1f; --bad: #f08a80; --bad-soft: #3a1d1d; --sun: #e9b95a;
+    --p1: #2a2a2e; --p2: #2c2a24; --p3: #1d2c3c; --p4: #212d24; --p5: #272637; --p6: #2f2228; --art-tile: #e9dfcc; --scene-dim: .86;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0f0f10; --surface: #1c1c1e; --surface-2: #29292c; --ink: #f2f2f0; --muted: #9d9d98; --line: #303033;
-  --cta: #f2f2f0; --cta-ink: #121212; --sea: #6cb4f0; --sea-ink: #0b1b2b; --sea-soft: #1a2c3d; --red: #ff5b60; --checker-light: #f2f2f0;
-  --good: #4fcf88; --good-soft: #15301f; --bad: #ff7a6e; --bad-soft: #3a1d1a; --sun: #f5c451;
-  --p1: #3a2422; --p2: #3a321c; --p3: #1c2c3d; --p4: #1c3324; --p5: #2b2440; --p6: #3a2230; --scene-dim: .82;
+  --bg: #0f1a28; --surface: #18263a; --surface-2: #22324a; --ink: #f2ebdd; --muted: #a9a497; --line: #2b3b52;
+  --cta: #f2ebdd; --cta-ink: #13233a; --sea: #8cc0da; --sea-ink: #0b1b2b; --sea-soft: #1b3044; --red: #ec9479; --terra: #e07a5f; --lic: #d8434b; --checker-light: #18263a;
+  --good: #a9c47f; --good-soft: #1f2e1f; --bad: #f08a80; --bad-soft: #3a1d1d; --sun: #e9b95a;
+  --p1: #2a2a2e; --p2: #2c2a24; --p3: #1d2c3c; --p4: #212d24; --p5: #272637; --p6: #2f2228; --art-tile: #e9dfcc; --scene-dim: .86;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -59,92 +64,115 @@ html, body { height: 100%; }
 body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 button { font: inherit; color: inherit; cursor: pointer; }
 button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--sea); outline-offset: 2px; }
-h1, h2, h3 { font-family: var(--font-display); font-weight: 500; line-height: 1.12; letter-spacing: -.02em; margin: 0; text-wrap: balance; }
-h2 { font-size: 1.35rem; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; line-height: 1.1; letter-spacing: -.015em; margin: 0; text-wrap: balance; font-variation-settings: "opsz" 72; }
+h2 { font-size: 1.4rem; }
 p { margin: 0; }
+
+/* Icons: one 24px line set; .art is a kids' picture */
+.ic { width: 1.25em; height: 1.25em; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; vertical-align: -.25em; }
+.ic.solid { fill: currentColor; }
+.art { width: 1em; height: 1em; display: inline-block; vertical-align: -.15em; flex: none; }
+.emo { line-height: 1; }
+.licitar { width: 1.2em; height: 1.2em; flex: none; vertical-align: -.25em; }
+.glag { font-family: "Noto Sans Glagolitic", serif; }
+.kicker { font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 600; color: var(--muted); }
+.kicker i { font-style: normal; opacity: .75; }
+.pleter { display: block; width: 100%; height: 18px; color: var(--terra); }
+.vez { display: block; height: 30px; width: 100%; color: var(--lic); }
 
 .wrap { max-width: 760px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 16px calc(120px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 18px; }
 
-/* Header: brand circle with the šahovnica, learner pill on the right */
+/* Header: italic wordmark with a small šahovnica, learner chip on the right */
 .top { display: flex; align-items: center; gap: 12px; justify-content: space-between; }
 .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.checker { width: 48px; height: 48px; border-radius: 50%; flex: none; border: 9px solid var(--surface);
-  background: conic-gradient(var(--red) 25%, var(--checker-light) 0 50%, var(--red) 0 75%, var(--checker-light) 0) 0 0 / 15px 15px; }
-.brand h1 { font-size: 1.1rem; font-weight: 600; letter-spacing: -.01em; }
-.brand small { display: block; font-size: .8rem; color: var(--muted); font-weight: 400; }
-.chip { display: inline-flex; align-items: center; gap: 10px; border: 0; background: var(--surface); border-radius: 999px; padding: 4px 16px 4px 4px; font-weight: 500; max-width: 55%; min-height: 48px; }
+.checker { width: 22px; height: 22px; border-radius: 4px; flex: none; box-shadow: inset 0 0 0 1px var(--line);
+  background: conic-gradient(var(--terra) 25%, var(--checker-light) 0 50%, var(--terra) 0 75%, var(--checker-light) 0) 0 0 / 11px 11px; }
+.brand h1 { font-size: 1.35rem; font-weight: 500; font-style: italic; letter-spacing: -.01em; }
+.brand small { display: block; font-size: .72rem; color: var(--muted); font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+.chip { display: inline-flex; align-items: center; gap: 10px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 3px 14px 3px 3px; font-weight: 500; max-width: 55%; min-height: 46px; }
 .chip span.nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 600; font-size: .95rem; flex: none; }
-.hello { font-size: clamp(2.1rem, 9vw, 2.7rem); line-height: 1.05; padding: 6px 4px 0; }
+.avatar { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-family: var(--font-display); font-weight: 500; font-size: 1.05rem; flex: none; }
+.hello { font-size: clamp(2.4rem, 11vw, 3rem); font-weight: 340; line-height: 1.02; letter-spacing: -.03em; padding: 4px 2px 0; font-variation-settings: "opsz" 144; }
+.hello em { color: var(--terra); }
+.hello .kicker { display: block; font-family: var(--font-body); letter-spacing: .14em; margin-bottom: 8px; }
 
-.btn { border: 0; border-radius: 999px; padding: 12px 22px; font-weight: 500; background: var(--surface); color: var(--ink); display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; text-align: center; }
-.btn.primary { background: var(--cta); color: var(--cta-ink); }
-.btn.primary:active { transform: scale(.98); }
-.btn.ghost { background: transparent; box-shadow: inset 0 0 0 1px var(--line); }
+.btn { border: 1px solid var(--line); border-radius: 16px; padding: 12px 20px; font-weight: 600; background: var(--surface); color: var(--ink); display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; text-align: center; }
+.btn.primary { background: var(--cta); color: var(--cta-ink); border-color: var(--cta); }
+.btn.primary:active, .btn:active { transform: scale(.985); }
+.btn.ghost { background: transparent; }
 .btn:disabled { opacity: .45; cursor: default; }
-.btn.small { min-height: 40px; padding: 6px 16px; font-size: .9rem; }
-.panel .btn:not(.primary), .hero-card .btn:not(.primary) { background: var(--surface-2); }
-.linkbtn { background: none; border: 0; color: var(--sea); font-weight: 500; padding: 4px 0; }
+.btn.small { min-height: 40px; padding: 6px 14px; font-size: .9rem; border-radius: 12px; }
+.panel .btn:not(.primary), .hero-card .btn:not(.primary) { background: var(--bg); }
+.linkbtn { background: none; border: 0; color: var(--sea); font-weight: 600; padding: 4px 0; display: inline-flex; align-items: center; gap: 6px; }
 
-.panel { background: var(--surface); border: 0; border-radius: var(--radius); padding: 20px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
 .today { display: grid; gap: 16px; }
 .today-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .today-head h2 { font-size: 1.5rem; }
 .stats { display: flex; gap: 8px 16px; flex-wrap: wrap; color: var(--muted); font-weight: 400; font-size: .95rem; }
 .stats b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
-.goal { height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+.goal { height: 4px; border-radius: 99px; background: var(--line); overflow: hidden; }
 .goal i { display: block; height: 100%; background: var(--cta); border-radius: 99px; transition: width .4s; }
 .actions { display: flex; gap: 10px; flex-wrap: wrap; }
 .actions .btn { flex: 1 1 200px; }
 
-/* Home: today's lesson as one big card with a picture on top */
-.hero-card { background: var(--surface); border-radius: 34px; padding: 6px; display: grid; }
-.scene { height: 210px; border-radius: 29px; position: relative; overflow: hidden; filter: brightness(var(--scene-dim));
-  background: linear-gradient(#f7d9b8 0%, #f3c1a0 40%, #9fd0e6 41%, #5aa7cf 72%, #2f7fb0 100%); }
-.scene .sun { position: absolute; width: 64px; height: 64px; border-radius: 50%; background: #fff3d6; left: 44px; top: 18px; box-shadow: 0 0 40px #ffe7b3; }
-.scene .isl { position: absolute; top: 46px; right: -24px; width: 210px; height: 32px; background: #6f8f6a; border-radius: 120px 120px 0 0; }
-.scene .town { position: absolute; top: 44px; right: 34px; display: flex; gap: 3px; align-items: flex-end; height: 34px; }
-.scene .town b { display: block; width: 14px; background: #f1e4cf; border-top: 5px solid #d0623f; }
-.scene .boat { position: absolute; left: 46%; bottom: 30px; font-size: 34px; line-height: 1; }
+/* Šahovnica board: each step of the lesson fills one square, alternating rows, so a finished day is a checker band */
+.cboard { display: grid; grid-auto-flow: column; grid-template-rows: 1fr 1fr; height: 30px; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--surface); flex: 1; min-width: 0; }
+.cboard i { border-right: 1px solid var(--line); } .cboard i:nth-last-child(-n+2) { border-right: 0; }
+.cboard i.on { background: var(--terra); }
+.cboard i.now { background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--terra) 40%, transparent) 0 3px, transparent 3px 6px); }
+.cboard.big { height: 46px; border-radius: 8px; width: 100%; }
+.boardrow { display: flex; align-items: center; gap: 12px; }
+.boardrow .kicker { white-space: nowrap; }
+
+/* Home: today's lesson on the day's landmark */
+.hero-card { background: var(--surface); border: 1px solid var(--line); border-radius: 26px; padding: 6px; display: grid; }
+.scene { height: 250px; border-radius: 21px; position: relative; overflow: hidden; filter: brightness(var(--scene-dim));
+  background: linear-gradient(#dce7e4 0%, #dce7e4 55%, #8db3c4 56%, #2d6a8a 100%); }
+.scene .sun { position: absolute; width: 60px; height: 60px; border-radius: 50%; background: #e0a93b; right: 44px; top: 26px; }
+.scene .isl { position: absolute; top: 98px; left: -24px; width: 230px; height: 42px; background: #efe6d6; border-radius: 4px; }
+.scene .town { position: absolute; top: 86px; left: 26px; display: flex; gap: 4px; align-items: flex-end; height: 54px; }
+.scene .town b { display: block; width: 18px; background: #fffdf8; border-top: 7px solid #c4553b; }
+.scene .boat { position: absolute; left: 58%; bottom: 34px; width: 54px; height: 54px; color: #13233a; }
 .scene.photo { background: #6f8f9f center / cover no-repeat; }
-.scene.photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.72), rgba(0,0,0,.25) 45%, rgba(0,0,0,0) 70%); }
-.scene .lmcap { position: absolute; left: 16px; right: 16px; bottom: 14px; z-index: 1; color: #fff; display: grid; line-height: 1.2; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
-.scene .lmcap b { font-size: 1.3rem; font-weight: 600; letter-spacing: -.01em; }
-.scene .lmcap span { font-size: .85rem; opacity: .9; }
+.scene.photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(10,20,35,.82), rgba(10,20,35,.25) 50%, rgba(10,20,35,0) 72%); }
+.scene .lmcap { position: absolute; left: 18px; right: 18px; bottom: 16px; z-index: 1; color: #fff; display: grid; line-height: 1.15; }
+.scene .lmcap .kicker { color: rgba(255,255,255,.8); }
+.scene .lmcap b { font-family: var(--font-display); font-size: 1.85rem; font-weight: 400; letter-spacing: -.02em; margin-top: 4px; }
+.scene .lmcap span { font-size: .9rem; opacity: .88; }
 .scene.photo .tagpill { top: 12px; bottom: auto; z-index: 1; }
-.lmcredit { display: block; margin-top: 4px; font-size: .72rem; color: var(--muted); text-decoration: none; }
+.lmcredit { display: inline-flex; gap: 4px; align-items: center; margin-top: 4px; font-size: .72rem; color: var(--muted); text-decoration: none; }
 .lmcredit:hover { text-decoration: underline; }
-.lmfact { font-size: .9rem; color: var(--muted); }
+.lmfact { font-size: .92rem; color: var(--muted); line-height: 1.5; }
 .lmfact b { color: var(--ink); font-weight: 600; }
-.scene .tagpill { position: absolute; left: 12px; bottom: 12px; background: rgba(255,255,255,.78); color: #121212; border-radius: 999px; padding: 6px 14px; font-size: .85rem; font-weight: 600; }
+.scene .tagpill { position: absolute; left: 12px; bottom: 12px; background: rgba(255,253,248,.88); color: #13233a; border-radius: 999px; padding: 5px 12px 5px 8px; font-size: .8rem; font-weight: 600; display: inline-flex; gap: 6px; align-items: center; backdrop-filter: blur(6px); }
 .hero-body { padding: 16px 14px 14px; display: grid; gap: 14px; }
 .hero-body .t { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-.hero-body .t h2 { font-size: 1.5rem; }
-.hero-body .pctbig { font-weight: 700; font-size: 1.7rem; letter-spacing: -.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.hero-body .pctbig small { display: block; font-size: .75rem; font-weight: 500; color: var(--muted); letter-spacing: 0; text-align: right; }
+.hero-body .t h2 { font-size: 1.7rem; font-weight: 360; }
+.hero-body .pctbig { font-family: var(--font-display); font-weight: 400; font-size: 1.8rem; letter-spacing: -.02em; font-variant-numeric: tabular-nums; white-space: nowrap; line-height: 1; }
+.hero-body .pctbig small { display: block; font-family: var(--font-body); font-size: .72rem; font-weight: 500; color: var(--muted); letter-spacing: 0; text-align: right; margin-top: 4px; }
 
 .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 12px; padding-inline: 4px; }
 .section-head p { color: var(--muted); font-size: .9rem; }
 .eyebrow { font-size: .8rem; font-weight: 500; color: var(--muted); }
 
 .practice { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
-.tile { text-align: left; background: var(--surface); border: 0; border-radius: var(--radius); padding: 8px 8px 14px; display: grid; gap: 2px; align-content: start; }
-.tile .ic { font-size: 1.7rem; line-height: 1; height: 64px; border-radius: 20px; display: grid; place-items: center; background: var(--p1); margin-bottom: 8px; }
+.tile { text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 14px 16px; display: grid; gap: 2px; align-content: start; }
+.tile .ic { width: 44px; height: 44px; padding: 10px; border-radius: 50%; background: var(--p1); margin-bottom: 10px; stroke-width: 1.5; }
 .tile:nth-child(6n+2) .ic { background: var(--p2); } .tile:nth-child(6n+3) .ic { background: var(--p3); } .tile:nth-child(6n+4) .ic { background: var(--p4); } .tile:nth-child(6n+5) .ic { background: var(--p5); } .tile:nth-child(6n) .ic { background: var(--p6); }
-.tile b, .tile small { padding-inline: 6px; }
-.tile b { font-weight: 600; font-size: 1rem; }
+.tile b { font-family: var(--font-display); font-weight: 450; font-size: 1.12rem; }
 .tile small { color: var(--muted); font-size: .85rem; }
-.tile:hover, .topic:hover { box-shadow: 0 0 0 2px var(--ink); }
+.tile:hover, .topic:hover { border-color: var(--ink); }
 
 .topics { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
-.topic { text-align: left; background: var(--surface); border: 0; border-radius: var(--radius); padding: 8px 8px 14px; display: grid; gap: 6px; }
-.topic .pic { font-size: 2rem; line-height: 1; height: 72px; border-radius: 20px; display: grid; place-items: center; background: var(--p3); }
+.topic { text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 8px 14px; display: grid; gap: 6px; }
+.topic .pic { font-size: 2.6rem; line-height: 1; height: 84px; border-radius: 16px; display: grid; place-items: center; background: var(--p3); }
 .topic:nth-child(6n+2) .pic { background: var(--p2); } .topic:nth-child(6n+3) .pic { background: var(--p4); } .topic:nth-child(6n+4) .pic { background: var(--p1); } .topic:nth-child(6n+5) .pic { background: var(--p5); } .topic:nth-child(6n) .pic { background: var(--p6); }
 .topic b, .topic small, .topic .bar, .topic .count { margin-inline: 6px; }
-.topic b { font-weight: 600; font-size: 1.05rem; }
+.topic b { font-family: var(--font-display); font-weight: 450; font-size: 1.15rem; }
 .topic small { color: var(--muted); font-size: .85rem; }
-.bar { height: 5px; background: var(--surface-2); border-radius: 99px; overflow: hidden; }
-.bar i { display: block; height: 100%; background: var(--cta); border-radius: 99px; }
+.bar { height: 4px; background: var(--line); border-radius: 99px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--terra); border-radius: 99px; }
 .count { font-variant-numeric: tabular-nums; font-size: .8rem; color: var(--muted); font-weight: 500; }
 
 .board { display: grid; gap: 4px; }
@@ -152,128 +180,140 @@ p { margin: 0; }
 .board-row:last-child { border-bottom: 0; }
 .board-row .nm { font-weight: 500; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .board-row .num { font-variant-numeric: tabular-nums; font-weight: 700; text-align: right; }
-.board-row .sub { color: var(--muted); font-size: .85rem; text-align: right; font-variant-numeric: tabular-nums; }
+.board-row .sub { color: var(--muted); font-size: .85rem; text-align: right; font-variant-numeric: tabular-nums; display: inline-flex; gap: 4px; align-items: center; }
 
-.notice { background: var(--surface); border-radius: 22px; padding: 14px 18px; font-size: .92rem; color: var(--muted); }
+.notice { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 14px 18px; font-size: .92rem; color: var(--muted); }
 .notice b { display: block; color: var(--ink); font-weight: 600; }
 
-/* Floating tab bar */
-.tabbar { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: min(420px, calc(100% - 32px)); background: var(--surface); border-radius: 999px; padding: 8px; display: flex; justify-content: center; gap: 8px; z-index: 6; box-shadow: 0 10px 30px rgba(0,0,0,.12); }
-.tabbar button { flex: 1 1 0; max-width: 92px; height: 56px; border: 0; border-radius: 999px; background: var(--surface-2); color: var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: .7rem; font-weight: 500; }
-.tabbar button svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
-.tabbar button[aria-current="page"] { background: var(--cta); color: var(--cta-ink); }
+/* Floating tab bar: the current tab gets a tiny šahovnica under its label */
+.tabbar { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: min(420px, calc(100% - 32px)); background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 6px; display: flex; justify-content: space-around; gap: 4px; z-index: 6; box-shadow: 0 10px 30px rgba(19,35,58,.10); }
+.tabbar button { flex: 1 1 0; max-width: 96px; height: 58px; border: 0; border-radius: 16px; background: transparent; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: .7rem; font-weight: 500; position: relative; }
+.tabbar button svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.tabbar button[aria-current="page"] { color: var(--ink); font-weight: 700; }
+.tabbar button[aria-current="page"]::after { content: ""; position: absolute; bottom: 3px; width: 6px; height: 6px; background: conic-gradient(var(--terra) 0 25%, transparent 0 50%, var(--terra) 0 75%, transparent 0); }
 
 /* Sub views */
 .subhead { display: flex; align-items: center; gap: 12px; }
-.subhead h2 { font-size: 1.6rem; }
-.back { width: 48px; height: 48px; border-radius: 50%; border: 0; background: var(--surface); font-size: 1.2rem; flex: none; }
-.wordlist { display: grid; gap: 0; background: var(--surface); border-radius: var(--radius); padding: 4px 16px; }
-.wordrow { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.subhead h2 { font-size: 1.8rem; font-weight: 380; display: flex; align-items: center; gap: 10px; }
+.back { width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); flex: none; display: grid; place-items: center; }
+.wordlist { display: grid; gap: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 4px 16px; }
+.wordrow { display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
 .wordrow:last-child { border-bottom: 0; }
-.wordrow .p { font-size: 1.5rem; text-align: center; }
-.wordrow .hr { font-weight: 600; font-size: 1.05rem; }
+.wordrow .p { font-size: 2rem; text-align: center; display: grid; place-items: center; }
+.wordrow .hr { font-family: var(--font-display); font-weight: 450; font-size: 1.2rem; }
 .wordrow .en { color: var(--muted); font-size: .9rem; }
 .wordrow .note { color: var(--muted); font-size: .82rem; font-style: italic; }
-.say { width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--cta); color: var(--cta-ink); font-size: 1rem; flex: none; }
-.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line); margin-right: 6px; vertical-align: middle; }
+.say { width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--cta); color: var(--cta-ink); flex: none; display: grid; place-items: center; }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: transparent; box-shadow: inset 0 0 0 1px var(--muted); margin-right: 8px; vertical-align: middle; }
 .dot.on { background: var(--good); box-shadow: none; }
 
 /* Session */
 .session { min-height: 100%; display: flex; flex-direction: column; }
-.sbar { display: flex; align-items: center; gap: 10px; padding-block: 14px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); max-width: 760px; width: 100%; margin: 0 auto; }
-.sbar .goal { flex: 1; height: 48px; border-radius: 999px; background: linear-gradient(var(--surface-2), var(--surface-2)) center / calc(100% - 36px) 6px no-repeat, var(--surface); padding: 0 18px; display: flex; align-items: center; }
-.sbar .goal i { height: 6px; border-radius: 9px; background: var(--cta); box-shadow: 0 0 0 0 transparent; }
-.close { width: 48px; height: 48px; border-radius: 50%; border: 0; background: var(--surface); font-size: 1.1rem; color: var(--ink); flex: none; }
+.sbar { display: flex; align-items: center; gap: 12px; padding-block: 14px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); max-width: 760px; width: 100%; margin: 0 auto; }
+.sbar .goal { flex: 1; height: 4px; }
+.close { width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--ink); flex: none; display: grid; place-items: center; }
 .stage { flex: 1; width: 100%; max-width: 640px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 8px 200px; display: flex; flex-direction: column; gap: 16px; }
-.prompt-label { font-weight: 500; color: var(--muted); font-size: .95rem; }
-.steplabel { font-size: .8rem; font-weight: 500; color: var(--muted); background: var(--surface); border-radius: 999px; padding: 6px 14px; align-self: flex-start; }
-.daily { display: grid; gap: 10px; justify-items: stretch; }
+.prompt-label { font-size: .75rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 600; color: var(--muted); }
+.steplabel { font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 600; color: var(--muted); align-self: flex-start; padding: 2px 0; }
+.daily { display: grid; gap: 12px; justify-items: stretch; }
 .daily > .btn { width: 100%; }
-.plan { margin: 4px 0 0; padding-left: 1.3em; display: grid; gap: 4px; color: var(--muted); font-size: .95rem; }
+.plan { margin: 2px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; position: relative; color: var(--ink); font-size: .95rem; }
+.plan::before { content: ""; position: absolute; left: 15px; top: 14px; bottom: 14px; width: 1px; background: var(--line); }
+.plan li { display: grid; grid-template-columns: 31px 1fr; gap: 12px; align-items: center; position: relative; line-height: 1.35; }
+.plan li .ic { width: 31px; height: 31px; padding: 7px; border-radius: 50%; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
 .plan b { color: var(--ink, inherit); }
 .rulecard { text-align: left; justify-items: stretch; }
 .card.rulecard p, .card.rulecard .steptitle { text-align: left; }
 .card.rulecard p, .rule .step p { white-space: pre-line; }
-.steptitle { font-size: 1.05rem; font-weight: 700; margin: 4px 0 0; }
-.worked { background: var(--bg); border-radius: 18px; padding: 10px 14px; }
+.steptitle { font-family: var(--font-display); font-size: 1.3rem; font-weight: 450; margin: 4px 0 0; }
+.worked { background: var(--bg); border-radius: 14px; padding: 10px 14px; border-left: 3px solid var(--terra); }
 .worked p { margin: 4px 0 0; }
 .rule .step { display: grid; gap: 6px; margin-bottom: 14px; }
 .why { margin-top: 6px; font-weight: 500; }
 .writebox { min-height: 4.5em; resize: vertical; font: inherit; }
 .writeout { display: grid; gap: 10px; text-align: left; }
-.writeout .said { font-size: 1.15rem; font-weight: 600; line-height: 1.6; }
+.writeout .said { font-family: var(--font-display); font-size: 1.3rem; font-weight: 450; line-height: 1.6; }
 .writeout .said .bad { text-decoration: underline wavy var(--bad, #c0392b); text-underline-offset: 4px; }
 .writeout ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
 .writeout .later { color: var(--muted); }
 .helprow { display: grid; gap: 4px; justify-items: center; }
 .helprow .hint { letter-spacing: .08em; font-weight: 600; }
-.big { font-family: var(--font-display); font-weight: 600; font-size: clamp(2rem, 8vw, 2.8rem); letter-spacing: -.03em; line-height: 1.1; overflow-wrap: anywhere; }
-.bigpic { font-size: clamp(4rem, 18vw, 6rem); line-height: 1; text-align: center; }
+.big { font-family: var(--font-display); font-weight: 380; font-size: clamp(2.3rem, 10vw, 3.2rem); letter-spacing: -.03em; line-height: 1.05; overflow-wrap: anywhere; font-variation-settings: "opsz" 144; }
+.bigpic { font-size: clamp(5rem, 26vw, 7rem); line-height: 1; text-align: center; display: grid; place-items: center; }
+.bigpic .ic { stroke-width: 1.1; color: var(--terra); }
 /* Answers hidden until revealed must stay hidden even on elements whose class or inline style sets display. */
 [hidden] { display: none !important; }
-.card { background: var(--surface); border: 0; border-radius: 30px; padding: 24px 20px; display: grid; gap: 12px; justify-items: center; text-align: center; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 24px 20px; display: grid; gap: 12px; justify-items: center; text-align: center; }
 .card .en { color: var(--muted); font-size: 1.15rem; font-weight: 500; }
 .card .note { color: var(--muted); font-size: .92rem; font-style: italic; max-width: 40ch; }
 .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .row.center { justify-content: center; }
-.playbig { width: 92px; height: 92px; border-radius: 50%; border: 0; background: var(--cta); color: var(--cta-ink); font-size: 2.2rem; margin: 8px auto; display: grid; place-items: center; }
+.playbig { width: 112px; height: 112px; border-radius: 50%; border: 0; background: var(--cta); color: var(--cta-ink); margin: 18px auto; display: grid; place-items: center; box-shadow: 0 0 0 12px color-mix(in srgb, var(--cta) 8%, transparent), 0 0 0 24px color-mix(in srgb, var(--cta) 4%, transparent); }
+.playbig .ic { width: 42px; height: 42px; }
 .playbig:active { transform: scale(.96); }
 .options { display: grid; gap: 10px; }
-.opt { text-align: left; background: var(--surface); border: 0; box-shadow: inset 0 0 0 2px transparent; border-radius: 22px; padding: 14px 20px; font-weight: 500; font-size: 1.05rem; min-height: 60px; }
-.opt:hover:not(:disabled) { box-shadow: inset 0 0 0 2px var(--ink); }
-.opt.right { box-shadow: inset 0 0 0 2px var(--good); background: var(--good-soft); }
-.opt.wrong { box-shadow: inset 0 0 0 2px var(--bad); background: var(--bad-soft); }
-.picopts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-.picopt { background: var(--p1); border: 6px solid var(--surface); border-radius: 30px; font-size: clamp(3rem, 14vw, 4.5rem); aspect-ratio: 1.15; max-width: 100%; display: grid; place-items: center; position: relative; }
-.picopt:nth-child(4n+2) { background: var(--p2); } .picopt:nth-child(4n+3) { background: var(--p3); } .picopt:nth-child(4n) { background: var(--p4); }
-.picopt.right { box-shadow: 0 0 0 3px var(--good); }
-.picopt.right::after { content: "✓"; position: absolute; top: 8px; right: 8px; width: 30px; height: 30px; border-radius: 50%; background: var(--good); color: #fff; font-size: 15px; font-weight: 700; display: grid; place-items: center; }
-.picopt.wrong { box-shadow: 0 0 0 3px var(--bad); opacity: .7; }
-.typebox { width: 100%; font: inherit; font-size: 1.3rem; padding: 16px 20px; border-radius: 22px; border: 0; box-shadow: inset 0 0 0 2px var(--line); background: var(--surface); color: var(--ink); }
-.typebox:focus { box-shadow: inset 0 0 0 2px var(--ink); outline: none; }
+.opt { text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px 20px; font-weight: 500; font-size: 1.05rem; min-height: 60px; }
+.opt:hover:not(:disabled) { border-color: var(--ink); }
+.opt.right { border-color: var(--good); box-shadow: inset 0 0 0 1px var(--good); background: var(--good-soft); }
+.opt.wrong { border-color: var(--bad); box-shadow: inset 0 0 0 1px var(--bad); background: var(--bad-soft); }
+.picopts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.picopt { background: var(--art-tile); border: 1px solid var(--line); border-radius: 22px; font-size: clamp(4.4rem, 22vw, 6.5rem); aspect-ratio: 1.05; max-width: 100%; display: grid; place-items: center; position: relative; }
+.picopt:nth-child(4n+2) { background: #efe6d6; } .picopt:nth-child(4n+3) { background: #e2ebee; } .picopt:nth-child(4n) { background: #f3e8cf; }
+.picopt.right { box-shadow: 0 0 0 3px var(--good); border-color: var(--good); }
+.picopt.right::after { content: ""; position: absolute; top: 10px; right: 10px; width: 28px; height: 28px; border-radius: 50%; background: var(--good) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4L18 8'/%3E%3C/svg%3E") center / 18px no-repeat; }
+.picopt.wrong { box-shadow: 0 0 0 3px var(--bad); opacity: .65; }
+.typebox { width: 100%; font: inherit; font-family: var(--font-display); font-size: 1.7rem; padding: 10px 4px; border-radius: 0; border: 0; border-bottom: 1.5px solid var(--ink); background: transparent; color: var(--ink); caret-color: var(--terra); }
+.typebox:focus { border-bottom-color: var(--terra); outline: none; box-shadow: 0 1.5px 0 var(--terra); }
+textarea.typebox { font-family: var(--font-body); font-size: 1.15rem; border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; background: var(--surface); }
+textarea.typebox:focus { box-shadow: inset 0 0 0 1px var(--ink); border-color: var(--ink); }
 .keys { display: flex; gap: 8px; flex-wrap: wrap; }
-.key { min-width: 48px; height: 48px; border-radius: 50%; border: 0; background: var(--surface); font-size: 1.15rem; font-weight: 600; }
+.key { flex: 1 0 44px; min-width: 44px; height: 46px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); font-family: var(--font-display); font-size: 1.3rem; }
 .rate { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.rate .btn { flex-direction: column; gap: 0; padding: 8px 4px; font-size: .9rem; border-radius: 22px; }
+.rate .btn { flex-direction: column; gap: 0; padding: 8px 4px; font-size: .9rem; border-radius: 16px; }
 .rate .btn small { font-weight: 400; color: inherit; opacity: .75; font-size: .75rem; }
-.rate .again { background: var(--bad-soft); color: var(--bad); }
-.rate .good { background: var(--good-soft); color: var(--good); }
+.rate .again { background: var(--bad-soft); color: var(--bad); border-color: transparent; }
+.rate .good { background: var(--good-soft); color: var(--good); border-color: transparent; }
 
-.sheet { position: fixed; left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); bottom: calc(12px + env(safe-area-inset-bottom, 0px)); max-width: 640px; margin: 0 auto; background: var(--surface); border-radius: 30px; padding: 16px; z-index: 5; box-shadow: 0 10px 30px rgba(0,0,0,.14); }
+.sheet { position: fixed; left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); bottom: calc(12px + env(safe-area-inset-bottom, 0px)); max-width: 640px; margin: 0 auto; background: var(--surface); border: 1px solid var(--line); border-radius: 26px; padding: 16px; z-index: 5; box-shadow: 0 10px 30px rgba(19,35,58,.14); }
 .sheet .in { max-width: 640px; margin: 0 auto; display: grid; gap: 12px; }
-.sheet.good { background: var(--good-soft); }
-.sheet.bad { background: var(--bad-soft); }
-.sheet .msg { font-family: var(--font-display); font-weight: 600; font-size: 1.3rem; letter-spacing: -.01em; }
+.sheet.good { background: var(--good-soft); border-color: transparent; }
+.sheet.bad { background: var(--bad-soft); border-color: transparent; }
+.sheet .vez { margin-bottom: -4px; height: 24px; }
+.sheet .msg { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: 1.8rem; letter-spacing: -.01em; display: flex; align-items: center; gap: 10px; line-height: 1.1; }
 .sheet.good .msg { color: var(--good); }
 .sheet.bad .msg { color: var(--bad); }
 .sheet .detail { font-weight: 500; }
 .sheet .btn { width: 100%; }
 
-.done { text-align: center; display: grid; gap: 16px; justify-items: center; padding-top: 32px; }
-.done .bigpic { font-size: 5rem; }
+.done { text-align: center; display: grid; gap: 16px; justify-items: center; padding-top: 24px; }
+.done .bigpic { font-size: 7rem; }
+.done h2 { font-size: 2.4rem; font-weight: 340; letter-spacing: -.025em; }
+.done h2 em { color: var(--terra); }
 .done .stats { justify-content: center; }
 
 /* Reading */
-.story { font-size: 1.3rem; line-height: 1.9; background: var(--surface); border-radius: var(--radius); padding: 20px; }
+.story { font-family: var(--font-display); font-size: 1.4rem; line-height: 1.8; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
 .story .w { cursor: pointer; border-bottom: 2px dotted var(--line); border-radius: 2px; }
 .story .w:hover, .story .w.sel { background: var(--sea-soft); border-bottom-color: var(--sea); }
-.gloss { position: sticky; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); background: var(--cta); color: var(--cta-ink); padding: 10px 10px 10px 20px; border-radius: 999px; display: flex; gap: 12px; align-items: center; justify-content: space-between; }
-.gloss b { font-size: 1.1rem; }
+.gloss { position: sticky; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); background: var(--cta); color: var(--cta-ink); padding: 10px 10px 10px 20px; border-radius: 18px; display: flex; gap: 12px; align-items: center; justify-content: space-between; }
+.gloss b { font-family: var(--font-display); font-weight: 500; font-size: 1.2rem; }
 .gloss .say { background: color-mix(in srgb, var(--cta-ink) 18%, transparent); color: var(--cta-ink); }
 .qblock { display: grid; gap: 10px; }
-.qblock .q { font-weight: 600; }
+.qblock .q { font-family: var(--font-display); font-weight: 450; font-size: 1.15rem; }
 .qblock .qen { color: var(--muted); font-size: .9rem; }
+.storyhead { display: flex; gap: 14px; align-items: center; }
+.storyhead .initial { width: 64px; height: 76px; flex: none; display: grid; place-items: center; font-size: 3.4rem; line-height: 1; color: var(--terra); background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
 
 .alpha { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
-.letter { text-align: left; background: var(--surface); border: 0; border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 2px; }
-.letter b { font-family: var(--font-display); font-weight: 600; font-size: 2rem; color: var(--ink); line-height: 1.1; }
+.letter { text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 2px; }
+.letter b { font-family: var(--font-display); font-weight: 400; font-size: 2.2rem; color: var(--ink); line-height: 1.1; }
 .letter small { color: var(--muted); font-size: .82rem; }
-.letter span { font-weight: 500; }
+.letter span { font-weight: 500; display: inline-flex; gap: 4px; align-items: center; }
 
 /* Memory match */
 .match { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.mt { min-height: 76px; border-radius: 24px; border: 0; background: var(--surface); font-weight: 600; font-size: 1.15rem; padding: 8px; }
-.mt.pic { font-size: 2.4rem; background: var(--p3); }
+.mt { min-height: 84px; border-radius: 18px; border: 1px solid var(--line); background: var(--surface); font-family: var(--font-display); font-weight: 450; font-size: 1.3rem; padding: 8px; }
+.mt.pic { font-size: 3.4rem; background: var(--art-tile); line-height: 1; }
 .mt.sel { box-shadow: 0 0 0 3px var(--ink); }
 .mt.gone { visibility: hidden; }
 .mt.shake { animation: shake .3s; box-shadow: 0 0 0 3px var(--bad); }
@@ -281,97 +321,135 @@ p { margin: 0; }
 
 /* Profiles */
 .plist { display: grid; gap: 8px; }
-.prow { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 0; border-radius: var(--radius); background: var(--surface); }
-.prow.active { box-shadow: inset 0 0 0 2px var(--ink); }
+.prow { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.prow.active { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
 .prow .meta { flex: 1; min-width: 0; }
-.prow .meta b { display: block; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.prow .meta b { display: block; font-family: var(--font-display); font-weight: 450; font-size: 1.12rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .prow .meta small { color: var(--muted); }
-.prow > span:first-child:not(.avatar) { width: 52px; height: 52px; border-radius: 18px; background: var(--surface-2); display: grid; place-items: center; flex: none; }
+.prow > span:first-child:not(.avatar) { width: 54px; height: 54px; border-radius: 16px; background: var(--art-tile); display: grid; place-items: center; flex: none; font-size: 2.2rem !important; line-height: 1; }
 .form { display: grid; gap: 12px; }
 .form label { font-weight: 500; display: grid; gap: 6px; }
-.form input[type=text] { font: inherit; padding: 14px 18px; border-radius: 999px; border: 0; box-shadow: inset 0 0 0 2px var(--line); background: var(--surface); color: var(--ink); }
+.form input[type=text] { font: inherit; padding: 14px 18px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.form input[type=text]:focus { border-color: var(--ink); outline: none; }
 .seg { display: flex; gap: 8px; flex-wrap: wrap; }
-.seg button { flex: 1 1 120px; border: 0; background: var(--surface-2); border-radius: 999px; padding: 12px; font-weight: 500; }
-.seg button[aria-pressed="true"] { background: var(--cta); color: var(--cta-ink); }
+.seg button { flex: 1 1 120px; border: 1px solid var(--line); background: var(--bg); border-radius: 14px; padding: 12px; font-weight: 500; display: inline-flex; gap: 8px; align-items: center; justify-content: center; }
+.seg button[aria-pressed="true"] { background: var(--cta); color: var(--cta-ink); border-color: var(--cta); }
 .confirm { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: .9rem; }
 
-.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(96px + env(safe-area-inset-bottom, 0px)); background: var(--cta); color: var(--cta-ink); padding: 12px 20px; border-radius: 999px; font-weight: 500; z-index: 20; max-width: calc(100% - 32px); }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(96px + env(safe-area-inset-bottom, 0px)); background: var(--cta); color: var(--cta-ink); padding: 12px 20px; border-radius: 14px; font-weight: 500; z-index: 20; max-width: calc(100% - 32px); }
 
 /* Conversations */
 .chat { display: grid; gap: 10px; }
-.bubble { max-width: 88%; background: var(--surface); border: 0; border-radius: 24px 24px 24px 8px; padding: 12px 16px; display: grid; gap: 4px; justify-self: start; }
-.bubble.me { justify-self: end; background: var(--sea-soft); border-radius: 24px 24px 8px 24px; }
+.bubble { max-width: 88%; background: var(--surface); border: 1px solid var(--line); border-radius: 20px 20px 20px 6px; padding: 12px 16px; display: grid; gap: 4px; justify-self: start; }
+.bubble.me { justify-self: end; background: var(--sea-soft); border-color: transparent; border-radius: 20px 20px 6px 20px; }
 .bubble.now { box-shadow: 0 0 0 2px var(--ink); }
-.bubble .who { font-size: .75rem; font-weight: 600; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; align-items: center; }
-.bubble .line { font-size: 1.15rem; line-height: 1.6; }
+.bubble .who { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.bubble .line { font-family: var(--font-display); font-size: 1.25rem; line-height: 1.5; }
 .bubble .ten { color: var(--muted); font-size: .9rem; }
 .bubble .note { color: var(--muted); font-size: .82rem; font-style: italic; }
 .bubble .w { cursor: pointer; border-bottom: 2px dotted var(--line); }
 .bubble .w:hover, .bubble .w.sel { background: color-mix(in srgb, var(--sea) 18%, transparent); border-bottom-color: var(--sea); }
-.minisay { border: 0; background: transparent; color: var(--sea); font-size: 1rem; padding: 2px 4px; min-width: 32px; min-height: 32px; }
-.tag { display: inline-block; font-size: .75rem; font-weight: 500; border-radius: 99px; padding: 3px 10px; background: var(--surface-2); color: var(--muted); }
+.minisay { border: 0; background: transparent; color: var(--sea); padding: 2px 4px; min-width: 32px; min-height: 32px; display: inline-grid; place-items: center; }
+.tag { display: inline-flex; align-items: center; gap: 4px; font-size: .72rem; font-weight: 600; border-radius: 99px; padding: 3px 10px; background: var(--surface-2); color: var(--muted); }
 .tag.hot { background: var(--cta); color: var(--cta-ink); }
 .tag.ok { background: var(--good-soft); color: var(--good); }
 .prow .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
 .tiles { display: flex; flex-wrap: wrap; gap: 8px; min-height: 56px; }
-.tiles.answer { border-bottom: 2px solid var(--line); padding-bottom: 10px; }
-.wtile { border: 0; background: var(--surface); border-radius: 999px; padding: 8px 16px; font-weight: 500; font-size: 1.05rem; min-height: 44px; }
+.tiles.answer { border-bottom: 1.5px solid var(--line); padding-bottom: 10px; }
+.wtile { border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 8px 14px; font-family: var(--font-display); font-weight: 450; font-size: 1.15rem; min-height: 44px; }
 .wtile:disabled { opacity: .3; }
-.gapline { font-family: var(--font-display); font-weight: 500; font-size: clamp(1.4rem, 6vw, 2rem); letter-spacing: -.02em; line-height: 1.3; }
-.gapline .gap { display: inline-block; min-width: 2.4em; border-bottom: 3px solid var(--ink); text-align: center; color: var(--sea); }
+.gapline { font-family: var(--font-display); font-weight: 380; font-size: clamp(1.6rem, 7vw, 2.2rem); letter-spacing: -.02em; line-height: 1.3; }
+.gapline .gap { display: inline-block; min-width: 2.4em; border-bottom: 2px solid var(--ink); text-align: center; color: var(--terra); }
 .hint { color: var(--muted); font-weight: 500; }
-.timer { height: 6px; border-radius: 99px; background: var(--surface); overflow: hidden; }
-.timer i { display: block; height: 100%; background: var(--cta); width: 100%; }
+.timer { height: 4px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.timer i { display: block; height: 100%; background: var(--terra); width: 100%; }
 /* Grammar */
 .examples { display: grid; gap: 4px; }
 .exrow { display: flex; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); }
 .exrow:last-child { border-bottom: 0; }
-.exrow .hr { font-weight: 600; }
+.exrow .hr { font-family: var(--font-display); font-weight: 450; font-size: 1.08rem; }
 .exrow .en { color: var(--muted); font-size: .9rem; }
 .rule p { margin-bottom: 10px; }
 .rule p:last-child { margin-bottom: 0; }
 .gtable { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
 .gtable th, .gtable td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
-.gtable th { font-size: .8rem; font-weight: 500; color: var(--muted); }
+.gtable th { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; color: var(--muted); }
 .gtable td:first-child { color: var(--muted); font-weight: 500; }
-.gtable td { font-weight: 600; }
+.gtable td { font-family: var(--font-display); font-weight: 450; font-size: 1.05rem; }
+.gtable td:first-child { font-family: var(--font-body); font-size: .95rem; }
 .tablewrap { overflow-x: auto; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.wchip { border: 0; background: var(--surface); border-radius: 99px; padding: 8px 16px; font-weight: 500; font-size: 1.05rem; min-height: 44px; }
+.wchip { border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 8px 14px; font-family: var(--font-display); font-weight: 450; font-size: 1.15rem; min-height: 44px; }
 .principle { display: grid; gap: 6px; }
-.principle h3 { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; }
+.principle h3 { font-family: var(--font-display); font-weight: 450; font-size: 1.3rem; }
 .principle p { color: var(--muted); font-size: .95rem; }
 .principle .where { color: var(--ink); font-weight: 500; font-size: .92rem; }
 
 /* Daily story: one line per row, the line being read is outlined, new words underlined, the grammar point's endings coloured */
-.slines { display: grid; gap: 6px; background: var(--surface); border-radius: var(--radius); padding: 14px 10px 14px 16px; }
-.sline { display: grid; grid-template-columns: 1fr auto; gap: 2px 6px; align-items: start; padding: 4px 8px; border-radius: 14px; }
+.slines { display: grid; gap: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 10px 14px 16px; }
+.sline { display: grid; grid-template-columns: 1fr auto; gap: 2px 6px; align-items: start; padding: 4px 8px; border-radius: 12px; }
 .sline.pic { grid-template-columns: auto 1fr auto; }
-.sline .sp { font-size: 1.8rem; line-height: 1.2; }
-.sline.now { box-shadow: 0 0 0 2px var(--ink); }
-.sline .line { font-size: 1.2rem; line-height: 1.6; }
+.sline .sp { font-size: 2.2rem; line-height: 1.2; }
+.sline.now { box-shadow: 0 0 0 1.5px var(--ink); }
+.sline .line { font-family: var(--font-display); font-size: 1.35rem; line-height: 1.5; }
 .sline .ten { grid-column: 1 / -1; color: var(--muted); font-size: .9rem; }
 .sline.pic .ten { grid-column: 2 / -1; }
 .slines .w { cursor: pointer; border-bottom: 2px dotted var(--line); border-radius: 2px; }
-.slines .w.new { border-bottom: 2px solid var(--sea); }
+.slines .w.new { border-bottom: 2px dotted var(--sea); }
 .slines .w:hover, .slines .w.sel { background: var(--sea-soft); border-bottom-color: var(--sea); }
-.end { color: var(--red, #d01c2b); font-weight: 700; }
+.end { color: var(--red); font-weight: 650; }
 .legend { font-size: .9rem; color: var(--muted); }
 .legend .end { font-size: 1rem; }
 /* Quick round */
 .quick { display: grid; gap: 16px; }
-.quick .score { font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; text-align: center; }
+.quick .score { font-family: var(--font-display); font-weight: 450; font-size: 1.3rem; text-align: center; }
 /* A recast: the learner's line said back correctly, as the other speaker would */
 .recast { display: grid; gap: 6px; text-align: left; }
 .recast .bubble { max-width: 100%; }
 .recast mark { background: color-mix(in srgb, var(--sun, #f5c451) 45%, transparent); color: inherit; border-radius: 4px; padding: 0 2px; }
 
 /* Kids: bigger and simpler */
-body.kid .topic .pic { font-size: 2.8rem; height: 96px; }
-body.kid .big { font-size: clamp(2.4rem, 10vw, 3.2rem); }
+body.kid .topic .pic { font-size: 3.6rem; height: 104px; }
+body.kid .big { font-size: clamp(3rem, 14vw, 4.4rem); }
 body.kid .opt { font-size: 1.25rem; }
 
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* Course progress (milestones) */
+.prog { display: grid; gap: 8px; }
+.prog-road { display: flex; gap: 6px; }
+.prog-lvl { font-size: .72rem; letter-spacing: .08em; font-weight: 600; padding: 2px 10px; border-radius: 999px; background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); color: var(--muted); }
+.prog-lvl.on { background: var(--cta); color: var(--cta-ink); }
+.prog-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.prog-pct { font-family: var(--font-display); font-size: 1.8rem; font-weight: 400; font-variant-numeric: tabular-nums; }
+.prog-sub { margin: 0; color: var(--muted); font-size: .9rem; }
+.prog-bar { display: flex; gap: 4px; height: 8px; }
+.prog-seg { background: var(--line); border-radius: 99px; overflow: hidden; min-width: 8px; }
+.prog-seg i { display: block; height: 100%; background: var(--terra); border-radius: 99px; transition: width .4s; }
+.prog-seg.prog-done i { background: var(--good); }
+.prog-more { justify-self: start; }
+.prog-levels { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.prog-levels li { display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 16px; background: var(--surface-2); color: var(--muted); }
+.prog-levels li b { font-size: 1rem; }
+.prog-levels li.prog-cur { background: var(--cta); color: var(--cta-ink); }
+.prog-levels li.prog-cur .count { color: inherit; }
+.prog-levels li.prog-done { color: var(--ink); }
+.prog-ms.prog-done { opacity: .85; }
+.prog-ms h2 { display: flex; align-items: center; gap: 10px; }
+.prog-num { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--surface-2); font-size: .9rem; font-weight: 600; flex: none; }
+.prog-ms.prog-cur .prog-num { background: var(--cta); color: var(--cta-ink); }
+.prog-ms.prog-done .prog-num { background: var(--good); color: var(--cta-ink); }
+.prog-items { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 2px; }
+.prog-items li small { white-space: nowrap; }
+.prog-items li { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-top: 1px solid var(--line); font-size: .92rem; }
+.prog-items li.prog-done span::after { content: " ✓"; color: var(--good); }
+.prog-cheer { margin: 4px 0 0; padding: 10px 14px; border-radius: 14px; background: var(--good-soft); }
+.prog-cheer b { display: inline-flex; gap: 6px; align-items: center; }
+.wordrow .p { width: 44px; height: 44px; border-radius: 12px; background: var(--art-tile); font-size: 2.1rem; }
+.vt { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--surface-2); }
+.vt.A { color: var(--terra); } .vt.B { color: var(--sea); }
+.vt .ic { width: 15px; height: 15px; }
+.initial { width: 54px; height: 54px; border-radius: 16px; background: var(--art-tile); color: var(--terra); display: grid; place-items: center; flex: none; font-family: var(--font-display); font-size: 1.7rem; line-height: 1; }
 </style>
 
 <div id="app"></div>
@@ -380,6 +458,7 @@ body.kid .opt { font-size: 1.25rem; }
 <script src="lessons.js"></script>
 <script src="audio-packs.js"></script>
 <script src="landmarks.js"></script>
+<script src="pics.js"></script>
 <script>
 (() => {
   const C = window.COURSE;
@@ -427,18 +506,124 @@ body.kid .opt { font-size: 1.25rem; }
 
   // ---------- helpers ----------
   const $ = (s, r = document) => r.querySelector(s);
+  // text: a leading word emoji becomes its drawing (art). Child strings: interface emoji become icons (deco).
   function h(tag, attrs, ...kids) {
     const el = document.createElement(tag);
     if (attrs) for (const [k, v] of Object.entries(attrs)) {
       if (v == null || v === false) continue;
       if (k === "class") el.className = v;
-      else if (k === "text") el.textContent = v;
+      else if (k === "text") { const m = typeof v === "string" && LEAD_EMOJI.exec(v); if (m) el.append(art(m[0]), v.slice(m[0].length)); else el.textContent = v; }
       else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
       else el.setAttribute(k, v === true ? "" : v);
     }
-    for (const k of kids.flat()) if (k != null && k !== false) el.append(k.nodeType ? k : document.createTextNode(String(k)));
+    for (const k of kids.flat()) if (k != null && k !== false) { if (k.nodeType) el.append(k); else el.append(...deco(String(k))); }
     return el;
   }
+  // ---------- icons, kids' pictures and Croatian motifs ----------
+  // One line icon set on a 24px grid replaces the emoji in the interface. Words keep their emoji as data, and pics.js draws them (art()).
+  const ICONS = {
+    home: "M3.5 10.5 12 4l8.5 6.5V20a1 1 0 0 1-1 1H15v-6H9v6H4.5a1 1 0 0 1-1-1z",
+    learn: "M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5zM12 6.5v13",
+    talk: "M4 5.5h16v10.5h-9l-5 4v-4H4z",
+    family: "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3.5 20a5.5 5.5 0 0 1 11 0M16 11a2.5 2.5 0 1 0 0-5M17 14.2a4.5 4.5 0 0 1 3.5 5.8",
+    pictures: "M4 5h16v14H4zM4 16l5-5 4 4 2.5-2.5L20 17M15.5 9.5h.01",
+    speaker: "M4 9.5h3.5L12 6v12l-4.5-3.5H4zM15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11",
+    slow: "M3 16.5a7 6.5 0 0 1 14 0zM17 14c1-1.8 4-1.8 4 .5 0 1.5-1.5 2-4 2M6 16.5V19M14 16.5V19M7.5 16.5l2.5-4 2.5 4",
+    mic: "M12 3.5a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0v-5a3 3 0 0 1 3-3zM5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21",
+    flame: "M12 21c-3.9 0-6.5-2.6-6.5-6 0-3.5 3-5.5 3.5-9 2.5 1.5 3.5 3.5 3.5 5.5 1-.5 1.8-1.6 2-3 2 1.8 4 4 4 6.5 0 3.4-2.6 6-6.5 6z",
+    check: "M5 12.5l4.5 4.5L19 7.5",
+    close: "M6 6l12 12M18 6 6 18",
+    hint: "M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z",
+    eye: "M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
+    play: "M8 5.5v13l10.5-6.5z",
+    back: "M15 5l-7 7 7 7",
+    next: "M9 5l7 7-7 7",
+    recall: "M4 12a8 8 0 1 0 2.3-5.7M4 4v4.5h4.5",
+    cards: "M8 4.5h11.5v13H8zM5 7.5v12h11",
+    spark: "M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM18.5 16.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z",
+    grammar: "M4 4h7v7H4zM13 13h7v7h-7zM13 4h7v7h-7zM4 13h7v7H4z",
+    story: "M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3zM5 17a3 3 0 0 1 3-3h11",
+    bolt: "M13 3 5 13.5h6L10 21l8-10.5h-6z",
+    lock: "M6 11h12v9.5H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3",
+    star: "M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8L3.5 9.7l5.9-.8z",
+    sound: "M3 12h2M7 8v8M11 5v14M15 9v6M19 7v10",
+    headphones: "M4 15v-3a8 8 0 0 1 16 0v3M4 15h3v5H5a1 1 0 0 1-1-1zM20 15h-3v5h2a1 1 0 0 0 1-1z",
+    puzzle: "M5 8h3.5a2 2 0 1 1 4 0H16v3.5a2 2 0 1 1 0 4V19H5z",
+    pen: "M14.5 5.5l4 4L9 19H5v-4zM12.5 7.5l4 4",
+    ear: "M7.5 9.5a4.5 4.5 0 0 1 9 0c0 3-3 4-3 7a3 3 0 0 1-5.5 1.5M10 10a2 2 0 0 1 4 0c0 1.5-2 2-2 3.5",
+    unlock: "M6 11h12v9.5H6zM8.5 11V8a3.5 3.5 0 0 1 6.8-1.2",
+    camera: "M4 8h3.5L9 6h6l1.5 2H20v11H4zM12 16.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
+    person: "M12 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM5 20a7 7 0 0 1 14 0",
+    child: "M12 12.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM7.5 20a4.5 4.5 0 0 1 9 0",
+    abc: "M3.5 18 7.5 6l4 12M5 14h5M15 8v10h3.2a2.6 2.6 0 0 0 0-5.2H15h2.6a2.4 2.4 0 0 0 0-4.8z",
+    boat: "M12 3v14M12 4.5 18.5 15H12zM4 18h16l-2 3H6z",
+  };
+  const UI_EMOJI = { "🔊": "speaker", "🐢": "slow", "✓": "check", "✅": "check", "✕": "close", "←": "back", "→": "next", "▶": "play", "📅": "play", "🔁": "recall", "💬": "talk", "📐": "grammar",
+    "🎧": "headphones", "🧩": "puzzle", "🗣": "mic", "🔤": "abc", "📖": "story", "✍": "pen", "👂": "ear", "⚡": "bolt", "💡": "hint", "🎙": "mic", "⭐": "star", "🌟": "star",
+    "🔓": "unlock", "📷": "camera", "🧑": "person", "🧒": "child" };
+  const UI_RE = new RegExp("(" + [...Object.keys(UI_EMOJI), "🔥"].join("|") + ")\uFE0F? ?", "u");
+  const LEAD_EMOJI = /^(?:\p{Extended_Pictographic}(?:\uFE0F|\u20E3|\u200D\p{Extended_Pictographic}|\p{Emoji_Modifier})*|[0-9#*]\uFE0F?\u20E3)+/u;
+  const svgEl = html => { const t = document.createElement("template"); t.innerHTML = html; return t.content.firstChild; };
+  function ic(name, cls) { return svgEl('<svg class="ic' + (cls ? " " + cls : "") + '" viewBox="0 0 24 24" aria-hidden="true"><path d="' + ICONS[name] + '"/></svg>'); }
+  // Licitar heart: the streak and reward mark.
+  function licitar(cls) {
+    return svgEl('<svg class="licitar' + (cls ? " " + cls : "") + '" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 36C8 27 3 20 3 13.5 3 8 7 4 12 4c3.5 0 6.4 2 8 5 1.6-3 4.5-5 8-5 5 0 9 4 9 9.5C37 20 32 27 20 36z" fill="#b3262e"/>' +
+      '<path d="M20 31.5C10.5 24.5 7 19 7 14c0-3.6 2.4-6 5.2-6 3.2 0 5.2 2.6 7.8 6 2.6-3.4 4.6-6 7.8-6C30.6 8 33 10.4 33 14c0 5-3.5 10.5-13 17.5z" fill="none" stroke="#fff" stroke-width="1.6" stroke-dasharray=".1 3.2" stroke-linecap="round"/>' +
+      '<circle cx="20" cy="19" r="4.2" fill="#fff"/><circle cx="20" cy="19" r="2.4" fill="#2d6a8a"/></svg>');
+  }
+  // A kids' picture: the drawing for this emoji if pics.js has one, else the emoji itself.
+  function art(e) {
+    const d = (window.PICS || {})[e];
+    if (!d) { const sp = document.createElement("span"); sp.className = "emo"; sp.textContent = e; return sp; }
+    return svgEl('<svg class="art" viewBox="0 0 120 120" role="img" aria-label="' + d[0] + '">' + d[1] + "</svg>");
+  }
+  // Interface strings: an emoji from UI_EMOJI becomes its icon (🔥 becomes the licitar heart).
+  function deco(str) {
+    const out = []; let rest = str, m;
+    while ((m = UI_RE.exec(rest))) {
+      if (m.index) out.push(rest.slice(0, m.index));
+      out.push(m[1] === "🔥" ? licitar() : ic(UI_EMOJI[m[1]]));
+      if (m[0].endsWith(" ") && out.length > 1 && m.index + m[0].length < rest.length) out.push(" ");
+      rest = rest.slice(m.index + m[0].length);
+    }
+    if (rest) out.push(rest);
+    return out;
+  }
+  // Pleter (interlace) divider and vez (cross-stitch) band, drawn to the width they're given.
+  function pleter() {
+    const P = 24, n = 40, mid = 9, a = 6;
+    let A = "M0 " + mid, Bp = "M0 " + mid;
+    for (let i = 0; i < n * 2; i++) { const x = i * P / 2, sg = i % 2 ? 1 : -1; A += " Q" + (x + P / 4) + " " + (mid + sg * a * 2) + " " + (x + P / 2) + " " + mid; Bp += " Q" + (x + P / 4) + " " + (mid - sg * a * 2) + " " + (x + P / 2) + " " + mid; }
+    const rib = d => '<path d="' + d + '" fill="none" stroke="currentColor" stroke-width="5"/><path d="' + d + '" fill="none" stroke="var(--bg)" stroke-width="2"/>';
+    const id = "pl" + Math.random().toString(36).slice(2, 7), clips = Array.from({ length: n }, (_, i) => '<rect x="' + (i * P - 5) + '" y="0" width="10" height="18"/>').join("");
+    return svgEl('<svg class="pleter" viewBox="0 0 ' + n * P + ' 18" preserveAspectRatio="xMinYMid slice" aria-hidden="true"><clipPath id="' + id + '">' + clips + "</clipPath>" + rib(A) + rib(Bp) + '<g clip-path="url(#' + id + ')">' + rib(A) + "</g></svg>");
+  }
+  function vez() {
+    let d = "";
+    for (let i = 0; i < 90; i++) for (let j = 0; j < 5; j++) {
+      const k = Math.abs(j - 2) + Math.abs((i % 6) - 3);
+      if (k === 3 || (i % 6 === 3 && j === 2)) { const x = i * 6, y = j * 6; d += "M" + (x + 1) + " " + (y + 1) + "l4 4M" + (x + 5) + " " + (y + 1) + "l-4 4"; }
+    }
+    return svgEl('<svg class="vez" viewBox="0 0 540 30" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="' + d + '" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>');
+  }
+  // Šahovnica board: n steps, each filling one square on alternating rows, so a finished day reads as a checker band.
+  function chessboard(n, done, now = -1, cls = "") {
+    const cells = [];
+    for (let c = 0; c < n; c++) for (let r = 0; r < 2; r++) { const mine = (c + r) % 2 === 0; cells.push(h("i", { class: mine && c < done ? "on" : mine && c === now ? "now" : null })); }
+    return h("div", { class: "cboard " + cls, role: "img", "aria-label": done + " of " + n + " steps done" }, cells);
+  }
+  // Glagolitic capital for a story's first letter (the old Croatian script), shown as the story's initial.
+  const GLAG = { a: "Ⰰ", b: "Ⰱ", v: "Ⰲ", g: "Ⰳ", d: "Ⰴ", e: "Ⰵ", ž: "Ⰶ", z: "Ⰸ", i: "Ⰻ", j: "Ⰼ", k: "Ⰽ", l: "Ⰾ", m: "Ⰿ", n: "Ⱀ", o: "Ⱁ", p: "Ⱂ", r: "Ⱃ", s: "Ⱄ", t: "Ⱅ", u: "Ⱆ", f: "Ⱇ", h: "Ⱈ", c: "Ⱌ", č: "Ⱍ", š: "Ⱎ", ć: "Ⰼ", đ: "Ⰼ" };
+  function storyHead(title, sub) {
+    const g = GLAG[title.trim()[0]?.toLowerCase()];
+    return h("div", { class: "storyhead" }, g ? h("span", { class: "initial glag", title: title[0] + " in Glagolitic", text: g }) : null,
+      h("div", null, h("h2", { text: title }), h("small", { class: "count", text: sub })));
+  }
+  const DAYS_HR = ["Nedjelja", "Ponedjeljak", "Utorak", "Srijeda", "Četvrtak", "Petak", "Subota"];
+  const MONTHS_HR = ["siječnja", "veljače", "ožujka", "travnja", "svibnja", "lipnja", "srpnja", "kolovoza", "rujna", "listopada", "studenoga", "prosinca"];
+  const dateHr = (d = new Date()) => DAYS_HR[d.getDay()] + ", " + d.getDate() + ". " + MONTHS_HR[d.getMonth()];
+  const voiceTag = who => h("span", { class: "vt " + who, title: "Speaker " + who }, ic("person"));
+
   const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const sample = (a, n) => shuffle(a).slice(0, n);
   const today = () => Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000);
@@ -677,6 +862,97 @@ body.kid .opt { font-size: 1.25rem; }
     return [...new Set(ids)].map(id => BY_ID[id]);
   }
 
+  // ---------- course progress ----------
+  // The daily lesson is the whole course, so progress counts what it has brought in: words introduced (on the review
+  // schedule) and grammar units finished (two clean days). A grammar unit weighs about as much as a day and a half of words.
+  // The course so far covers about CEFR A1; milestones break it into stretches of two to four weeks so the bar keeps moving.
+  const GRAM_WEIGHT = 8;
+  const LEVELS = ["A1", "A2", "B1", "B2"];
+  const COURSE_MILESTONES = {
+    adult: [
+      { hr: "Pozdrav", en: "Hello", topics: ["greet", "core1", "family", "core2"], grammar: ["biti", "present"] },
+      { hr: "Brojevi i pitanja", en: "Numbers and questions", topics: ["numbers", "core3", "phrases", "core4", "questions"], grammar: ["gender", "neg"] },
+      { hr: "Svaki dan", en: "Every day", topics: ["verbs", "core5", "food", "time", "core6"], grammar: ["acc", "loc"] },
+      { hr: "U gradu", en: "Around town", topics: ["home", "town", "describe", "body"], grammar: ["numbers", "past"] },
+      { hr: "Svijet oko nas", en: "The world around us", topics: ["nature", "colours", "animals", "clothes", "play"], grammar: ["future"] }],
+    kid: [
+      { hr: "Bok i boje", en: "Hello and colours", topics: ["greet", "colours", "numbers"], grammar: [] },
+      { hr: "Životinje i obitelj", en: "Animals and family", topics: ["animals", "family"], grammar: [] },
+      { hr: "Hrana i ja", en: "Food and me", topics: ["food", "body", "clothes"], grammar: [] },
+      { hr: "Igra i dom", en: "Play and home", topics: ["play", "home", "nature"], grammar: [] }] };
+  // { level, pct, cur (index of the milestone in progress, or the count when all are done), done, daysLeft,
+  //   ms: [{hr, en, have, total, pct, done, words: [learned, all], topics: [{t, have, total}], grammar: [{g, done}]}] }
+  function courseProgress(p) {
+    const clean = planOf(p).clean || {};
+    const ms = COURSE_MILESTONES[p.kind === "kid" ? "kid" : "adult"].map(m => {
+      const ids = m.topics.flatMap(t => TOPIC[t]?.ids || []), gs = m.grammar.filter(g => GRAM[g]);
+      const topics = m.topics.filter(t => TOPIC[t]).map(t => ({ t: TOPIC[t], have: TOPIC[t].ids.filter(id => p.srs?.[id]).length, total: TOPIC[t].ids.length }));
+      const grammar = gs.map(g => ({ g: GRAM[g], done: (clean[g] || 0) >= 2 }));
+      const w = ids.filter(id => p.srs?.[id]).length;
+      const have = w + GRAM_WEIGHT * grammar.filter(g => g.done).length, total = ids.length + GRAM_WEIGHT * gs.length;
+      return { hr: m.hr, en: m.en, have, total, pct: total ? have / total : 1, done: have >= total, words: [w, ids.length], topics, grammar };
+    });
+    const have = ms.reduce((a, m) => a + m.have, 0), total = ms.reduce((a, m) => a + m.total, 0);
+    const done = ms.filter(m => m.done).length, cur = ms.findIndex(m => !m.done);
+    // Lesson days left at full pace: new words come a topic at a time (5 a day, kids 4), and grammar runs alongside at two clean days a unit.
+    const perDay = p.kind === "kid" ? 4 : 5;
+    const wordDays = ms.flatMap(m => m.topics).reduce((a, x) => a + Math.ceil((x.total - x.have) / perDay), 0);
+    const daysLeft = Math.max(wordDays, 2 * ms.flatMap(m => m.grammar).filter(g => !g.done).length);
+    return { level: LEVELS[0], pct: total ? have / total : 0, cur: cur < 0 ? ms.length : cur, done, daysLeft, ms };
+  }
+  // Home card: the road to fluency (A1 → B2), then this level's milestones as one bar in sections. Finishing a milestone
+  // is celebrated for the rest of that day (p.msSeen, p.msDay); a profile that already had progress before this card existed starts without a backlog.
+  function progressCard(p) {
+    const cp = courseProgress(p), kid = p.kind === "kid", n = cp.ms.length;
+    if (p.msSeen === undefined) { p.msSeen = cp.done; saveProfile(p); }
+    if (cp.done > p.msSeen) { p.msSeen = cp.done; p.msDay = today(); saveProfile(p); }
+    const cheer = p.msDay === today() && cp.done ? h("p", { class: "prog-cheer", role: "status" }, h("b", null, licitar(), "Milestone " + cp.done + " done: " + cp.ms[cp.done - 1].hr + "!"),
+      " " + (cp.done < n ? "Next up: " + cp.ms[cp.done].hr + " (" + cp.ms[cp.done].en + ")." : "That's all of " + cp.level + ". Well done!")) : null;
+    const m = cp.ms[Math.min(cp.cur, n - 1)];
+    return h("section", { class: "panel prog", "aria-label": "Course progress" },
+      h("div", { class: "prog-road", "aria-label": "Road to fluency" }, LEVELS.map((l, i) =>
+        h("span", { class: "prog-lvl" + (l === cp.level ? " on" : ""), title: i === LEVELS.length - 1 ? "Fluent" : "", text: l }))),
+      h("div", { class: "prog-head" },
+        h("h2", { text: cp.cur < n ? m.hr : cp.level + " complete" }),
+        h("span", { class: "prog-pct", text: Math.floor(cp.pct * 100) + "%" })),
+      h("p", { class: "prog-sub", text: cp.cur < n
+        ? "Milestone " + (cp.cur + 1) + " of " + n + " · " + m.en + " · " + Math.round(m.pct * 100) + "% there"
+        : "Every milestone of " + cp.level + " is done. " + (kid ? "Keep playing to remember it all!" : "Keep up the daily lesson to keep it all fresh.") }),
+      h("div", { class: "prog-bar", role: "progressbar", "aria-label": cp.level + " progress", "aria-valuemin": 0, "aria-valuemax": 100, "aria-valuenow": Math.floor(cp.pct * 100) },
+        cp.ms.map((s, i) => h("div", { class: "prog-seg" + (s.done ? " prog-done" : i === cp.cur ? " prog-cur" : ""), style: "flex:" + s.total, title: s.hr + " · " + s.en },
+          h("i", { style: "width:" + Math.round(s.pct * 100) + "%" })))),
+      cheer,
+      h("button", { class: "linkbtn prog-more", onclick: () => go("journey") }, "See your whole journey →"));
+  }
+  // The zoomed-out view: the road from A1 to fluency, then every milestone of this level with its topics and grammar.
+  const LEVEL_INFO = { A1: "First words and simple sentences", A2: "Everyday situations", B1: "Real conversations", B2: "Fluent" };
+  function viewJourney() {
+    const p = me(); if (!p) return viewHome();
+    const cp = courseProgress(p), kid = p.kind === "kid", L = LEVELS.indexOf(cp.level);
+    const wrap = h("main", { class: "wrap" }, subhead("Your journey", Math.floor(cp.pct * 100) + "% of " + cp.level + (cp.daysLeft ? " · about " + cp.daysLeft + " lesson days to go" : " · done")));
+    wrap.append(h("section", { class: "panel prog" },
+      h("h2", { text: "Road to fluency" }),
+      h("ol", { class: "prog-levels" }, LEVELS.map((l, i) => h("li", { class: i < L ? "prog-done" : i === L ? "prog-cur" : "" },
+        h("b", { text: l }), h("span", { text: LEVEL_INFO[l] }),
+        h("small", { class: "count", text: i === L ? Math.floor(cp.pct * 100) + "% · you are here" : i < L ? "Done" : i === L + 1 ? "Comes after " + cp.level : "Later" })))),
+      h("div", { class: "prog-bar", role: "progressbar", "aria-label": cp.level + " progress", "aria-valuemin": 0, "aria-valuemax": 100, "aria-valuenow": Math.floor(cp.pct * 100) },
+        cp.ms.map((s, i) => h("div", { class: "prog-seg" + (s.done ? " prog-done" : i === cp.cur ? " prog-cur" : ""), style: "flex:" + s.total },
+          h("i", { style: "width:" + Math.round(s.pct * 100) + "%" }))))));
+    cp.ms.forEach((m, i) => wrap.append(h("section", { class: "panel prog prog-ms" + (m.done ? " prog-done" : i === cp.cur ? " prog-cur" : "") },
+      h("div", { class: "prog-head" },
+        h("h2", null, h("span", { class: "prog-num", text: m.done ? "✓" : String(i + 1) }), m.hr),
+        h("span", { class: "count", text: m.done ? "Done" : Math.round(m.pct * 100) + "%" })),
+      h("p", { class: "prog-sub", text: m.en + " · " + m.words[0] + " of " + m.words[1] + " words" + (m.grammar.length ? " · " + m.grammar.filter(g => g.done).length + " of " + m.grammar.length + " grammar points" : "") }),
+      h("div", { class: "prog-bar" }, h("div", { class: "prog-seg" + (m.done ? " prog-done" : ""), style: "flex:1" }, h("i", { style: "width:" + Math.round(m.pct * 100) + "%" }))),
+      h("ul", { class: "prog-items" },
+        m.topics.map(x => h("li", { class: x.have >= x.total ? "prog-done" : "" }, h("span", { text: (x.t.pic ? x.t.pic + " " : "") + x.t.hr + " · " + x.t.en }), h("small", { class: "count", text: x.have + " / " + x.total }))),
+        m.grammar.map(x => h("li", { class: x.done ? "prog-done" : "" }, h("span", null, "📐 " + x.g.en.split(":")[0]), h("small", { class: "count", text: x.done ? "✓" : "" })))))));
+    wrap.append(h("p", { class: "count", text: kid
+      ? "Each day's lesson brings a few new words. Finish a lesson every day to fill the bar!"
+      : "Progress comes from the daily lesson: a word counts once a lesson has introduced it, and a grammar point counts after two clean days. Days to go assumes a lesson every day with everything recalled. A2 and beyond need new lessons, which are still to come." }));
+    return wrap;
+  }
+
   // ---------- views ----------
   let view = "home", viewArg = null, session = null;
   const app = $("#app");
@@ -686,7 +962,7 @@ body.kid .opt { font-size: 1.25rem; }
     app.replaceChildren();
     if (session) return renderSession();
     const fn = { home: viewHome, learn: viewLearn, family: viewFamily, topic: viewTopic, profiles: viewProfiles, reading: viewReading, story: viewStory, alphabet: viewAlphabet,
-      talk: viewTalk, dialogue: viewDialogue, grammar: viewGrammar, unit: viewUnit, sounds: viewSounds, sound: viewSound, method: viewMethod }[view] || viewHome;
+      talk: viewTalk, dialogue: viewDialogue, grammar: viewGrammar, unit: viewUnit, sounds: viewSounds, sound: viewSound, method: viewMethod, journey: viewJourney }[view] || viewHome;
     app.append(fn(), tabBar());
   }
 
@@ -714,7 +990,7 @@ body.kid .opt { font-size: 1.25rem; }
     const p = me();
     return h("header", { class: "top" },
       h("div", { class: "brand" }, h("div", { class: "checker", "aria-hidden": "true" }),
-        h("div", null, h("h1", { text: "Naučimo!" }), h("small", { text: "Let's learn Croatian" }))),
+        h("div", null, h("h1", { text: "Naučimo" }), h("small", { text: "Let's learn Croatian" }))),
       h("button", { class: "chip", onclick: () => go("profiles"), "aria-label": "Switch learner" },
         p ? h("span", { class: "avatar", style: "background:" + p.color, text: p.name.slice(0, 1).toUpperCase() }) : h("span", { class: "avatar", style: "background:var(--muted)", text: "+" }),
         h("span", { class: "nm", text: p ? p.name : "Add learner" })));
@@ -734,26 +1010,29 @@ body.kid .opt { font-size: 1.25rem; }
 
   function dailyPanel(p) {
     if (p.run) {
-      const r = p.run, ex = r.q[Math.min(r.idx, r.q.length - 1)] || {};
+      const r = p.run, ex = r.q[Math.min(r.idx, r.q.length - 1)] || {}, at = Math.max(0, (r.stages || []).indexOf(ex.stage));
       return h("div", { class: "daily" },
+        r.stages ? h("div", { class: "boardrow" }, chessboard(r.stages.length, at, at), h("span", { class: "kicker", text: at + " of " + r.stages.length })) : null,
         h("button", { class: "btn primary", onclick: () => startDaily() }, "▶ Continue today's lesson · Day " + r.day),
         h("small", { class: "count", text: "You stopped at question " + (r.idx + 1) + " of " + r.q.length + (ex.stage ? ", in " + ex.stage + "." : ".") + " It picks up right there." }));
     }
     const P = dailyPlan(p);
     const unitName = g => g.en.split(":")[0];
     if (P.doneToday) return h("div", { class: "daily" },
-      h("p", null, h("b", { text: "✓ Day " + (P.day - 1) + " done." }), " The next lesson opens tomorrow and starts by asking for today's words from memory."),
+      h("div", { class: "boardrow" }, chessboard(6, 6, -1), licitar()),
+      h("p", null, h("b", { text: "Day " + (P.day - 1) + " done." }), " The next lesson opens tomorrow and starts by asking for today's words from memory."),
       (planOf(p).last?.fresh || []).length ? h("div", { class: "actions" }, h("button", { class: "btn", onclick: () => startRehearse() }, "🔁 Rehearse today's words (optional)")) : null);
     const steps = [
-      P.warm.length ? "Remember last time: " + P.warm.length + " words" + (P.warmUnit ? " + " + unitName(P.warmUnit) : "") + ". New words unlock only if all of them come back." : null,
-      P.due.length || P.units.length ? "Review: " + (P.due.length ? P.due.length + " cards, English to Croatian" : "") + (P.units.length ? (P.due.length ? " + " : "") + unitName(GRAM[P.units[0]]) : "") : null,
-      P.fresh.length ? (P.warm.length ? "Then either relearn what you missed, or " + P.fresh.length + " new words from " + P.topic.en : "New: " + P.fresh.length + " words from " + P.topic.en) : null,
-      P.unit ? "Grammar: " + unitName(P.unit) + (ruleSeen(p, P.unit) ? " (practice, typed and timed)" : (p.gram || {})[P.unit.id] ? " (clearer explanation, step by step)" : " (new)") : null,
-      "A short story to read and listen to, and a one-minute quick round",
-      "Lock it in: everything from today again, typed from memory"].filter(Boolean);
+      P.warm.length ? ["recall", "Remember last time: " + P.warm.length + " words" + (P.warmUnit ? " + " + unitName(P.warmUnit) : "") + ". New words unlock only if all of them come back."] : null,
+      P.due.length || P.units.length ? ["cards", "Review: " + (P.due.length ? P.due.length + " cards, English to Croatian" : "") + (P.units.length ? (P.due.length ? " + " : "") + unitName(GRAM[P.units[0]]) : "")] : null,
+      P.fresh.length ? ["spark", P.warm.length ? "Then either relearn what you missed, or " + P.fresh.length + " new words from " + P.topic.en : "New: " + P.fresh.length + " words from " + P.topic.en] : null,
+      P.unit ? ["grammar", "Grammar: " + unitName(P.unit) + (ruleSeen(p, P.unit) ? " (practice, typed and timed)" : (p.gram || {})[P.unit.id] ? " (clearer explanation, step by step)" : " (new)")] : null,
+      ["story", "A short story to read and listen to, and a one-minute quick round"],
+      ["lock", "Lock it in: everything from today again, typed from memory"]].filter(Boolean);
     return h("div", { class: "daily" },
-      h("button", { class: "btn primary", onclick: () => startDaily() }, "📅 Today's lesson · Day " + P.day),
-      h("ol", { class: "plan" }, steps.map(t => h("li", { text: isKid() ? t.replace(", typed from memory", " from memory").replace(", English to Croatian", "") : t }))),
+      h("div", { class: "boardrow" }, chessboard(steps.length, 0, 0), h("span", { class: "kicker", text: steps.length + " steps" })),
+      h("ol", { class: "plan" }, steps.map(([i, t]) => h("li", null, ic(i), h("span", { text: isKid() ? t.replace(", typed from memory", " from memory").replace(", English to Croatian", "") : t })))),
+      h("button", { class: "btn primary", onclick: () => startDaily() }, "▶ Start today's lesson · Day " + P.day),
       h("small", { class: "count", text: "About 15 minutes. One lesson a day: memory needs the overnight gap." }));
   }
   function viewHome() {
@@ -776,24 +1055,25 @@ body.kid .opt { font-size: 1.25rem; }
     const due = dueCount(p), xt = xpToday(p), goal = goalOf(p);
     const kid = isKid(), nd = nextDialogue(p), nu = kid ? null : nextUnit(p);
     const P = p.run ? null : dailyPlan(p), day = p.run ? p.run.day : P.doneToday ? P.day - 1 : P.day;
-    wrap.append(h("h2", { class: "hello" }, "Bok,", h("br"), p.name + "!"));
+    wrap.append(h("h2", { class: "hello" }, h("span", { class: "kicker", text: dateHr() }), kid ? "Bok," : "Dobar dan,", h("br"), h("em", { text: p.name + (kid ? "!" : ".") })));
     // A different Croatian landmark every day (the same one for the whole family), with the drawn coast as a fallback.
     const lm = LANDMARKS.length ? LANDMARKS[today() % LANDMARKS.length] : null;
-    const tag = h("span", { class: "tagpill", text: "Day " + day + " · 🔥 " + streakOf(p) + " day streak" });
+    const tag = h("span", { class: "tagpill" }, streakOf(p) ? [licitar(), streakOf(p) + "-day streak · Day " + day] : "Day " + day);
     const scene = lm
       ? h("div", { class: "scene photo", role: "img", "aria-label": lm.en, style: "background-image:url('" + lm.img + "')" }, tag,
-          h("div", { class: "lmcap" }, h("b", { text: lm.hr }), h("span", { text: lm.en })))
+          h("div", { class: "lmcap" }, h("span", { class: "kicker" }, "Mjesto dana ", h("i", { text: "· Place of the day" })), h("b", { text: lm.hr }), h("span", { text: lm.en })))
       : h("div", { class: "scene", "aria-hidden": "true" }, h("div", { class: "sun" }), h("div", { class: "isl" }),
           h("div", { class: "town" }, [26, 18, 34, 22, 15].map(ht => h("b", { style: "height:" + ht + "px" + (ht > 30 ? ";width:9px" : "") }))),
-          h("div", { class: "boat", text: "⛵" }), tag);
+          h("div", { class: "boat" }, ic("boat")), tag);
     wrap.append(h("section", { class: "hero-card", "aria-label": "Today" }, scene,
       h("div", { class: "hero-body" },
         lm ? h("p", { class: "lmfact" }, h("b", { text: "Did you know? " }), isKid() && lm.kid ? lm.kid : lm.fact,
-          h("a", { class: "lmcredit", href: lm.page, target: "_blank", rel: "noopener", text: "📷 Photo: " + lm.by + " · " + lm.lic })) : null,
-        h("div", { class: "t" }, h("h2", { text: "Today's lesson" }),
+          h("a", { class: "lmcredit", href: lm.page, target: "_blank", rel: "noopener", }, ic("camera"), "Photo: " + lm.by + " · " + lm.lic)) : null,
+        h("div", { class: "t" }, h("div", null, h("div", { class: "kicker" }, "Današnja lekcija ", h("i", { text: "· Day " + day })), h("h2", { text: "Today's lesson" })),
           h("span", { class: "pctbig" }, Math.min(100, Math.round((xt / goal) * 100)) + "%", h("small", { text: xt + " / " + goal + (kid ? " stars" : " XP") }))),
         h("div", { class: "goal", role: "progressbar", "aria-valuemin": 0, "aria-valuemax": goal, "aria-valuenow": xt }, h("i", { style: "width:" + Math.min(100, (xt / goal) * 100) + "%" })),
         dailyPanel(p))));
+    wrap.append(progressCard(p));
     wrap.append(h("div", { class: "actions" },
       h("button", { class: "btn", disabled: !due, onclick: () => startReview() }, due ? "🔁 Review " + due + " item" + (due > 1 ? "s" : "") : "✓ No reviews due"),
       nd ? h("button", { class: "btn", onclick: () => go("dialogue", nd.id) }, "💬 " + (kid ? "Talk: " : "Conversation: ") + nd.en) : null,
@@ -821,8 +1101,8 @@ body.kid .opt { font-size: 1.25rem; }
          ["🔤", "Alphabet", "Letters and their sounds", () => go("alphabet")]];
     wrap.append(h("section", null,
       h("div", { class: "section-head" }, h("h2", { text: "Practice" }), h("p", { text: p ? "Uses words you've learned" : "Starts with everyday words" })),
-      h("div", { class: "practice" }, tiles.map(([ic, t, s, fn]) => h("button", { class: "tile", onclick: () => { if (!me()) return toast("Add a learner first."); fn(); } }, h("span", { class: "ic", text: ic }), h("b", { text: t }), h("small", { text: s }))))));
-    wrap.append(h("section", null,
+      h("div", { class: "practice" }, tiles.map(([icn, t, s, fn]) => h("button", { class: "tile", onclick: () => { if (!me()) return toast("Add a learner first."); fn(); } }, ic(UI_EMOJI[icn.replace("\uFE0F", "")]), h("b", { text: t }), h("small", { text: s }))))));
+    wrap.append(pleter(), h("section", null,
       h("div", { class: "section-head" }, h("h2", { text: "Topics" }), h("p", { text: TOPIC_WORDS + " words and phrases" })),
       h("div", { class: "topics" }, topicOrder().map(t => {
         const n = p ? t.ids.filter(id => learned(p, id)).length : 0;
@@ -843,7 +1123,7 @@ body.kid .opt { font-size: 1.25rem; }
       h("div", { class: "board" }, ps.map(q => h("div", { class: "board-row" },
         h("span", { class: "avatar", style: "background:" + q.color, text: q.name.slice(0, 1).toUpperCase() }),
         h("span", { class: "nm", text: q.name + (q.kind === "kid" ? " · kid" : "") }),
-        h("span", { class: "sub", text: "🔥 " + streakOf(q) }),
+        h("span", { class: "sub" }, licitar(), String(streakOf(q))),
         h("span", { class: "num", text: xpWeek(q) + " XP" }))))));
     wrap.append(h("div", { class: "actions" },
       h("button", { class: "btn primary", onclick: () => go("profiles") }, "Switch or add a learner"),
@@ -912,7 +1192,7 @@ body.kid .opt { font-size: 1.25rem; }
     const wrap = h("main", { class: "wrap" }, subhead("Abeceda", "The Croatian alphabet · 30 letters"));
     wrap.append(h("p", { class: "notice", text: "Croatian is written exactly as it sounds: every letter always makes the same sound. Tap a letter to hear its example word." }));
     wrap.append(h("div", { class: "alpha" }, C.alphabet.map(([l, s, ex]) => h("button", { class: "letter", onclick: () => speak(ex) },
-      h("b", { text: l }), h("small", { text: s }), h("span", { text: "🔊 " + ex })))));
+      h("b", { text: l }), h("small", { text: s }), h("span", null, "🔊 " + ex)))));
     return wrap;
   }
 
@@ -921,14 +1201,14 @@ body.kid .opt { font-size: 1.25rem; }
     const wrap = h("main", { class: "wrap" }, subhead("Čitanje", "Reading · tap any word for its meaning"));
     const list = isKid() ? [...C.stories.filter(s => s.kids), ...C.stories.filter(s => !s.kids && !s.focus)] : C.stories.filter(s => !s.kids);
     wrap.append(h("div", { class: "plist" }, list.map(s => h("button", { class: "prow", style: "text-align:left", onclick: () => go("story", s.id) },
-      h("span", { style: "font-size:1.6rem", text: (p?.stories || {})[s.id] ? "✅" : "📖" }),
+      h("span", { class: "initial glag" }, GLAG[s.hr[0].toLowerCase()] || s.hr[0]),
       h("div", { class: "meta" }, h("b", { text: s.hr }), h("small", { text: s.en + " · " + s.level + " · ≈" + pct(knownShare(p, s.lines ? s.lines.join(" ") : s.text)) + " familiar" }))))));
     return wrap;
   }
 
   function viewStory() {
     const s = STORY[viewArg], p = me();
-    const wrap = h("main", { class: "wrap" }, subhead(s.hr, s.en, "reading"));
+    const wrap = h("main", { class: "wrap" }, subhead("Priča", "Story", "reading"), storyHead(s.hr, s.en), pleter());
     const gloss = h("div", { class: "gloss", hidden: true });
     const showGloss = (word, meaning) => {
       gloss.hidden = false;
@@ -967,7 +1247,7 @@ body.kid .opt { font-size: 1.25rem; }
         opts.children[q.answer].classList.add("right");
         if (i !== q.answer) e.currentTarget.classList.add("wrong"); else right++;
         if (++answered === questions.length) qs.append(h("p", { class: "notice", text: right + " of " + questions.length + " right." + onDone(right) }));
-      } }, o)));
+      } }, pics ? art(o) : o)));
       qs.append(h("div", { class: "qblock" }, h("div", null, h("div", { class: "q", text: q.q }), h("div", { class: "qen", text: q.en })), opts));
     });
     return qs;
@@ -1027,7 +1307,6 @@ body.kid .opt { font-size: 1.25rem; }
   }
   // The colour key under a story whose grammar point the learner has had.
   const markLegend = g => h("p", { class: "legend" }, h("span", { class: "end", text: "Coloured" }), ": " + g.en);
-  const VOICE_ICON = { A: "👩", B: "👨" };
 
   function viewTalk() {
     const p = me(), kid = isKid(), nd = nextDialogue(p);
@@ -1053,7 +1332,7 @@ body.kid .opt { font-size: 1.25rem; }
     const bubbles = d.lines.map(([who, hr, en, note]) => {
       const alt = who === "A";
       const b = h("div", { class: "bubble" + (alt ? "" : " me") },
-        h("div", { class: "who" }, h("span", { text: VOICE_ICON[who] }), h("button", { class: "minisay", "aria-label": "Play this line", onclick: () => speak(hr, 0.85, alt) }, "🔊")),
+        h("div", { class: "who" }, voiceTag(who), h("button", { class: "minisay", "aria-label": "Play this line", onclick: () => speak(hr, 0.85, alt) }, "🔊")),
         tappable(hr, showGloss), h("div", { class: "ten", hidden: true, text: en }), note ? h("div", { class: "note", text: note }) : null);
       chat.append(b);
       return b;
@@ -1091,8 +1370,8 @@ body.kid .opt { font-size: 1.25rem; }
       h("button", { class: "btn primary", onclick: () => { if (!me()) return toast("Add a learner first."); startShadow(d.ids.map(id => BY_ID[id]), d.en, d.id); } }, "🗣️ Say it with me"));
     else turn.append(h("p", { text: "The app speaks the other part. You pick your reply, then type or say it yourself, then say it from memory." }),
       h("div", { class: "actions" },
-        h("button", { class: "btn primary", onclick: () => { if (!me()) return toast("Add a learner first."); startRoleplay(d, "B"); } }, "Play " + VOICE_ICON.B + " part"),
-        h("button", { class: "btn", onclick: () => { if (!me()) return toast("Add a learner first."); startRoleplay(d, "A"); } }, "Play " + VOICE_ICON.A + " part")));
+        h("button", { class: "btn primary", onclick: () => { if (!me()) return toast("Add a learner first."); startRoleplay(d, "B"); } }, voiceTag("B"), "Play the blue part"),
+        h("button", { class: "btn", onclick: () => { if (!me()) return toast("Add a learner first."); startRoleplay(d, "A"); } }, voiceTag("A"), "Play the red part")));
     wrap.append(turn);
     if (d.grammar && GRAM[d.grammar] && !kid) wrap.append(h("button", { class: "linkbtn", style: "justify-self:start", onclick: () => go("unit", d.grammar) }, "📐 Grammar in this scene: " + GRAM[d.grammar].en + " →"));
     wrap.append(gloss);
@@ -1112,7 +1391,7 @@ body.kid .opt { font-size: 1.25rem; }
     wrap.append(h("div", { class: "plist" }, GRAMMAR.map(g => {
       const [st, cls] = unitStatus(p, g);
       return h("button", { class: "prow", style: "text-align:left", onclick: () => go("unit", g.id) },
-        h("span", { style: "font-size:1.6rem", text: g.pic }),
+        h("span", { class: "initial", text: g.hr[0] }),
         h("div", { class: "meta" }, h("b", { text: g.hr }), h("small", { text: g.en }),
           h("div", { class: "tags" }, h("span", { class: "tag " + cls, text: st }), g === nu ? h("span", { class: "tag hot", text: "Up next" }) : null)));
     })));
@@ -1122,7 +1401,7 @@ body.kid .opt { font-size: 1.25rem; }
   function viewUnit() {
     const g = GRAM[viewArg], p = me();
     const known = !!(p?.gram || {})[g.id];
-    const wrap = h("main", { class: "wrap" }, subhead(g.pic + " " + g.hr, g.en, "grammar"));
+    const wrap = h("main", { class: "wrap" }, subhead(g.hr, g.en, "grammar"));
     wrap.append(h("section", { class: "panel" }, h("div", { class: "eyebrow", text: "1 · Listen to the examples" }),
       h("div", { class: "examples" }, g.examples.map(([hr, en]) => h("div", { class: "exrow" }, sayBtn(hr), h("div", null, h("div", { class: "hr", text: hr }), h("div", { class: "en", text: en })))))));
     const rule = h("section", { class: "panel rule", hidden: !known }, h("div", { class: "eyebrow", text: "3 · The rule, step by step" }),
@@ -1166,7 +1445,7 @@ body.kid .opt { font-size: 1.25rem; }
       const best = (p?.snd || {})[so.id];
       const drill = so.which || so.pairs;
       return h("button", { class: "prow", style: "text-align:left", onclick: () => go("sound", so.id) },
-        h("span", { style: "font-size:1.6rem", text: so.pic }),
+        h("span", { class: "initial", text: so.hr.split(/[ ,/]/)[0] }),
         h("div", { class: "meta" }, h("b", { text: so.hr }), h("small", { text: so.en }),
           drill ? h("div", { class: "tags" }, h("span", { class: "tag" + (best >= 0.8 ? " ok" : ""), text: best != null ? "Best " + pct(best) : "Ear drill" })) : null));
     })));
@@ -1176,7 +1455,7 @@ body.kid .opt { font-size: 1.25rem; }
   function viewSound() {
     const so = SOUND[viewArg];
     let slow = false;
-    const wrap = h("main", { class: "wrap" }, subhead(so.pic + " " + so.hr, so.en, "sounds"));
+    const wrap = h("main", { class: "wrap" }, subhead(so.hr, so.en, "sounds"));
     wrap.append(h("section", { class: "panel rule" }, h("p", { text: so.rule })));
     const segN = h("button", { type: "button", "aria-pressed": "true" }, "🔊 Normal"), segS = h("button", { type: "button", "aria-pressed": "false" }, "🐢 Slow");
     segN.onclick = () => { slow = false; segN.setAttribute("aria-pressed", "true"); segS.setAttribute("aria-pressed", "false"); };
@@ -1506,7 +1785,7 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
     const w = ex.w, other = w.who === "A" ? "B" : "A", mine = new Set(norm(said).split(" "));
     const marked = text => text.split(/(\s+)/).map(t => (t.trim() && !mine.has(norm(t)) ? h("mark", { text: t }) : t));
     return h("div", { class: "recast" },
-      h("div", { class: "chat" }, h("div", { class: "bubble" + (other === "A" ? "" : " me") }, h("div", { class: "who" }, h("span", { text: VOICE_ICON[other] + " " + (r ? "You mean:" : "You'd say:") })),
+      h("div", { class: "chat" }, h("div", { class: "bubble" + (other === "A" ? "" : " me") }, h("div", { class: "who" }, h("span", null, voiceTag(other), " " + (r ? "You mean:" : "You'd say:"))),
         h("div", { class: "line" }, ...(r ? [r.recast] : marked(w.hr))))),
       r?.tip ? h("div", { class: "why" }, h("b", { text: "Why: " }), r.tip) : null,
       r && norm(r.recast) !== norm(w.hr) ? h("div", null, "The scene says: ", h("b", { text: w.hr })) : null);
@@ -1574,10 +1853,10 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
 
   function renderSession() {
     const s = session;
-    const pct = (s.idx / Math.max(1, s.queue.length)) * 100;
+    const pct = (s.idx / Math.max(1, s.queue.length)) * 100, cur = s.queue[s.idx], at = s.kind === "daily" && s.stages && cur ? s.stages.indexOf(cur.stage) : -1;
     const root = h("div", { class: "session" },
       h("div", { class: "sbar" }, h("button", { class: "close", "aria-label": "End session", onclick: () => { if (s.idx > 0 && s.kind !== "match" && finishedSession !== s) finish(true); else go("home"); } }, "✕"),
-        h("div", { class: "goal", role: "progressbar", "aria-valuenow": Math.round(pct), "aria-valuemin": 0, "aria-valuemax": 100 }, h("i", { style: "width:" + pct + "%" }))));
+        at >= 0 ? chessboard(s.stages.length, at, at) : h("div", { class: "goal", role: "progressbar", "aria-valuenow": Math.round(pct), "aria-valuemin": 0, "aria-valuemax": 100 }, h("i", { style: "width:" + pct + "%" }))));
     const stage = h("div", { class: "stage" });
     root.append(stage);
     app.append(root);
@@ -1598,7 +1877,8 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
     }
     const kid = isKid(), timing = timeGrammar(s, ex, ok);
     const sheet = h("div", { class: "sheet " + (ok ? "good" : "bad"), role: "status" }, h("div", { class: "in" },
-      h("div", { class: "msg", text: ok ? sample(kid ? ["Bravo! ⭐", "Super! ⭐", "Točno! ⭐"] : ["Točno!", "Bravo!", "Odlično!"], 1)[0] : opts.msg || (opts.near ? "Almost!" : "Not quite") }),
+      ok ? vez() : null,
+      h("div", { class: "msg" }, ok && kid ? licitar() : null, ok ? sample(kid ? ["Bravo!", "Super!", "Točno!"] : ["Točno!", "Bravo!", "Odlično!"], 1)[0] : opts.msg || (opts.near ? "Almost!" : "Not quite")),
       detail ? h("div", { class: "detail" }, detail) : null, timing,
       h("button", { class: "btn primary", id: "continue", onclick: () => { s.idx++; render(); } }, "Continue")));
     document.querySelectorAll(".sheet").forEach(x => x.remove());
@@ -1636,7 +1916,7 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
     const alt = prev[0] === "A";
     speak(prev[1], 0.85, alt);
     return h("div", { class: "chat" }, h("div", { class: "bubble" + (alt ? "" : " me") },
-      h("div", { class: "who" }, h("span", { text: VOICE_ICON[prev[0]] + " says" }), h("button", { class: "minisay", "aria-label": "Play again", onclick: () => speak(prev[1], 0.85, alt) }, "🔊")),
+      h("div", { class: "who" }, h("span", null, voiceTag(prev[0]), " says"), h("button", { class: "minisay", "aria-label": "Play again", onclick: () => speak(prev[1], 0.85, alt) }, "🔊")),
       h("div", { class: "line", text: prev[1] }), withEn ? h("div", { class: "ten", text: prev[2] }) : null));
   }
   const gapLine = (d, fill) => h("div", { class: "gapline" }, d.s.split("___").flatMap((part, i) => [i ? h("span", { class: "gap", text: fill || "?" }) : null, part]));
@@ -1896,7 +2176,7 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
       let en = false;
       const enBtn = h("button", { class: "btn ghost", onclick: () => { en = !en; body.english(en); enBtn.textContent = en ? "Hide English" : "Show English"; } }, "Show English");
       stage.append(h("div", { class: "prompt-label", text: kid ? "Listen to the story" : ex.again ? "A story you've read before. Read it again, a little faster, without the English." : "Read the story. Tap any word you don't know." }),
-        h("div", null, h("h2", { text: s.hr }), h("small", { class: "count", text: s.en })),
+        storyHead(s.hr, s.en),
         h("div", { class: "actions" }, h("button", { class: "btn primary", onclick: () => body.play(0.85) }, "🔊 Listen"),
           h("button", { class: "btn", onclick: () => body.play(0.6) }, "🐢 Slowly"), kid ? null : enBtn),
         ...[g ? markLegend(g) : null, !kid && ex.un?.length ? h("p", { class: "legend", text: "New: " + ex.un.join(", ") + ". They're underlined: tap one for its meaning." }) : null].filter(Boolean),
@@ -1907,7 +2187,7 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
         const p = me(); p.stories = p.stories || {}; p.stories[s.id] = today(); saveProfile(p);
         session.xp += 5 + 5 * right; session.read = { id: s.id, right, of: qs.length };
         app.append(h("div", { class: "sheet" + (right === qs.length ? " good" : "") }, h("div", { class: "in" },
-          qs.length ? h("div", { class: "msg", text: right + " of " + qs.length + " right" + (kid && right === qs.length ? " ⭐" : "") }) : null,
+          qs.length ? h("div", { class: "msg" }, right + " of " + qs.length + " right" + (kid && right === qs.length ? " ⭐" : "")) : null,
           h("button", { class: "btn primary", id: "continue", onclick: () => { session.idx++; render(); } }, "Continue"))));
         $("#continue").focus({ preventScroll: true });
       };
@@ -1928,7 +2208,7 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
       const kid = isKid(), secs = kid ? 45 : 60, words = (ex.ids || []).map(id => BY_ID[id]).filter(Boolean), best = me().flu?.best || 0;
       const box = h("div", { class: "quick" });
       stage.append(h("div", { class: "prompt-label", text: kid ? "Quick round! Listen and tap the picture, fast." : "Quick round: words you know well. Pick the meaning as fast as you can." }), box);
-      box.append(h("div", { class: "card" }, h("div", { class: "bigpic", text: "⚡" }), h("div", { class: "big", text: secs + " seconds" }),
+      box.append(h("div", { class: "card" }, h("div", { class: "bigpic" }, ic("bolt")), h("div", { class: "big", text: secs + " seconds" }),
         h("p", { text: (kid ? "Listen and tap the right picture. " : "Read or hear a word you know and pick its meaning. ") + "Mistakes don't count against you." + (best ? " Your best: " + best + "." : "") })));
       const start = h("div", { class: "sheet" }, h("div", { class: "in" }, h("button", { class: "btn primary", id: "continue", onclick: () => { start.remove(); run(); } }, "Start")));
       app.append(start);
@@ -1960,8 +2240,8 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
           const p = me(), prev = p.flu?.best || 0;
           p.flu = { best: Math.max(prev, score), last: score, day: today() }; saveProfile(p);
           session.xp += Math.min(15, score); session.quick = { score, best: prev };
-          box.replaceChildren(h("div", { class: "card" }, h("div", { class: "bigpic", text: score > prev ? "🏆" : "⚡" }),
-            h("div", { class: "big", text: kid ? score + " ⭐" : score + " in a minute" }),
+          box.replaceChildren(h("div", { class: "card" }, h("div", { class: "bigpic" }, score > prev ? licitar() : ic("bolt")),
+            h("div", { class: "big" }, kid ? score + " ⭐" : score + " in a minute"),
             h("p", { text: score > prev && prev ? "A new best! Your last best was " + prev + "." : prev ? "Your best is " + prev + ". The better you know a word, the less you have to think about it." : "That's your first score. Try to beat it next time." })));
           app.append(h("div", { class: "sheet" }, h("div", { class: "in" }, h("button", { class: "btn primary", id: "continue", onclick: () => { session.idx++; render(); } }, "Continue"))));
           $("#continue").focus({ preventScroll: true });
@@ -1972,7 +2252,7 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
     gate(ex, stage) {
       const msg = dailyRest(session);
       if (!msg) { session.idx++; return render(); }
-      stage.append(h("div", { class: "card" }, h("div", { class: "bigpic", text: session.relearn.length ? "🔁" : "🔓" }), h("p", { text: msg })));
+      stage.append(h("div", { class: "card" }, h("div", { class: "bigpic" }, ic(session.relearn.length ? "recall" : "unlock")), h("p", { text: msg })));
       app.append(h("div", { class: "sheet" }, h("div", { class: "in" }, h("button", { class: "btn primary", id: "continue", onclick: () => { session.idx++; render(); } }, "Continue"))));
     },
     // One step of a new grammar point (k), followed in the queue by forms of just that step.
@@ -1982,7 +2262,7 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
       const g = ex.g, n = g.steps.length, ks = ex.k === undefined ? g.steps.map((_, j) => j) : [ex.k], first = ks[0] === 0, last = ks.at(-1) === n - 1;
       stage.append(h("div", { class: "prompt-label", text: "New grammar point" + (ks.length === 1 ? " · step " + (ex.k + 1) + " of " + n : "") }),
         h("div", { class: "card rulecard" },
-          first ? [h("div", { class: "big", text: g.pic + " " + g.hr }), h("div", { class: "en", text: g.en }),
+          first ? [h("div", { class: "big", text: g.hr }), h("div", { class: "en", text: g.en }),
             h("div", { class: "examples" }, g.examples.slice(0, 3).map(([hr, en]) => h("div", { class: "exrow" }, sayBtn(hr), h("div", null, h("div", { class: "hr", text: hr }), h("div", { class: "en", text: en })))))] : null,
           ks.flatMap(j => [h("h3", { class: "steptitle", text: (j + 1) + ". " + g.steps[j].t }), ...stepBody(g.steps[j])]),
           last ? [h("div", { class: "eyebrow", text: "All together" }), stepTable(g)] : null));
@@ -2023,14 +2303,14 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
       const w = ex.w;
       stage.append(h("div", { class: "prompt-label", text: "Listen and tap the picture" }),
         h("button", { class: "playbig", "aria-label": "Play again", onclick: () => speak(w.hr) }, "🔊"));
-      choiceList(stage, shuffle([w, ...distractors(w, 3, "pic")]), x => x.pic, x => x === w, ok => answer(ex, ok, correctLine(w), { silent: true }), "picopts", "picopt");
+      choiceList(stage, shuffle([w, ...distractors(w, 3, "pic")]), x => art(x.pic), x => x === w, ok => answer(ex, ok, correctLine(w), { silent: true }), "picopts", "picopt");
       speak(w.hr);
     },
     pictap(ex, stage) {
       const w = ex.w;
       stage.append(h("div", { class: "prompt-label", text: "Tap the picture for…" }),
         h("div", { class: "row" }, sayBtn(w.hr), h("div", { class: "big", text: w.hr })));
-      choiceList(stage, shuffle([w, ...distractors(w, 3, "pic")]), x => x.pic, x => x === w, ok => answer(ex, ok, correctLine(w), { silent: true }), "picopts", "picopt");
+      choiceList(stage, shuffle([w, ...distractors(w, 3, "pic")]), x => art(x.pic), x => x === w, ok => answer(ex, ok, correctLine(w), { silent: true }), "picopts", "picopt");
       speak(w.hr);
     },
     type(ex, stage) {
@@ -2196,13 +2476,17 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
     document.querySelectorAll(".sheet").forEach(x => x.remove());
     const kid = isKid(), p = me();
     const total = s.kind === "match" ? s.right : s.queue.filter(e => !["intro", "gate", "rule", "story", "quick"].includes(e.type)).length;
+    const daily = s.kind === "daily";
     stage.append(h("div", { class: "done" },
-      h("div", { class: "bigpic", text: kid ? "🌟" : "🎉" }),
-      h("h2", { text: kid ? "Bravo!" : "Odlično! " + s.title + " done." }),
+      h("div", { class: "bigpic" }, licitar()),
+      daily ? h("div", { class: "kicker", text: s.title + " · Bravo" }) : null,
+      daily ? h("h2", null, "Lekcija je", h("br"), h("em", { text: "gotova." })) : h("h2", { text: kid ? "Bravo!" : "Odlično! " + s.title + " done." }),
+      daily && s.stages ? chessboard(s.stages.length, s.stages.length, -1, "big") : null,
       h("div", { class: "stats" },
         h("span", null, kid ? "⭐ " : "", h("b", { text: "+" + s.xp }), kid ? " stars" : " XP"),
         s.kind !== "match" ? h("span", null, h("b", { text: s.right + " / " + total }), " correct") : null,
         p ? h("span", null, "🔥 ", h("b", { text: streakOf(p) }), " day streak") : null),
+      daily ? vez() : null,
       s.kind === "daily" && (s.read || s.quick) ? h("p", { text: [s.read ? "Story: “" + STORY[s.read.id].hr + "”, " + s.read.right + " of " + s.read.of + " questions right." : "",
         s.quick ? "Quick round: " + s.quick.score + (s.quick.score > s.quick.best && s.quick.best ? " (a new best)." : ".") : ""].filter(Boolean).join(" ") }) : null,
       s.kind === "daily" && s.slow ? h("p", { text: "Grammar: your answers were right, but " + (s.speed[1] - s.speed[0]) + " of " + s.speed[1] + " were slow, so today doesn't count as a clean day for " + GRAM[s.unit].en.split(":")[0] + " yet. It moves on after two days that are right and quick." }) : null,
