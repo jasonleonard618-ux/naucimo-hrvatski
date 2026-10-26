@@ -377,6 +377,12 @@ textarea.typebox:focus { box-shadow: inset 0 0 0 1px var(--ink); border-color: v
 .gtable td:first-child { color: var(--muted); font-weight: 500; }
 .gtable td { font-family: var(--font-display); font-weight: 450; font-size: 1.05rem; }
 .gtable td:first-child { font-family: var(--font-body); font-size: .95rem; }
+.gtable.chart td { vertical-align: top; }
+.cellbox { width: 100%; min-width: 4.5em; font: inherit; font-family: var(--font-display); font-size: 1.05rem; padding: 2px 2px 4px; border: 0; border-bottom: 1.5px solid var(--ink); border-radius: 0; background: transparent; color: var(--ink); caret-color: var(--terra); }
+.cellbox:focus { outline: none; border-bottom-color: var(--terra); box-shadow: 0 1.5px 0 var(--terra); }
+.gtable.chart .cellbox.right { border-bottom-color: var(--good); color: var(--good); }
+.gtable.chart .cellbox.wrong { border-bottom-color: var(--bad); color: var(--bad); text-decoration: line-through; }
+.cellfix { display: block; font-size: .9rem; color: var(--ink); margin-top: 2px; }
 .tablewrap { overflow-x: auto; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .wchip { border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 8px 14px; font-family: var(--font-display); font-weight: 450; font-size: 1.15rem; min-height: 44px; }
@@ -866,7 +872,7 @@ body.kid .opt { font-size: 1.25rem; }
 
   // ---------- course progress ----------
   // The daily lesson is the whole course, so progress counts what it has brought in: words introduced (on the review
-  // schedule) and grammar units finished (two clean days). A grammar unit weighs about as much as a day and a half of words.
+  // schedule) and grammar units finished (two clean days, then a check-up passed a few days later). A grammar unit weighs about as much as a day and a half of words.
   // The course so far covers about CEFR A1; milestones break it into stretches of two to four weeks so the bar keeps moving.
   const GRAM_WEIGHT = 8;
   const LEVELS = ["A1", "A2", "B1", "B2"];
@@ -889,7 +895,7 @@ body.kid .opt { font-size: 1.25rem; }
     const ms = COURSE_MILESTONES[p.kind === "kid" ? "kid" : "adult"].map(m => {
       const ids = m.topics.flatMap(t => TOPIC[t]?.ids || []), gs = m.grammar.filter(g => GRAM[g]);
       const topics = m.topics.filter(t => TOPIC[t]).map(t => ({ t: TOPIC[t], have: TOPIC[t].ids.filter(id => p.srs?.[id]).length, total: TOPIC[t].ids.length }));
-      const grammar = gs.map(g => ({ g: GRAM[g], done: (clean[g] || 0) >= 2 }));
+      const grammar = gs.map(g => ({ g: GRAM[g], done: (clean[g] || 0) >= MASTERED }));
       const w = ids.filter(id => p.srs?.[id]).length;
       const have = w + GRAM_WEIGHT * grammar.filter(g => g.done).length, total = ids.length + GRAM_WEIGHT * gs.length;
       return { hr: m.hr, en: m.en, have, total, pct: total ? have / total : 1, done: have >= total, words: [w, ids.length], topics, grammar };
@@ -951,7 +957,7 @@ body.kid .opt { font-size: 1.25rem; }
         m.grammar.map(x => h("li", { class: x.done ? "prog-done" : "" }, h("span", null, "📐 " + x.g.en.split(":")[0]), h("small", { class: "count", text: x.done ? "✓" : "" })))))));
     wrap.append(h("p", { class: "count", text: kid
       ? "Each day's lesson brings a few new words. Finish a lesson every day to fill the bar!"
-      : "Progress comes from the daily lesson: a word counts once a lesson has introduced it, and a grammar point counts after two clean days. Days to go assumes a lesson every day with everything recalled. A2 and beyond need new lessons, which are still to come." }));
+      : "Progress comes from the daily lesson: a word counts once a lesson has introduced it, and a grammar point counts once it has had two clean days and passed a check-up a few days later. Days to go assumes a lesson every day with everything recalled. A2 and beyond need new lessons, which are still to come." }));
     return wrap;
   }
 
@@ -1028,7 +1034,8 @@ body.kid .opt { font-size: 1.25rem; }
       P.warm.length ? ["recall", "Remember last time: " + P.warm.length + " words" + (P.warmUnit ? " + " + unitName(P.warmUnit) : "") + ". New words unlock only if all of them come back."] : null,
       P.due.length || P.units.length ? ["cards", "Review: " + (P.due.length ? P.due.length + " cards, English to Croatian" : "") + (P.units.length ? (P.due.length ? " + " : "") + unitName(GRAM[P.units[0]]) : "")] : null,
       P.fresh.length ? ["spark", P.warm.length ? "Then either relearn what you missed, or " + P.fresh.length + " new words from " + P.topic.en : "New: " + P.fresh.length + " words from " + P.topic.en] : null,
-      P.unit ? ["grammar", "Grammar: " + unitName(P.unit) + (ruleSeen(p, P.unit) ? " (practice, typed and timed)" : (p.gram || {})[P.unit.id] ? " (clearer explanation, step by step)" : " (new)")] : null,
+      P.check ? ["recall", "Check-up: " + unitName(P.check) + ", five sentences you haven't seen, to see if the rule stuck"] : null,
+      P.unit ? ["grammar", "Grammar: " + unitName(P.unit) + (ruleSeen(p, P.unit) ? " (the chart and sentences, typed and timed)" : (planOf(p).reteach || {})[P.unit.id] ? " (back for another look, step by step)" : (p.gram || {})[P.unit.id] ? " (clearer explanation, step by step)" : " (new)")] : null,
       ["story", "A short story to read and listen to, and a one-minute quick round"],
       ["lock", "Lock it in: everything from today again, typed from memory"]].filter(Boolean);
     return h("div", { class: "daily" },
@@ -1479,7 +1486,7 @@ body.kid .opt { font-size: 1.25rem; }
       ["Output and interaction", "Trying to say things, and getting feedback, makes you test what you know.",
         "In conversations you take a part: the other voice speaks, you pick your reply, then type or say it yourself, then say it from memory. If your line is worded differently but natural, it counts. If it's wrong, you hear it back corrected, as the other person would say it (a recast), with a short reason, instead of just a red X. Where the microphone works, the app listens; otherwise you rate yourself."],
       ["Spaced repetition", "Short sessions spread over days beat cramming, and getting something right inside a lesson mostly shows short-term memory, not learning.",
-        "Today's lesson opens by asking for yesterday's words and grammar from memory before you see them, and ends by asking for today's new words again after the grammar has pushed them out of short-term memory. New words only unlock when everything from the last lesson comes back, a grammar point moves on only after two clean days, and there's one lesson a day, because the overnight gap is part of the method. Words, conversation lines and grammar units come back on a schedule that stretches each time you remember them. The daily goal is small on purpose."],
+        "Today's lesson opens by asking for yesterday's words and grammar from memory before you see them, and ends by asking for today's new words again after the grammar has pushed them out of short-term memory. New words only unlock when everything from the last lesson comes back, a grammar point moves on only after two clean days and comes back as a check-up of fresh sentences three, seven and 21 days later (a miss sends it back into the lesson), and there's one lesson a day, because the overnight gap is part of the method. Words, conversation lines and grammar units come back on a schedule that stretches each time you remember them. The daily goal is small on purpose."],
       ["From knowing to doing", "Fluency is when rules stop being facts you remember and become habits.",
         "Grammar goes rule → drill with feedback → timed answers. Once a grammar point has been taught, its answers in the daily lesson are timed, and a day only counts toward moving on when most of them come quickly as well as right. The daily quick round does the same for words: a minute of words you know well, as fast as you can, to beat your own best."],
       ["Four kinds of practice", "A balanced course splits time roughly evenly between understanding real language, using it to say things, studying words and grammar, and getting faster with what you know (Paul Nation's four strands).",
@@ -1536,11 +1543,27 @@ body.kid .opt { font-size: 1.25rem; }
   // it opens by recalling the last lesson from memory, and new words only unlock when all of them come back.
   // Missed words are relearned instead, and the grammar unit only moves on after two clean days.
   const planOf = p => (p.plan = p.plan || { day: 0, date: null, unit: null, last: null, clean: {} });
+  // A grammar point moves on after two clean days, but only counts as learned (MASTERED) once a check-up a few days
+  // later comes back right. Check-ups follow at 3, 7 and 21 days (pl.check: unit → {due, n passed}); a failed one
+  // sends the unit back into the daily lesson (pl.reopen), taught step by step again (pl.reteach).
+  const MASTERED = 3, CHECK_GAPS = [3, 7, 21], CHECK_N = 5;
   function currentUnit(p) {
     if (isKid()) return null;
     const pl = planOf(p); pl.clean = pl.clean || {};
+    if (pl.reopen && GRAM[pl.reopen] && (pl.clean[pl.reopen] || 0) < 2) return GRAM[pl.reopen];
     if (pl.unit && GRAM[pl.unit] && (pl.clean[pl.unit] || 0) < 2) return GRAM[pl.unit];
     return GRAMMAR.find(g => (pl.clean[g.id] || 0) < 2 && g.id !== pl.unit) || null;
+  }
+  function checkUnit(p) {
+    if (isKid()) return null;
+    const pl = planOf(p); pl.check = pl.check || {};
+    // Units finished before check-ups existed get one too, one a day, so nothing is assumed learned without a delayed test.
+    if (!pl.checkInit) {
+      pl.checkInit = true;
+      GRAMMAR.filter(g => (pl.clean?.[g.id] || 0) >= 2 && !pl.check[g.id]).forEach((g, i) => { pl.check[g.id] = { due: today() + i, n: 0 }; });
+    }
+    const due = Object.entries(pl.check).filter(([id, c]) => GRAM[id] && c.due <= today()).sort((a, b) => a[1].due - b[1].due);
+    return due.length ? GRAM[due[0][0]] : null;
   }
   function dailyPlan(p) {
     const kid = isKid(), pl = planOf(p);
@@ -1549,9 +1572,9 @@ body.kid .opt { font-size: 1.25rem; }
     const due = dueIds(p).filter(id => !warm.includes(id)).slice(0, kid ? 5 : 8);
     const topic = nextTopic(p);
     const fresh = topic.ids.filter(id => !p.srs[id]).slice(0, kid ? 4 : 5);
-    const unit = currentUnit(p);
-    const units = kid ? [] : dueUnits(p).filter(u => u !== unit?.id).slice(0, 1);
-    return { day: pl.day + 1, doneToday: pl.date === today(), warm, warmUnit, due, topic, fresh, unit, units, dlg: nextDialogue(p) };
+    const unit = currentUnit(p), check = checkUnit(p);
+    const units = kid ? [] : dueUnits(p).filter(u => u !== unit?.id && u !== check?.id).slice(0, 1);
+    return { day: pl.day + 1, doneToday: pl.date === today(), warm, warmUnit, due, topic, fresh, unit, check, units, dlg: nextDialogue(p) };
   }
   const dWords = ids => ids.map(id => BY_ID[id]);
   // Recall = producing the word from the English (adults type it; kids hear it and find the picture, or say it).
@@ -1568,25 +1591,48 @@ body.kid .opt { font-size: 1.25rem; }
   const unknownIn = (k, text) => norm(text).split(" ").filter(t => t && !k.has(t) && !(LEX[t] && LEX[t][1] !== "*" && k.has(norm(LEX[t][1]))));
   const unitsFor = (p, unit) => [...new Set([...taughtUnits(p), unit].filter(Boolean))];
   // Fill-in drills with only known words come first; if a unit has too few, the rest show the meaning of any new word.
+  // Among those, sentences never seen come first, then the ones seen longest ago (p.gseen: item id → day last asked),
+  // then ones with a recording. The known ones are spread across the rule's steps, and anything already in today's
+  // lesson (avoid: a set of item ids) is left out while there are enough others.
   const cost = un => un.length + 10 * un.filter(t => !meaningOf(t)).length; // a new word we can't gloss is worst
-  const gapsOf = (g, n, typed, k) => {
-    const idx = shuffle(g.drills.map((_, i) => i)).map(i => [i, k ? unknownIn(k, fullOf(g.drills[i]).replace(g.drills[i].a, "")) : []]).sort((a, b) => cost(a[1]) - cost(b[1])).slice(0, n);
-    return idx.map(([i, un]) => ({ type: typed || Math.random() < 0.5 ? "gaptype" : "gap", ...gapItem(g, i), ...(un.length ? { gloss: un } : {}) }));
+  const seenOn = id => me()?.gseen?.[id] ?? -1;
+  const gapsOf = (g, n, typed, k, avoid) => {
+    const all = shuffle(g.drills.map((d, i) => ({ i, d, id: "g:" + g.id + ":" + i, un: k ? unknownIn(k, fullOf(d).replace(d.a, "")) : [] })))
+      .map(x => ({ ...x, seen: seenOn(x.id), voiced: !hasAudio || hasClip(fullOf(x.d)) }));
+    let pool = all.filter(x => !avoid?.has(x.id));
+    if (pool.length < n) pool = all;
+    pool.sort((a, b) => cost(a.un) - cost(b.un) || a.seen - b.seen || b.voiced - a.voiced);
+    const pick = [], steps = new Set();
+    for (const x of pool) if (pick.length < n && !x.un.length && !steps.has(x.d.r)) { pick.push(x); steps.add(x.d.r); }
+    for (const x of pool) if (pick.length < n && !pick.includes(x)) pick.push(x);
+    return shuffle(pick).map(({ i, un }) => ({ type: typed || Math.random() < 0.5 ? "gaptype" : "gap", ...gapItem(g, i), ...(un.length ? { gloss: un } : {}) }));
   };
   // Form drills practise one step of a rule on its own, before it has to work inside a sentence.
   const formItem = (g, k, i) => {
     const f = g.steps[k].f[i];
     return { type: "form", g, k, f, w: { id: "g:" + g.id + ":f" + k + "." + i, hr: f.a, en: f.en || "" } };
   };
-  const formsOf = (g, k, n) => sample(g.steps[k].f.map((_, i) => formItem(g, k, i)), n);
+  const formsOf = (g, k, n) => shuffle(g.steps[k].f.map((_, i) => formItem(g, k, i))).sort((a, b) => seenOn(a.w.id) - seenOn(b.w.id)).slice(0, n);
   // One form from each step (up to n), for days after the rule has been taught.
   const mixedForms = (g, n) => shuffle(g.steps.map((_, k) => formsOf(g, k, 1)[0])).slice(0, n);
   // The first time: each step of the rule, then two forms of just that step. Later: forms from memory.
   // A unit whose rule was rewritten (rev) is taught step by step again once, so the daily lesson carries the new explanation.
-  const ruleSeen = (p, g) => (p.gram || {})[g.id] && ((p.ruleRev || {})[g.id] || 1) >= (g.rev || 1);
-  const grammarStage = (p, g, n, k) => [
-    ...(ruleSeen(p, g) ? mixedForms(g, 4) : g.steps.flatMap((_, j) => [{ type: "rule", g, k: j, w: { id: "rule:" + g.id + ":" + j, hr: "", en: "" } }, ...formsOf(g, j, 2)])),
-    ...gapsOf(g, n, true, k)];
+  // A unit sent back by a failed check-up (pl.reteach) is taught step by step again too.
+  const ruleSeen = (p, g) => (p.gram || {})[g.id] && ((p.ruleRev || {})[g.id] || 1) >= (g.rev || 1) && !(planOf(p).reteach || {})[g.id];
+  const grammarStage = (p, g, n, k, avoid) => [
+    ...(ruleSeen(p, g) ? [...mixedForms(g, 4), chartItem(p, g)] : g.steps.flatMap((_, j) => [{ type: "rule", g, k: j, w: { id: "rule:" + g.id + ":" + j, hr: "", en: "" } }, ...formsOf(g, j, 2)])),
+    ...gapsOf(g, n, true, k, avoid)];
+  // Fill in the chart: the unit's table with a few cells blanked, typed from memory. It shows the whole pattern at once,
+  // which single sentences build slowly; a different set of cells is hidden each time (p.gchart: unit → last hidden).
+  const chartCells = g => g.table.rows.flatMap((r, i) => r.map((c, j) => [i, j]).filter(([, j]) => j > 0 && /\p{L}/u.test(r[j])));
+  function chartItem(p, g) {
+    const last = new Set((p.gchart || {})[g.id] || []), all = chartCells(g), n = Math.min(6, Math.max(2, Math.floor(all.length / 2)));
+    const cells = shuffle(all).sort((a, b) => last.has(a.join(".")) - last.has(b.join("."))).slice(0, n).sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+    (p.gchart = p.gchart || {})[g.id] = cells.map(c => c.join("."));
+    return { type: "chart", g, cells, w: { id: "g:" + g.id + ":chart", hr: "", en: "" } };
+  }
+  // A chart cell like "-am (čitam)" accepts the ending, the example, or both.
+  const cellAnswers = c => { const t = String(c), m = t.match(/^(.*?)\s*\((.*)\)\s*$/); return m ? [t, m[1], m[2]] : [t]; };
   function startDaily() {
     const p = me(); if (!p) return;
     if (p.run && resumeDaily(p)) return;
@@ -1597,17 +1643,20 @@ body.kid .opt { font-size: 1.25rem; }
     // No instant retries here: a miss means the word is relearned properly after the check.
     add("Remember last time", [...shuffle(dWords(P.warm)).map(w => ({ ...recallEx(w), once: true })),
       ...(P.warmUnit ? gapsOf(P.warmUnit, 2, true, K0).map(e => ({ ...e, once: true })) : [])]);
-    add("Review", [...dWords(P.due).map(w => ({ type: "flash", reverse: !kid, w })), ...P.units.flatMap(u => gapsOf(GRAM[u], 2, true, K0))]);
+    const inQ = () => new Set(q.map(e => e.w?.id));
+    add("Review", [...dWords(P.due).map(w => ({ type: "flash", reverse: !kid, w })), ...P.units.flatMap(u => gapsOf(GRAM[u], 2, true, K0, inQ()))]);
+    // The delayed test: fresh sentences from every step of a unit finished a few days ago, no second tries and no clock.
+    if (P.check) add("Check-up", gapsOf(P.check, CHECK_N, true, K0, inQ()).map(e => ({ ...e, once: true })));
     q.push({ type: "gate", w: { id: "gate", hr: "", en: "" } });
     session = { kind: "daily", title: "Day " + P.day, day: P.day, plan: P, queue: q, idx: 0, right: 0, xp: 0, wrong: {},
-      stages: ["Remember last time", "Review", "New words", "Practice", "Grammar", "Lock it in"].filter(x => q.some(e => e.stage === x) || !["Remember last time", "Review"].includes(x)),
+      stages: ["Remember last time", "Review", "Check-up", "New words", "Practice", "Grammar", "Lock it in"].filter(x => q.some(e => e.stage === x) || !["Remember last time", "Review", "Check-up"].includes(x)),
       fresh: [], relearn: [], review: P.warm, warm: P.warm, unit: P.unit?.id, units: P.units, timed: !!P.unit && !!ruleSeen(p, P.unit),
       next: P.dlg ? ["💬 Use it in a conversation: " + P.dlg.en, () => go("dialogue", P.dlg.id)] : null };
     render();
   }
   // An unfinished daily lesson is saved on the profile after every question (p.run), so leaving resumes it
   // at the same question instead of counting it as done.
-  const EX_KEYS = ["stage", "once", "retry", "reverse", "dictate", "en", "ref", "gloss", "k", "again", "un", "ids"];
+  const EX_KEYS = ["stage", "once", "retry", "reverse", "dictate", "en", "ref", "gloss", "k", "again", "un", "ids", "cells"];
   function packEx(e) {
     const o = { t: e.type };
     for (const k of EX_KEYS) if (e[k] !== undefined) o[k] = e[k];
@@ -1621,10 +1670,11 @@ body.kid .opt { font-size: 1.25rem; }
     if (o.t === "gap" || o.t === "gaptype") { const [, u, i] = String(o.w).split(":"); if (!GRAM[u]?.drills[+i]) throw 0; return Object.assign(e, gapItem(GRAM[u], +i)); }
     if (o.t === "form") { const [, u, f] = String(o.w).split(":"), [k, i] = f.slice(1).split(".").map(Number); if (!GRAM[u]?.steps[k]?.f[i]) throw 0; return Object.assign(e, formItem(GRAM[u], k, i)); }
     if (o.t === "rule") { e.g = GRAM[o.g]; if (!e.g || (e.k !== undefined && !e.g.steps[e.k])) throw 0; }
+    if (o.t === "chart") { e.g = GRAM[o.g]; if (!e.g || !(e.cells || []).every(([i, j]) => e.g.table.rows[i]?.[j] !== undefined)) throw 0; }
     if (o.t === "story") { e.s = STORY[String(o.w).slice(6)]; if (!e.s) throw 0; }
     if (o.t === "quick") e.ids = (e.ids || []).filter(id => BY_ID[id]);
     if (o.t === "write") e.w = { id: o.w, hr: o.ref, en: o.en };
-    else if (["rule", "gate", "story", "quick"].includes(o.t)) e.w = { id: o.w, hr: "", en: "" };
+    else if (["rule", "gate", "story", "quick", "chart"].includes(o.t)) e.w = { id: o.w, hr: "", en: "" };
     else { e.w = BY_ID[o.w]; if (!e.w) throw 0; }
     return e;
   }
@@ -1634,13 +1684,13 @@ body.kid .opt { font-size: 1.25rem; }
     p.run = { day: s.day, idx: s.idx, q: s.queue.map(packEx), stages: s.stages, wrong: s.wrong, right: s.right, xp: s.xp,
       fresh: s.fresh, relearn: s.relearn, warm: s.warm, review: s.review, unit: s.unit || null, units: s.units, gated: !!s.gated,
       timed: !!s.timed, speed: s.speed || null, read: s.read || null, quick: s.quick || null,
-      plan: { day: P.day, warm: P.warm, warmUnit: P.warmUnit?.id || null, due: P.due, fresh: P.fresh, unit: P.unit?.id || null, units: P.units, dlg: P.dlg?.id || null } };
+      plan: { day: P.day, warm: P.warm, warmUnit: P.warmUnit?.id || null, due: P.due, fresh: P.fresh, unit: P.unit?.id || null, check: P.check?.id || null, units: P.units, dlg: P.dlg?.id || null } };
     saveProfile(p);
   }
   function resumeDaily(p) {
     const r = p.run;
     try {
-      const P = { ...r.plan, warmUnit: GRAM[r.plan.warmUnit] || null, unit: GRAM[r.plan.unit] || null, dlg: DLG[r.plan.dlg] || null };
+      const P = { ...r.plan, warmUnit: GRAM[r.plan.warmUnit] || null, unit: GRAM[r.plan.unit] || null, check: GRAM[r.plan.check] || null, dlg: DLG[r.plan.dlg] || null };
       session = { kind: "daily", title: "Day " + r.day, day: r.day, plan: P, queue: r.q.map(unpackEx), stages: r.stages, idx: Math.min(r.idx, r.q.length - 1),
         right: r.right, xp: r.xp, wrong: r.wrong || {}, fresh: r.fresh, relearn: r.relearn, review: r.review, warm: r.warm, unit: r.unit || undefined, units: r.units || [], gated: r.gated,
         timed: r.timed, speed: r.speed || undefined, read: r.read || undefined, quick: r.quick || undefined,
@@ -1662,7 +1712,7 @@ body.kid .opt { font-size: 1.25rem; }
       add(missed.length ? "Relearn" : "New words", dWords(target).flatMap(w => [{ type: "intro", w }, meet(w)]));
       add("Practice", shuffle(dWords(target)).map(recallEx));
     }
-    if (P.unit) add("Grammar", grammarStage(p, P.unit, 4, knownSet(p, target, unitsFor(p, P.unit))));
+    if (P.unit) add("Grammar", grammarStage(p, P.unit, 4, knownSet(p, target, unitsFor(p, P.unit)), new Set(s.queue.map(e => e.w?.id))));
     const st = pickStory(p, knownSet(p, target, unitsFor(p, P.unit)));
     if (st) add("Story", [{ type: "story", s: st.s, again: st.again, un: st.again ? [] : st.un, w: { id: "story:" + st.s.id, hr: "", en: "" } }]);
     const qp = quickPool(p);
@@ -1735,7 +1785,7 @@ body.kid .opt { font-size: 1.25rem; }
   // at least two thirds of them come quickly, because knowing a rule and using it without thinking are different skills.
   const speedLimit = ex => (ex.type === "gaptype" || (ex.type === "form" && !(ex.f.o || ex.g.steps[ex.k].o)) ? 8000 + 300 * (ex.d?.a || ex.f?.a || "").length : 6000);
   function timeGrammar(s, ex, ok) {
-    if (s.kind !== "daily" || !s.timed || !ok || !ex.t0 || !String(ex.w?.id).startsWith("g:" + s.unit + ":")) return null;
+    if (s.kind !== "daily" || !s.timed || !ok || !ex.t0 || ex.type === "chart" || !String(ex.w?.id).startsWith("g:" + s.unit + ":")) return null;
     const ms = Date.now() - ex.t0, lim = speedLimit(ex), quick = ms <= lim, secs = Math.max(1, Math.round(ms / 1000));
     s.speed = s.speed || [0, 0]; s.speed[1]++; if (quick) s.speed[0]++;
     return h("div", { class: "count", text: "⏱ " + secs + " s" + (quick ? "" : ". Right, but slow: aim for under " + Math.round(lim / 1000) + " s. A grammar point counts a clean day when most answers come quickly.") });
@@ -1877,6 +1927,7 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
       s.wrong[ex.w.id] = (s.wrong[ex.w.id] || 0) + 1;
       if (!ex.retry && !ex.once && !["practice", "speed", "ear"].includes(s.kind)) s.queue.push(Object.assign({}, ex, { retry: true, hinted: false }));
     }
+    if (String(ex.w?.id).startsWith("g:") && me()) (me().gseen = me().gseen || {})[ex.w.id] = today();
     const kid = isKid(), timing = timeGrammar(s, ex, ok);
     const sheet = h("div", { class: "sheet " + (ok ? "good" : "bad"), role: "status" }, h("div", { class: "in" },
       ok ? vez() : null,
@@ -1886,7 +1937,7 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
     document.querySelectorAll(".sheet").forEach(x => x.remove());
     app.append(sheet);
     $("#continue").focus({ preventScroll: true });
-    if (ex.w && !opts.silent) speak(ex.w.hr);
+    if (ex.w?.hr && !opts.silent && !((ex.type === "gap" || ex.type === "gaptype") && hasAudio && !hasClip(ex.w.hr))) speak(ex.w.hr);
   }
   // Hint and Show answer on questions answered from scratch. Using either scores the question as a miss,
   // so it comes back for another try (in the daily lesson a missed word from last time is relearned).
@@ -2009,6 +2060,39 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
       const help = helpRow(ex, letterHint(d.a), () => { input.disabled = true; check.disabled = true; answer(ex, false, h("span", null, "Answer: ", h("b", { text: fullOf(d) }), whyLine(ex)), { msg: "Here's the answer" }); });
       stage.append(h("div", { class: "prompt-label", text: "Type the missing word" }), gapLine(d), ...gapHints(d), ...[glossLine(ex)].filter(Boolean), form, help);
       setTimeout(() => input.focus(), 50);
+    },
+    chart(ex, stage) {
+      const g = ex.g, hide = new Set(ex.cells.map(c => c.join("."))), inputs = [];
+      let last = null;
+      const keys = h("div", { class: "keys" }, ["č", "ć", "đ", "š", "ž"].map(k => h("button", { class: "key", type: "button", onmousedown: e => e.preventDefault(), onclick: () => {
+        const input = last || inputs[0]; if (!input || input.disabled) return;
+        const a = input.selectionStart ?? input.value.length, b = input.selectionEnd ?? a;
+        input.value = input.value.slice(0, a) + k + input.value.slice(b); input.focus(); input.setSelectionRange(a + 1, a + 1);
+      } }, k)));
+      const table = h("table", { class: "gtable chart" }, h("thead", null, h("tr", null, g.table.head.map(x => h("th", { text: x })))),
+        h("tbody", null, g.table.rows.map((r, i) => h("tr", null, r.map((c, j) => {
+          if (!hide.has(i + "." + j)) return h("td", { text: c });
+          const input = h("input", { class: "cellbox", type: "text", autocomplete: "off", autocapitalize: "off", spellcheck: "false", "aria-label": g.table.head[j] + ", " + r[0], onfocus: e => { last = e.target; } });
+          input.cell = c; inputs.push(input);
+          return h("td", null, input);
+        })))));
+      const check = h("button", { class: "btn primary", type: "submit" }, "Check");
+      const form = h("form", { class: "form", onsubmit: e => {
+        e.preventDefault();
+        const empty = inputs.find(x => !x.value.trim()); if (empty) return empty.focus();
+        let wrong = 0, near = 0;
+        for (const x of inputs) {
+          const acc = cellAnswers(x.cell), exact = acc.some(a => norm(a) === norm(x.value)), close = !exact && acc.some(a => loose(a) === loose(x.value));
+          if (!exact && !close) wrong++; else if (close) near++;
+          x.disabled = true; x.classList.add(exact || close ? "right" : "wrong");
+          if (!exact) x.after(h("small", { class: "cellfix", text: x.cell }));
+        }
+        check.disabled = true; keys.querySelectorAll("button").forEach(b => (b.disabled = true));
+        if (!wrong) answer(ex, true, h("span", null, near ? "All there. Watch the accents on the ones marked below the boxes." : "Every cell right."), { near: !!near, xp: near ? 5 : 10 });
+        else answer(ex, false, h("span", null, wrong + " of " + inputs.length + " not quite. The right forms are under the boxes."));
+      } }, h("div", { class: "tablewrap" }, table), keys, check);
+      stage.append(h("div", { class: "prompt-label", text: "Fill in the chart from memory" }), h("div", { class: "hint", text: g.en }), form);
+      setTimeout(() => inputs[0]?.focus(), 50);
     },
     whichsound(ex, stage) {
       const w = ex.w;
@@ -2443,8 +2527,28 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
           pl.clean = pl.clean || {};
           const gm = k => Object.keys(s.wrong).some(x => x.startsWith("g:" + k + ":"));
           s.slow = !!(s.timed && s.speed?.[1] && s.speed[0] / s.speed[1] < 2 / 3);
-          if (s.unit && !gm(s.unit) && !s.slow) pl.clean[s.unit] = (pl.clean[s.unit] || 0) + 1;
-          if (s.plan.warmUnit && gm(s.plan.warmUnit.id)) pl.clean[s.plan.warmUnit.id] = 0;
+          pl.check = pl.check || {}; pl.reteach = pl.reteach || {};
+          if (s.unit && !gm(s.unit) && !s.slow) {
+            pl.clean[s.unit] = (pl.clean[s.unit] || 0) + 1;
+            // Moving on: the first check-up comes a few days later.
+            if (pl.clean[s.unit] === 2) { pl.check[s.unit] = { due: t + CHECK_GAPS[0], n: 0 }; if (pl.reopen === s.unit) delete pl.reopen; }
+          }
+          if (s.plan.warmUnit && gm(s.plan.warmUnit.id)) { pl.clean[s.plan.warmUnit.id] = 0; delete pl.check[s.plan.warmUnit.id]; }
+          const ck = s.plan.check?.id || s.plan.check;
+          if (ck && GRAM[ck] && pl.check[ck]) {
+            const items = s.queue.filter(e => e.stage === "Check-up"), m = items.filter(e => s.wrong[e.w.id]).length;
+            s.checked = { unit: ck, of: items.length, right: items.length - m, pass: m <= 1 };
+            p.gram = p.gram || {};
+            p.gram[ck] = nextState(p.gram[ck], s.checked.pass ? 2 : 0);
+            if (s.checked.pass) {
+              const c = pl.check[ck]; c.n++;
+              pl.clean[ck] = Math.max(pl.clean[ck] || 0, MASTERED);
+              if (c.n < CHECK_GAPS.length) c.due = t + CHECK_GAPS[c.n]; else delete pl.check[ck];
+            } else {
+              // It didn't stick: back into the daily lesson, explained step by step again.
+              pl.clean[ck] = 0; delete pl.check[ck]; pl.reteach[ck] = true; pl.reopen = ck;
+            }
+          }
           pl.day = s.day; pl.date = t; pl.unit = s.unit || null;
           pl.last = { fresh: [...s.relearn, ...s.fresh], unit: s.unit || null };
         }
@@ -2466,7 +2570,7 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
       const m = misses("g:" + s.unit + ":"), grade = m === 0 ? (s.kind === "speed" ? 3 : 2) : m <= 2 ? 1 : 0;
       const cur = p.gram[s.unit];
       p.gram[s.unit] = cur ? nextState(cur, grade) : grade ? [2.5, 1, t + 1, 1] : [2.3, 0, t, 0];
-      if (s.kind === "daily" && s.queue.some(e => e.type === "rule" && e.g?.id === s.unit)) (p.ruleRev = p.ruleRev || {})[s.unit] = GRAM[s.unit].rev || 1;
+      if (s.kind === "daily" && s.queue.some(e => e.type === "rule" && e.g?.id === s.unit)) { (p.ruleRev = p.ruleRev || {})[s.unit] = GRAM[s.unit].rev || 1; if (p.plan?.reteach) delete p.plan.reteach[s.unit]; }
     }
     for (const u of s.units || []) { const m = misses("g:" + u + ":"); p.gram[u] = nextState(p.gram[u], m ? (m > 1 ? 0 : 1) : 2); }
     if (s.kind === "ear") { p.snd = p.snd || {}; p.snd[s.sound] = Math.max(p.snd[s.sound] || 0, s.right / Math.max(1, s.queue.length)); }
@@ -2491,6 +2595,9 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
       daily ? vez() : null,
       s.kind === "daily" && (s.read || s.quick) ? h("p", { text: [s.read ? "Story: “" + STORY[s.read.id].hr + "”, " + s.read.right + " of " + s.read.of + " questions right." : "",
         s.quick ? "Quick round: " + s.quick.score + (s.quick.score > s.quick.best && s.quick.best ? " (a new best)." : ".") : ""].filter(Boolean).join(" ") }) : null,
+      s.kind === "daily" && s.checked ? h("p", { text: "Check-up on " + GRAM[s.checked.unit].en.split(":")[0] + ": " + s.checked.right + " of " + s.checked.of + " right. " + (s.checked.pass
+        ? (planOf(p).check?.[s.checked.unit] ? "It stuck. It comes back for another check in " + (planOf(p).check[s.checked.unit].due - today()) + " days." : "It stuck. That was its last check-up.")
+        : "It hasn't stuck yet, so it comes back into the daily lesson tomorrow, explained step by step again.") }) : null,
       s.kind === "daily" && s.slow ? h("p", { text: "Grammar: your answers were right, but " + (s.speed[1] - s.speed[0]) + " of " + s.speed[1] + " were slow, so today doesn't count as a clean day for " + GRAM[s.unit].en.split(":")[0] + " yet. It moves on after two days that are right and quick." }) : null,
       s.kind === "daily" ? h("p", { text: ([...s.relearn, ...s.fresh].length ? "Tomorrow starts by asking for " + [...s.relearn, ...s.fresh].map(id => BY_ID[id].hr).join(", ") + " from memory. New words unlock only if they all come back. " : "") + "The next lesson opens tomorrow." }) : null,
       s.kind === "lesson" && s.fresh.length ? h("p", { text: "New words: " + s.fresh.map(id => BY_ID[id].hr).join(", ") + ". They'll come back for review tomorrow." }) : null,
