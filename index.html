@@ -1303,7 +1303,8 @@ If it is not a real word, or you can't translate it, reply {"entries":[]}.`;
         show(entries, "AI dictionary");
       } catch (err) {
         if (my !== seq) return;
-        ai.replaceChildren(h("p", { class: "notice", text: err?.code === "rate_limited" ? "The dictionary is busy right now. Try again in a minute." : "The lookup didn't come back. Check your connection and try again." }));
+        ai.replaceChildren(h("p", { class: "notice", text: err?.code === "rate_limited" ? "The dictionary is busy right now. Try again in a minute." : "The lookup didn't come back. Check your connection and try again." }),
+          err?.detail ? h("p", { class: "count", text: "Details: " + err.detail }) : null);
       }
     }
     const form = h("form", { class: "dict-form", role: "search", onsubmit: e => {
