@@ -95,7 +95,12 @@
   const checker = {
     async json(prompt) {
       const { data, error } = await sb.functions.invoke("check", { body: { prompt } });
-      if (error) throw Object.assign(new Error(error.message), { code: error.context?.status === 429 ? "rate_limited" : "failed" });
+      if (error) {
+        // Keep the function's own reason (e.g. "gemini 404" or "GEMINI_API_KEY is not set") so the app can show it.
+        const status = error.context?.status, body = await error.context?.json?.().catch(() => null);
+        const detail = [status, body?.error, typeof body?.detail === "string" ? body.detail.slice(0, 160) : ""].filter(Boolean).join(" · ") || error.message;
+        throw Object.assign(new Error(error.message), { code: status === 429 ? "rate_limited" : "failed", detail });
+      }
       return data;
     },
   };
