@@ -1304,7 +1304,7 @@ If it is not a real word, or you can't translate it, reply {"entries":[]}.`;
       } catch (err) {
         if (my !== seq) return;
         ai.replaceChildren(h("p", { class: "notice", text: err?.code === "rate_limited" ? "The dictionary is busy right now. Try again in a minute." : "The lookup didn't come back. Check your connection and try again." }),
-          err?.detail ? h("p", { class: "count", text: "Details: " + err.detail }) : null);
+          ...(err?.detail ? [h("p", { class: "count", text: "Details: " + err.detail })] : []));
       }
     }
     const form = h("form", { class: "dict-form", role: "search", onsubmit: e => {
@@ -2134,8 +2134,8 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
       if (!ex.retry && !ex.once && !["practice", "speed", "ear"].includes(s.kind)) s.queue.push(Object.assign({}, ex, { retry: true, hinted: false }));
     }
     if (String(ex.w?.id).startsWith("g:") && me()) (me().gseen = me().gseen || {})[ex.w.id] = today();
-    const kid = isKid(), timing = timeGrammar(s, ex, ok);
     if (ex.type === "write" && me()) (me().wseen = me().wseen || {})[norm(ex.ref)] = today();
+    const kid = isKid(), timing = timeGrammar(s, ex, ok);
     const sheet = h("div", { class: "sheet " + (ok ? "good" : "bad"), role: "status" }, h("div", { class: "in" },
       ok ? vez() : null,
       h("div", { class: "msg" }, ok && kid ? licitar() : null, ok ? sample(kid ? ["Bravo!", "Super!", "Točno!"] : ["Točno!", "Bravo!", "Odlično!"], 1)[0] : opts.msg || (opts.near ? "Almost!" : "Not quite")),
