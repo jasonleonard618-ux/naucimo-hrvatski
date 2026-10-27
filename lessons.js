@@ -219,6 +219,7 @@ Object.assign(window.COURSE, {
   },
 
   // Grammar units. Each drill is a sentence with a gap: s with ___ replaced by a gives the full sentence (it gets a recording).
+  // write: [english, model answer] prompts for the daily "Write it yourself" step, kept to early words (check with tools/write-check.js).
   grammar: [
     { id: "biti", hr: "Biti", en: "To be: sam, si, je…", pic: "✨",
       examples: [["Ja sam Ivan.", "I'm Ivan."], ["Ti si moj prijatelj.", "You're my friend."], ["Mama je u kuhinji.", "Mum is in the kitchen."], ["Mi smo obitelj.", "We're a family."], ["Umoran sam.", "I'm tired."]],
@@ -231,6 +232,22 @@ Object.assign(window.COURSE, {
         { t: "'Not' joins on: nisam, nije…", x: "For 'not', put ni- in front and write it as one word: nisam, nisi, nije, nismo, niste, nisu. Unlike sam, these can start a sentence: Nisam umoran.", how: "He isn't here: on goes with je, so 'not' is nije: On nije ovdje.", short: "'not' = ni- + the form, as one word: nisam, nisi, nije, nismo, niste, nisu.", ask: "Make it 'not'.", f: [{ q: "sam", a: "nisam" }, { q: "je", a: "nije" }, { q: "su", a: "nisu" }, { q: "smo", a: "nismo" }, { q: "si", a: "nisi" }, { q: "ste", a: "niste" }] }
       ],
       table: { head: ["", "is", "is not"], rows: [["ja", "sam", "nisam"], ["ti", "si", "nisi"], ["on / ona / ono", "je", "nije"], ["mi", "smo", "nismo"], ["vi", "ste", "niste"], ["oni / one / ona", "su", "nisu"]] },
+      write: [
+        ["We're here.", "Mi smo ovdje."],
+        ["She's here.", "Ona je ovdje."],
+        ["I'm not hungry.", "Nisam gladan."],
+        ["You're not tired.", "Nisi umoran."],
+        ["She's happy.", "Ona je sretna."],
+        ["You (all) are hungry.", "Vi ste gladni."],
+        ["We're tired, but happy.", "Mi smo umorni, ali sretni."],
+        ["They aren't here, they're there.", "Oni nisu ovdje, oni su tamo."],
+        ["I'm here, and you're there.", "Ja sam ovdje, a ti si tamo."],
+        ["Mum is here.", "Mama je ovdje."],
+        ["Dad isn't hungry.", "Tata nije gladan."],
+        ["Grandma and grandpa are here.", "Baka i djed su ovdje."],
+        ["Is he hungry? No, he's tired.", "Je li gladan? Ne, umoran je."],
+        ["We aren't hungry.", "Nismo gladni."]
+      ],
       drills: [
         { s: "Ja ___ umoran.", a: "sam", o: ["sam", "si", "je"], en: "I'm tired.", r: 0 },
         { s: "Ti ___ moj prijatelj.", a: "si", o: ["si", "sam", "su"], en: "You're my friend.", r: 0 },
@@ -270,6 +287,24 @@ Object.assign(window.COURSE, {
         { t: "Swap the ending for who", x: "Keep the group's vowel and change only the ending for the person: -m (I), -š (you), nothing (he, she), -mo (we), -te (you all, polite 'you'). The chart below has all three groups side by side. Watch 'they', the odd one out: -aju in the a-group (čitaju), -e in the i-group (govore), -u in the e-group (piju).", how: "Mi ___ (gledati): a-group, so the stem is gleda-, and 'we' adds -mo: gledamo.", short: "-m, -š, (nothing), -mo, -te after the group's vowel; 'they' is -aju, -e or -u (čitaju, govore, piju).", ask: "Make the form for this person.", f: [{ q: "čitati · ti", a: "čitaš" }, { q: "čitati · mi", a: "čitamo" }, { q: "govoriti · on", a: "govori" }, { q: "govoriti · vi", a: "govorite" }, { q: "gledati · oni", a: "gledaju" }, { q: "govoriti · oni", a: "govore" }, { q: "piti · oni", a: "piju" }, { q: "učiti · mi", a: "učimo" }, { q: "kuhati · vi", a: "kuhate" }, { q: "spavati · ona", a: "spava" }, { q: "piti · ti", a: "piješ" }, { q: "raditi · oni", a: "rade" }, { q: "slušati · oni", a: "slušaju" }, { q: "voljeti · ti", a: "voliš" }, { q: "jesti · oni", a: "jedu" }] }
       ],
       table: { head: ["", "a-group (-ati)", "i-group (-iti, -jeti)", "e-group (learn it)"], rows: [["ja", "-am (čitam)", "-im (govorim)", "-em (pijem)"], ["ti", "-aš (čitaš)", "-iš (govoriš)", "-eš (piješ)"], ["on, ona", "-a (čita)", "-i (govori)", "-e (pije)"], ["mi", "-amo (čitamo)", "-imo (govorimo)", "-emo (pijemo)"], ["vi", "-ate (čitate)", "-ite (govorite)", "-ete (pijete)"], ["oni", "-aju (čitaju)", "-e (govore)", "-u (piju)"]] },
+      write: [
+        ["She's sleeping.", "Ona spava."],
+        ["We're reading here.", "Mi čitamo ovdje."],
+        ["I work here.", "Ja radim ovdje."],
+        ["They work there.", "Oni rade tamo."],
+        ["He speaks, but she reads.", "On govori, ali ona čita."],
+        ["They speak, and we read.", "Oni govore, a mi čitamo."],
+        ["I'm going, because I'm tired.", "Idem jer sam umoran."],
+        ["You (all) speak well.", "Vi govorite dobro."],
+        ["I'm learning, and you're reading.", "Ja učim, a ti čitaš."],
+        ["They're watching and listening.", "Oni gledaju i slušaju."],
+        ["I eat and drink.", "Ja jedem i pijem."],
+        ["Mum is sleeping.", "Mama spava."],
+        ["Dad reads, and mum sleeps.", "Tata čita, a mama spava."],
+        ["The children eat and drink.", "Djeca jedu i piju."],
+        ["Grandma reads, and grandpa sleeps.", "Baka čita, a djed spava."],
+        ["I'm writing, because I'm learning.", "Pišem jer učim."]
+      ],
       drills: [
         { s: "Ja ___ knjigu.", h: "čitati", a: "čitam", o: ["čitam", "čita", "čitaju"], en: "I'm reading a book.", r: 1 },
         { s: "Ti ___ hrvatski.", h: "govoriti", a: "govoriš", o: ["govoriš", "govorim", "govori"], en: "You speak Croatian.", r: 2 },
@@ -312,6 +347,24 @@ Object.assign(window.COURSE, {
         { t: "The vanishing 'a'", x: "Some describing words have an 'a' before their last letter: dobar, sretan, umoran, gladan, hladan. When an ending is added, that 'a' drops out: dobar → dobra, dobro; sretan → sretna. The same goes for you: a man says Umoran sam and a woman says Umorna sam.", how: "Noć je ___ (hladan): noć is feminine, so hladan + -a, and the 'a' drops: hladna.", short: "dobar → dobra / dobro, umoran → umorna: the 'a' drops when an ending is added.", ask: "Put the two words together.", f: [{ q: "dobar + večer", a: "dobra večer", en: "good evening" }, { q: "dobar + jutro", a: "dobro jutro", en: "good morning" }, { q: "hladan + noć", a: "hladna noć", en: "cold night" }, { q: "umoran + I'm (a woman)", a: "umorna sam", alt: ["ja sam umorna"], en: "I'm tired." }, { q: "sretan + I'm (a man)", a: "sretan sam", alt: ["ja sam sretan"], en: "I'm happy." }, { q: "tužan + dijete", a: "tužno dijete", en: "sad child" }, { q: "gladan + pas", a: "gladan pas", en: "hungry dog" }, { q: "dobar + juha", a: "dobra juha", en: "good soup" }, { q: "sretan + obitelj", a: "sretna obitelj", en: "happy family" }] }
       ],
       table: { head: ["masculine", "feminine", "neuter"], rows: [["velik pas", "velika kuća", "veliko more"], ["nov stan", "nova haljina", "novo selo"], ["dobar dan", "dobra večer", "dobro jutro"], ["sretan", "sretna", "sretno"]] },
+      write: [
+        ["The house is lovely.", "Kuća je lijepa."],
+        ["The sea is big.", "More je veliko."],
+        ["The flat is new.", "Stan je nov."],
+        ["The village is small.", "Selo je maleno."],
+        ["The house is new and big.", "Kuća je nova i velika."],
+        ["The dog is hungry.", "Pas je gladan."],
+        ["The town is big.", "Grad je velik."],
+        ["This is a cold night.", "Ovo je hladna noć."],
+        ["The soup is cold.", "Juha je hladna."],
+        ["The sister is happy.", "Sestra je sretna."],
+        ["The child is sad.", "Dijete je tužno."],
+        ["Mum is young.", "Mama je mlada."],
+        ["Dad is happy.", "Tata je sretan."],
+        ["This is a big family.", "Ovo je velika obitelj."],
+        ["This is a new house.", "Ovo je nova kuća."],
+        ["The sea is blue, and the house is new.", "More je plavo, a kuća je nova."]
+      ],
       drills: [
         { s: "Kuća je ___.", h: "velik", a: "velika", o: ["velika", "velik", "veliko"], en: "The house is big.", r: 1 },
         { s: "More je ___.", h: "plav", a: "plavo", o: ["plavo", "plava", "plav"], en: "The sea is blue.", r: 1 },
@@ -353,6 +406,23 @@ Object.assign(window.COURSE, {
         { t: "Question words go first", x: "With a question word you don't need li: just put the question word first. tko (who), što (what), gdje (where), kada (when), zašto (why), kako (how), koliko (how much, how many).", how: "Where is the toilet? gdje goes first: Gdje je zahod?", short: "tko who, što what, gdje where, kada when, zašto why, kako how, koliko how much.", ask: "The Croatian question word", f: [{ q: "where", a: "gdje" }, { q: "who", a: "tko" }, { q: "what", a: "što" }, { q: "how", a: "kako" }, { q: "how much", a: "koliko" }, { q: "when", a: "kada" }, { q: "why", a: "zašto" }, { q: "which", a: "koji" }] }
       ],
       table: { head: ["yes", "no"], rows: [["znam", "ne znam"], ["govorim", "ne govorim"], ["sam", "nisam"], ["imam", "nemam"], ["hoću", "neću"]] },
+      write: [
+        ["I don't know where she is.", "Ne znam gdje je."],
+        ["Mum isn't here.", "Mama nije ovdje."],
+        ["We aren't tired.", "Nismo umorni."],
+        ["Dad doesn't read.", "Tata ne čita."],
+        ["Where is dad?", "Gdje je tata?"],
+        ["Who is here?", "Tko je ovdje?"],
+        ["Why are you tired?", "Zašto si umoran?"],
+        ["Is mum here?", "Je li mama ovdje?"],
+        ["Do you read?", "Čitaš li?"],
+        ["I don't eat and I don't drink.", "Ne jedem i ne pijem."],
+        ["The children aren't there.", "Djeca nisu tamo."],
+        ["Where are the children?", "Gdje su djeca?"],
+        ["Why isn't she sleeping?", "Zašto ona ne spava?"],
+        ["Does grandma speak Croatian?", "Govori li baka hrvatski?"],
+        ["I'm not hungry, but I'm tired.", "Nisam gladan, ali sam umoran."]
+      ],
       drills: [
         { s: "Ja ___ razumijem.", a: "ne", o: ["ne", "nisam", "nemam"], en: "I don't understand.", r: 0 },
         { s: "Ja ___ psa.", h: "I don't have", a: "nemam", o: ["nemam", "ne imam", "nisam"], en: "I don't have a dog.", r: 1 },
@@ -396,6 +466,24 @@ Object.assign(window.COURSE, {
         { t: "Everything else stays the same", x: "Masculine things (kruh, sladoled), neuter words (mlijeko, more) and feminine words that end in a consonant (noć, obitelj) don't change. One to memorise: kći → kćer.", how: "Jedem ___ (kruh): masculine, but a thing, not alive, so it stays kruh.", short: "masculine things, neuter words and feminine words without -a don't change.", ask: "The object form", f: [{ q: "kruh", a: "kruh", en: "bread" }, { q: "mlijeko", a: "mlijeko", en: "milk" }, { q: "sladoled", a: "sladoled", en: "ice cream" }, { q: "obitelj", a: "obitelj", en: "family" }, { q: "kći", a: "kćer", en: "daughter" }, { q: "čaj", a: "čaj", en: "tea" }, { q: "sir", a: "sir", en: "cheese" }, { q: "more", a: "more", en: "sea" }, { q: "jaje", a: "jaje", en: "egg" }] }
       ],
       table: { head: ["word", "as the object"], rows: [["kava (f)", "Pijem kavu."], ["brat (m, person)", "Imam brata."], ["pas (m, animal)", "Imamo psa."], ["kruh (m, thing)", "Jedem kruh."], ["mlijeko (n)", "Pijem mlijeko."]] },
+      write: [
+        ["I see grandma.", "Vidim baku."],
+        ["I see dad.", "Vidim tatu."],
+        ["We have a son.", "Imamo sina."],
+        ["We have a grandson.", "Imamo unuka."],
+        ["Do you have a brother?", "Imaš li brata?"],
+        ["I'm drinking water.", "Pijem vodu."],
+        ["She drinks coffee.", "Ona pije kavu."],
+        ["They eat bread.", "Oni jedu kruh."],
+        ["Mum is reading a book.", "Mama čita knjigu."],
+        ["I love grandma and grandpa.", "Volim baku i djeda."],
+        ["We see the sea.", "Vidimo more."],
+        ["Do you drink tea?", "Piješ li čaj?"],
+        ["I don't eat fish.", "Ne jedem ribu."],
+        ["We have a daughter.", "Imamo kćer."],
+        ["I'm eating soup.", "Jedem juhu."],
+        ["The children eat ice cream.", "Djeca jedu sladoled."]
+      ],
       drills: [
         { s: "Pijem ___.", h: "kava", a: "kavu", o: ["kavu", "kava", "kave"], en: "I'm drinking coffee.", r: 1 },
         { s: "Imam ___.", h: "sestra", a: "sestru", o: ["sestru", "sestra", "sestri"], en: "I have a sister.", r: 1 },
@@ -437,6 +525,23 @@ Object.assign(window.COURSE, {
         { t: "k, g and h soften before -i", x: "If the word ends in -ka, -ga or -ha, the consonant softens when -a becomes -i: k becomes c, g becomes z, h becomes s. ruka → u ruci, rijeka → na rijeci, knjiga → u knjizi.", how: "Ključ je u ___ (ruka): -a becomes -i, and k before i becomes c: ruci.", short: "before -i, k → c, g → z, h → s: ruka → u ruci.", ask: "Where? Add u or na and the ending.", f: [{ q: "ruka", a: "u ruci", en: "hand" }, { q: "rijeka", a: "na rijeci", en: "river" }, { q: "knjiga", a: "u knjizi", en: "book" }, { q: "noga", a: "na nozi", en: "leg, foot" }] }
       ],
       table: { head: ["word", "where"], rows: [["plaža", "na plaži"], ["škola", "u školi"], ["kuća", "u kući"], ["grad", "u gradu"], ["more", "na moru"], ["ruka", "u ruci"]] },
+      write: [
+        ["Dad is in the garden.", "Tata je u vrtu."],
+        ["We're at the seaside.", "Mi smo na moru."],
+        ["The children are at school.", "Djeca su u školi."],
+        ["I work in town.", "Radim u gradu."],
+        ["Grandma and grandpa are in the village.", "Baka i djed su u selu."],
+        ["I'm reading in the room.", "Čitam u sobi."],
+        ["Is dad in the house?", "Je li tata u kući?"],
+        ["We're on the boat.", "Mi smo na brodu."],
+        ["She's sleeping on the bed.", "Ona spava na krevetu."],
+        ["Mum is on the island.", "Mama je na otoku."],
+        ["I'm not in the shop.", "Nisam u trgovini."],
+        ["They're eating in the kitchen.", "Oni jedu u kuhinji."],
+        ["Who's in the garden?", "Tko je u vrtu?"],
+        ["My brother is in town.", "Brat je u gradu."],
+        ["Where's the flat? In town.", "Gdje je stan? U gradu."]
+      ],
       drills: [
         { s: "Mama je u ___.", h: "kuhinja", a: "kuhinji", o: ["kuhinji", "kuhinju", "kuhinja"], en: "Mum is in the kitchen.", r: 1 },
         { s: "Djeca su na ___.", h: "plaža", a: "plaži", o: ["plaži", "plažu", "plaža"], en: "The children are on the beach.", r: 1 },
@@ -480,6 +585,22 @@ Object.assign(window.COURSE, {
         { t: "Bigger numbers: look at the last digit", x: "For 21, 32, 44 and so on, follow the rule for the last digit: dvadeset jedna godina, dvadeset dva dana, trideset pet eura. 11 to 19 always take the 'of' form: dvanaest godina.", how: "22 days: the last digit is 2, so it's like dva dana: dvadeset dva dana.", short: "the last digit decides (dvadeset dva dana), but 11–19 always take the 'of' form.", ask: "Put the number and the word together.", f: [{ q: "22 + dan", a: "dvadeset dva dana", alt: ["dvadeset i dva dana"], en: "day" }, { q: "12 + godina", a: "dvanaest godina", en: "year" }, { q: "25 + euro", a: "dvadeset pet eura", alt: ["dvadeset i pet eura"], en: "euro" }, { q: "31 + godina", a: "trideset jedna godina", alt: ["trideset i jedna godina"], en: "year" }, { q: "13 + dan", a: "trinaest dana", en: "day" }] }
       ],
       table: { head: ["1", "2–4", "5+"], rows: [["jedna jabuka", "dvije jabuke", "pet jabuka"], ["jedna godina", "dvije godine", "pet godina"], ["jedan dan", "dva dana", "pet dana"], ["jedan euro", "dva eura", "pet eura"]] },
+      write: [
+        ["I have two sisters.", "Imam dvije sestre."],
+        ["I have two brothers.", "Imam dva brata."],
+        ["Three coffees, please.", "Tri kave, molim."],
+        ["Five apples, please.", "Pet jabuka, molim."],
+        ["That's ten euros.", "To je deset eura."],
+        ["We're here for two days.", "Ovdje smo dva dana."],
+        ["I'm twelve.", "Imam dvanaest godina."],
+        ["Four euros, please.", "Četiri eura, molim."],
+        ["I have two apples.", "Imam dvije jabuke."],
+        ["We're here for seven days.", "Ovdje smo sedam dana."],
+        ["That's twenty-five euros.", "To je dvadeset pet eura."],
+        ["Do you have two sisters?", "Imaš li dvije sestre?"],
+        ["I'm six.", "Imam šest godina."],
+        ["One coffee, please.", "Jedna kava, molim."]
+      ],
       drills: [
         { s: "dvije ___", h: "jabuka", a: "jabuke", o: ["jabuke", "jabuka", "jabuku"], en: "two apples", r: 1 },
         { s: "pet ___", h: "jabuka", a: "jabuka", o: ["jabuka", "jabuke", "jabuku"], en: "five apples", r: 2 },
@@ -521,6 +642,23 @@ Object.assign(window.COURSE, {
         { t: "A few irregular ones", x: "Learn these as they are: biti → bio, bila, bili (was, were); ići → išao, išla, išli (went); jesti → jeo, jela, jeli (ate).", how: "I was at the seaside, said by a woman: biti → bila, so Bila sam na moru.", short: "biti → bio / bila, ići → išao / išla, jesti → jeo / jela.", ask: "The past form", f: [{ q: "biti · a man", a: "bio" }, { q: "biti · a woman", a: "bila" }, { q: "ići · a woman", a: "išla" }, { q: "ići · a man", a: "išao" }, { q: "jesti · a man", a: "jeo" }, { q: "ići · a group", a: "išli" }, { q: "jesti · a woman", a: "jela" }, { q: "biti · a group", a: "bili" }] }
       ],
       table: { head: ["", "man / masculine", "woman / feminine"], rows: [["ja", "čitao sam", "čitala sam"], ["ti", "čitao si", "čitala si"], ["on / ona", "čitao je", "čitala je"], ["mi", "čitali smo", "čitale smo"], ["oni / one", "čitali su", "čitale su"]] },
+      write: [
+        ["I was tired.", "Bio sam umoran."],
+        ["She was here.", "Bila je ovdje."],
+        ["We were at the seaside.", "Bili smo na moru."],
+        ["Dad worked there.", "Tata je radio tamo."],
+        ["Mum was reading.", "Mama je čitala."],
+        ["We studied, and they watched.", "Mi smo učili, a oni su gledali."],
+        ["I went into town. (a woman)", "Išla sam u grad."],
+        ["He slept.", "On je spavao."],
+        ["Did dad work?", "Je li tata radio?"],
+        ["Grandpa cooked.", "Djed je kuhao."],
+        ["She drank coffee.", "Pila je kavu."],
+        ["I ate bread. (a man)", "Jeo sam kruh."],
+        ["We weren't tired.", "Nismo bili umorni."],
+        ["Where were you? (to a man)", "Gdje si bio?"],
+        ["We went into town.", "Išli smo u grad."]
+      ],
       drills: [
         { s: "Jučer sam ___ na moru.", h: "biti, a man", a: "bio", o: ["bio", "bila", "bili"], en: "Yesterday I was at the seaside. (a man)", r: 2 },
         { s: "Jučer sam ___ na moru.", h: "biti, a woman", a: "bila", o: ["bila", "bio", "bili"], en: "Yesterday I was at the seaside. (a woman)", r: 2 },
@@ -561,6 +699,22 @@ Object.assign(window.COURSE, {
         { t: "Will you? Hoćeš li…?", x: "To ask 'will you…?', use the long form: Hoćeš li doći? Answer hoću (I will) or neću (I won't), and neću is always one word.", how: "Will you come? (to a friend): Hoćeš li doći?", short: "ask with Hoćeš li…?, answer hoću or neću (one word).", ask: "Say it in Croatian.", f: [{ q: "Will you come? (to a friend)", a: "Hoćeš li doći?" }, { q: "I will.", a: "Hoću." }, { q: "I won't.", a: "Neću." }, { q: "Will you swim? (to a friend)", a: "Hoćeš li plivati?" }, { q: "We won't.", a: "Nećemo." }, { q: "Will you all come?", a: "Hoćete li doći?" }] }
       ],
       table: { head: ["", "will", "verb first"], rows: [["ja", "ja ću raditi", "radit ću"], ["ti", "ti ćeš raditi", "radit ćeš"], ["on / ona", "on će raditi", "radit će"], ["mi", "mi ćemo raditi", "radit ćemo"], ["vi", "vi ćete raditi", "radit ćete"], ["oni", "oni će raditi", "radit će"]] },
+      write: [
+        ["I'll work here.", "Radit ću ovdje."],
+        ["We'll go into town.", "Ići ćemo u grad."],
+        ["Dad will cook.", "Tata će kuhati."],
+        ["We'll swim at the seaside.", "Plivat ćemo na moru."],
+        ["I'll read in the room.", "Čitat ću u sobi."],
+        ["The children will sleep.", "Djeca će spavati."],
+        ["I won't go.", "Neću ići."],
+        ["We'll eat in the kitchen.", "Jest ćemo u kuhinji."],
+        ["I'll work, and you'll cook.", "Ja ću raditi, a ti ćeš kuhati."],
+        ["Will you work?", "Hoćeš li raditi?"],
+        ["We won't swim.", "Nećemo plivati."],
+        ["Grandma will come.", "Baka će doći."],
+        ["Will you (all) watch?", "Hoćete li gledati?"],
+        ["I'll read, and you'll watch.", "Ja ću čitati, a ti ćeš gledati."]
+      ],
       drills: [
         { s: "Sutra ___ raditi.", h: "ja", a: "ću", o: ["ću", "ćeš", "će"], en: "Tomorrow I'll work.", r: 0 },
         { s: "Što ___ kuhati?", h: "ti", a: "ćeš", o: ["ćeš", "ću", "ćemo"], en: "What will you cook?", r: 0 },

@@ -1913,7 +1913,7 @@ If it is not a real word, or you can't translate it, reply {"entries":[]}.`;
     if (st) add("Story", [{ type: "story", s: st.s, again: st.again, un: st.again ? [] : st.un, w: { id: "story:" + st.s.id, hr: "", en: "" } }]);
     const qp = quickPool(p);
     if (qp.length >= 6) add("Quick round", [{ type: "quick", ids: qp, w: { id: "quick", hr: "", en: "" } }]);
-    if (!kid) add("Write it yourself", writePrompts(p, P, target));
+    if (!kid) add("Write it yourself", writePrompts(p, P, target, new Set([...s.queue, ...q].map(e => norm(e.w?.hr || "")))));
     if (target.length) add("Lock it in", shuffle(dWords(target)).map(recallEx));
     s.queue.push(...q);
     s.stages = [...new Set(s.queue.map(e => e.stage).filter(Boolean))];
@@ -1940,18 +1940,27 @@ If it is not a real word, or you can't translate it, reply {"entries":[]}.`;
     const pl = planOf(p);
     return GRAMMAR.filter(g => (p.gram || {})[g.id] || (pl.clean || {})[g.id] || g.id === pl.unit || g.id === session?.unit);
   }
-  // Two sentences to write, using only words and grammar the learner has met (see knownSet):
-  // today's grammar unit first, then a learned conversation line or another unit, then learned phrases.
-  function writePrompts(p, P, target) {
+  // Two sentences to write, using only words and grammar the learner has met (see knownSet). The first practises today's
+  // grammar unit (or any unit they've had): its own write prompts, then its gap sentences. The second can be anything else
+  // they've had: other units, learned conversation lines and longer phrases. In each, prompts never written come first,
+  // then the ones written longest ago (p.wseen: model answer → day last asked), and sentences already in today's lesson
+  // (used: normalised texts) are left out while there are others.
+  function writePrompts(p, P, target, used) {
     const units = unitsFor(p, P.unit), k = knownSet(p, target, units), ok = t => !unknownIn(k, t).length;
-    const drills = g => shuffle(g.drills.map(d => ({ en: d.en, ref: fullOf(d) })).filter(x => ok(x.ref)));
-    const lines = shuffle(Object.keys(p.srs).map(id => BY_ID[id]).filter(w => w?.line && ok(w.hr)
-      && (!DLG[w.topic.slice(2)]?.grammar || units.some(g => g.id === DLG[w.topic.slice(2)].grammar))).map(w => ({ en: w.en, ref: w.hr })));
-    const cur = P.unit ? drills(P.unit) : [], others = shuffle(units.filter(g => g.id !== P.unit?.id).flatMap(drills));
-    const phrases = shuffle(Object.keys(p.srs).map(id => BY_ID[id]).filter(w => w && !w.line && norm(w.hr).split(" ").length >= 2).map(w => ({ en: w.en, ref: w.hr })));
-    const out = [];
-    for (const x of [cur[0], lines[0], others[0], cur[1], phrases[0], phrases[1], phrases[2]]) if (x && out.length < 2 && !out.some(y => y.ref === x.ref)) out.push(x);
-    return out.map((x, i) => ({ type: "write", ...x, w: { id: "x:" + i + ":" + x.ref, hr: x.ref, en: x.en } }));
+    const own = g => [...(g.write || []).map(([en, ref]) => ({ en, ref, tier: 0 })), ...g.drills.map(d => ({ en: d.en, ref: fullOf(d), tier: 1 }))];
+    const learned = Object.keys(p.srs).map(id => BY_ID[id]).filter(Boolean);
+    const lines = learned.filter(w => w.line && (!DLG[w.topic.slice(2)]?.grammar || units.some(g => g.id === DLG[w.topic.slice(2)].grammar))).map(w => ({ en: w.en, ref: w.hr, tier: 0 }));
+    const phrases = learned.filter(w => !w.line && !w.mine && norm(w.hr).split(" ").length >= 3).map(w => ({ en: w.en, ref: w.hr, tier: 1 }));
+    const seen = x => p.wseen?.[norm(x.ref)] ?? -1;
+    const rank = list => {
+      const all = shuffle(list.filter(x => ok(x.ref))), fresh = all.filter(x => !used.has(norm(x.ref)));
+      return (fresh.length ? fresh : all).sort((a, b) => seen(a) - seen(b) || a.tier - b.tier);
+    };
+    const main = P.unit ? [P.unit] : units, first = rank(main.flatMap(own))[0];
+    const rest = rank([...units.filter(g => !main.includes(g)).flatMap(own), ...lines, ...phrases, ...(P.unit ? [] : units.flatMap(own))]);
+    const out = first ? [first] : [];
+    for (const x of rest) if (out.length < 2 && !out.some(y => norm(y.ref) === norm(x.ref))) out.push(x);
+    return out.map((x, i) => ({ type: "write", en: x.en, ref: x.ref, w: { id: "x:" + i + ":" + x.ref, hr: x.ref, en: x.en } }));
   }
   // ---------- daily story and quick round ----------
   // The story step: the unread story this learner can follow with the fewest new words (about 93% of its words known
@@ -2125,6 +2134,7 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
     }
     if (String(ex.w?.id).startsWith("g:") && me()) (me().gseen = me().gseen || {})[ex.w.id] = today();
     const kid = isKid(), timing = timeGrammar(s, ex, ok);
+    if (ex.type === "write" && me()) (me().wseen = me().wseen || {})[norm(ex.ref)] = today();
     const sheet = h("div", { class: "sheet " + (ok ? "good" : "bad"), role: "status" }, h("div", { class: "in" },
       ok ? vez() : null,
       h("div", { class: "msg" }, ok && kid ? licitar() : null, ok ? sample(kid ? ["Bravo!", "Super!", "Točno!"] : ["Točno!", "Bravo!", "Odlično!"], 1)[0] : opts.msg || (opts.near ? "Almost!" : "Not quite")),
