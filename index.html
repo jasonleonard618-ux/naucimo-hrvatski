@@ -464,6 +464,28 @@ body.kid .opt { font-size: 1.25rem; }
 .vt { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--surface-2); }
 .vt.A { color: var(--terra); } .vt.B { color: var(--sea); }
 .vt .ic { width: 15px; height: 15px; }
+.dict-form { display: flex; gap: 8px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 6px 6px 6px 14px; }
+.dict-form:focus-within { border-color: var(--ink); }
+.dict-form .dict-lead .ic { width: 22px; height: 22px; color: var(--terra); }
+.dict-q { flex: 1; min-width: 0; font: inherit; font-size: 1.05rem; border: 0; background: none; color: var(--ink); padding: 10px 4px; outline: none; }
+.dict-q:focus, .dict-q:focus-visible { outline: none; box-shadow: none; }
+.dict-q::-webkit-search-cancel-button { filter: grayscale(1); }
+.dict-form .btn { min-height: 46px; width: 46px; padding: 0; border-radius: 14px; flex: none; }
+.dict-list { display: grid; gap: 10px; }
+.dict-entry { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; display: grid; gap: 10px; }
+.dict-head { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+.dict-hr { font-family: var(--font-display); font-size: 1.9rem; font-weight: 400; letter-spacing: -.02em; line-height: 1.1; }
+.dict-entry .en { color: var(--muted); }
+.dict-entry .note { color: var(--muted); font-size: .88rem; font-style: italic; margin: 0; }
+.dict-forms { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 0; padding: 10px 0 0; border-top: 1px solid var(--line); font-size: .95rem; }
+.dict-forms dt { color: var(--muted); }
+.dict-forms dd { margin: 0; font-family: var(--font-display); font-size: 1.05rem; }
+.dict-ex { margin: 0; padding-left: 12px; border-left: 3px solid var(--terra); display: grid; gap: 2px; }
+.dict-ex .hrx { font-family: var(--font-display); font-style: italic; font-size: 1.08rem; }
+.dict-ex .en { font-size: .9rem; }
+.dict-warn { display: flex; gap: 8px; align-items: flex-start; }
+.dict-warn .ic { width: 18px; height: 18px; flex: none; margin-top: 1px; }
+.wordrow .p .ic { width: 22px; height: 22px; color: var(--terra); }
 .initial { width: 54px; height: 54px; border-radius: 16px; background: var(--art-tile); color: var(--terra); display: grid; place-items: center; flex: none; font-family: var(--font-display); font-size: 1.7rem; line-height: 1; }
 </style>
 
@@ -508,6 +530,8 @@ body.kid .opt { font-size: 1.25rem; }
       return o.id;
     });
   }
+  // Words added from the dictionary (p.mine: id → [hr, en, note]) join review under a hidden topic; registerMine() loads them.
+  TOPIC.mine = { id: "mine", hr: "Moje riječi", en: "My words", pic: "", kids: false, ids: [] };
   const GRAMMAR = C.grammar || [], GRAM = {};
   for (const g of GRAMMAR) GRAM[g.id] = g;
   const SOUNDS = C.sounds || [], SOUND = {};
@@ -572,6 +596,8 @@ body.kid .opt { font-size: 1.25rem; }
     child: "M12 12.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM7.5 20a4.5 4.5 0 0 1 9 0",
     abc: "M3.5 18 7.5 6l4 12M5 14h5M15 8v10h3.2a2.6 2.6 0 0 0 0-5.2H15h2.6a2.4 2.4 0 0 0 0-4.8z",
     boat: "M12 3v14M12 4.5 18.5 15H12zM4 18h16l-2 3H6z",
+    search: "M10.5 17a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13zM15.4 15.4 20 20",
+    dict: "M6 3.5h12.5v17H6a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2zM4 18.5a2 2 0 0 1 2-2h12.5M9 8h6M9 11h4",
   };
   const UI_EMOJI = { "🔊": "speaker", "🐢": "slow", "✓": "check", "✅": "check", "✕": "close", "←": "back", "→": "next", "▶": "play", "📅": "play", "🔁": "recall", "💬": "talk", "📐": "grammar",
     "🎧": "headphones", "🧩": "puzzle", "🗣": "mic", "🔤": "abc", "📖": "story", "✍": "pen", "👂": "ear", "⚡": "bolt", "💡": "hint", "🎙": "mic", "⭐": "star", "🌟": "star",
@@ -757,6 +783,14 @@ body.kid .opt { font-size: 1.25rem; }
   let store = { profiles: {}, activeId: null };
   try { const raw = localStorage.getItem(LS_KEY); if (raw) store = Object.assign(store, JSON.parse(raw)); } catch {}
   function saveLocal() { try { localStorage.setItem(LS_KEY, JSON.stringify(store)); } catch {} }
+  function registerMine() {
+    for (const p of Object.values(store.profiles)) for (const [id, [hr, en, note]] of Object.entries(p.mine || {})) {
+      if (BY_ID[id]) continue;
+      BY_ID[id] = { id, topic: "mine", hr, en, pic: "", note: note || "", mine: true };
+      TOPIC.mine.ids.push(id);
+    }
+  }
+  registerMine();
   let db = null;
   const dirty = new Set(), timers = {}, chains = {};
   function saveProfile(p) {
@@ -798,7 +832,7 @@ body.kid .opt { font-size: 1.25rem; }
       }
       first = false;
       if (store.activeId && !store.profiles[store.activeId]) store.activeId = null;
-      saveLocal();
+      saveLocal(); registerMine();
       if (!session && ["home", "learn", "family", "profiles"].includes(view)) render();
     }, () => { db = null; });
   })();
@@ -977,12 +1011,12 @@ body.kid .opt { font-size: 1.25rem; }
     app.replaceChildren();
     if (session) return renderSession();
     const fn = { home: viewHome, learn: viewLearn, family: viewFamily, topic: viewTopic, profiles: viewProfiles, reading: viewReading, story: viewStory, alphabet: viewAlphabet,
-      talk: viewTalk, dialogue: viewDialogue, grammar: viewGrammar, unit: viewUnit, sounds: viewSounds, sound: viewSound, method: viewMethod, journey: viewJourney }[view] || viewHome;
+      talk: viewTalk, dialogue: viewDialogue, grammar: viewGrammar, unit: viewUnit, sounds: viewSounds, sound: viewSound, method: viewMethod, journey: viewJourney, dict: viewDict }[view] || viewHome;
     app.append(fn(), tabBar());
   }
 
   // Floating tab bar. Every non-session view belongs to one tab; kids get no separate Talk tab (conversations live under Pictures).
-  const TAB_OF = { home: "home", learn: "learn", topic: "learn", reading: "learn", story: "learn", alphabet: "learn", grammar: "learn", unit: "learn", sounds: "learn", sound: "learn",
+  const TAB_OF = { home: "home", learn: "learn", dict: "learn", topic: "learn", reading: "learn", story: "learn", alphabet: "learn", grammar: "learn", unit: "learn", sounds: "learn", sound: "learn",
     talk: "talk", dialogue: "talk", family: "family", profiles: "family", method: "family" };
   const tabOf = v => { const t = TAB_OF[v] || "home"; return t === "talk" && isKid() ? "learn" : t; };
   const ICON = {
@@ -1100,6 +1134,11 @@ body.kid .opt { font-size: 1.25rem; }
   function viewLearn() {
     const p = me(), kid = isKid();
     const wrap = h("main", { class: "wrap" }, header(), h("h2", { class: "hello", text: kid ? "Pictures" : "Learn" }));
+    if (!kid) {
+      const q = h("input", { type: "search", class: "dict-q", placeholder: "Look up a word in Croatian", autocomplete: "off", autocapitalize: "off", enterkeyhint: "search", "aria-label": "English word to look up" });
+      wrap.append(h("form", { class: "dict-form", role: "search", onsubmit: e => { e.preventDefault(); go("dict", q.value.trim()); } },
+        h("span", { class: "dict-lead", "aria-hidden": "true" }, ic("dict")), q, h("button", { class: "btn primary", type: "submit", "aria-label": "Look up" }, ic("search"))));
+    }
     const tiles = kid
       ? [["💬", "Talk", "Little conversations to copy", () => go("talk")],
          ["🎧", "Listen & tap", "Hear a word, tap the picture", () => startPractice("pictap")],
@@ -1128,6 +1167,155 @@ body.kid .opt { font-size: 1.25rem; }
           h("span", { class: "count", text: n + " / " + t.ids.length + " learned" }));
       }))));
     if (kid) wrap.append(h("p", { class: "count" }, "Showing the picture topics for kids. ", h("button", { class: "linkbtn", onclick: () => go("profiles") }, "Switch learner")));
+    return wrap;
+  }
+
+  // ---------- dictionary ----------
+  // English → Croatian lookup. Course words come up as you type, from the page itself, so they work offline. Anything else goes
+  // to the same AI checker as "Write it yourself" (Claude in the artifact, the Supabase `check` function on the hosted site), and
+  // answers are kept on the device so a word looked up once works offline too. Words can be added to review (p.mine).
+  const DICT_WORDS = WORDS.filter(w => !w.line);
+  const senses = en => en.toLowerCase().replace(/\([^)]*\)/g, " ").split(/[\/,;]/).map(s => s.replace(/^\s*(to|a|an|the)\s+/, "").replace(/[?!.]/g, "").trim()).filter(Boolean);
+  function dictLocal(q) {
+    const nq = norm(q).replace(/^(to|a|an|the) /, ""), lq = loose(q);
+    if (!nq) return [];
+    const re = new RegExp("\\b" + nq.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b");
+    const score = w => {
+      const ss = senses(w.en), lh = loose(w.hr);
+      if (ss.includes(nq) || lh === lq) return 4;
+      if (ss.some(s => s.startsWith(nq + " ")) || (lq.length > 2 && lh.startsWith(lq))) return 3;
+      if (nq.length > 2 && re.test(w.en.toLowerCase())) return 2;
+      return 0;
+    };
+    const ws = [...DICT_WORDS, ...TOPIC.mine.ids.map(id => BY_ID[id]).filter(w => me()?.mine?.[w.id])];
+    return ws.map(w => [w, score(w)]).filter(x => x[1]).sort((a, b) => b[1] - a[1] || a[0].hr.length - b[0].hr.length).slice(0, 6).map(x => x[0]);
+  }
+  const DICT_KEY = "naucimo.dict";
+  const dictCache = () => { try { return JSON.parse(localStorage.getItem(DICT_KEY)) || {}; } catch { return {}; } };
+  function dictRemember(q, entries) {
+    const c = dictCache(); c[q] = { at: Date.now(), entries };
+    const keys = Object.keys(c).sort((a, b) => c[b].at - c[a].at);
+    for (const k of keys.slice(300)) delete c[k];
+    try { localStorage.setItem(DICT_KEY, JSON.stringify(c)); } catch {}
+  }
+  const lookupPrompt = q => `You are a careful Croatian dictionary for an English-speaking family learning standard Croatian (ijekavian, as used in Croatia; never Serbian or Bosnian forms).
+Look up: ${JSON.stringify(q)}
+If it is English, give the Croatian for it. If it is Croatian, give that word with its English meaning. Give the most common everyday translation first. Add a second or third entry only when the English has clearly different meanings, and say which meaning in "sense".
+Reply with JSON only, in this shape:
+{"entries":[{"hr":"dictionary form","en":"short English meaning","sense":"which meaning, or empty","pos":"noun|verb|adjective|adverb|pronoun|preposition|conjunction|number|phrase|other","gender":"masculine|feminine|neuter, nouns only, else empty","forms":[["label","form"]],"example_hr":"short everyday sentence","example_en":"its English translation","note":"one short usage tip, or empty"}]}
+forms, at most 5 pairs, labels in plain English: nouns: "plural", "genitive" (and "genitive plural" if irregular); verbs: "aspect" (imperfective or perfective) and "pair" (the other aspect's verb), "I" and "they" present forms, "past (he)"; adjectives: "feminine", "neuter", and "comparative" if common. Empty for other words.
+The example uses the word naturally in a simple A1 to A2 sentence of 4 to 8 words. Spell with č ć đ š ž.
+If it is not a real word, or you can't translate it, reply {"entries":[]}.`;
+  const str = (x, n) => (typeof x === "string" ? x.trim().slice(0, n) : "");
+  function dictClean(r) {
+    const es = Array.isArray(r?.entries) ? r.entries : [];
+    return es.slice(0, 3).map(e => ({
+      hr: str(e.hr, 60), en: str(e.en, 120), sense: str(e.sense, 80), pos: str(e.pos, 20).toLowerCase(),
+      gender: /^(masculine|feminine|neuter)$/.test(str(e.gender, 12).toLowerCase()) ? e.gender.toLowerCase() : "",
+      forms: (Array.isArray(e.forms) ? e.forms : []).filter(f => Array.isArray(f) && f.length === 2).slice(0, 5).map(([a, b]) => [str(a, 30), str(b, 40)]).filter(f => f[0] && f[1]),
+      ex: str(e.example_hr, 160), exEn: str(e.example_en, 160), note: str(e.note, 160),
+    })).filter(e => e.hr && e.en);
+  }
+  // The review card's back shows the grammar, e.g. "noun, feminine · plural: kuće · genitive: kuće".
+  const entryNote = e => [[e.pos, e.gender].filter(Boolean).join(", "), ...e.forms.map(([a, b]) => a + ": " + b)].filter(Boolean).join(" · ").slice(0, 200);
+  const courseWordFor = hr => DICT_WORDS.find(w => norm(w.hr) === norm(hr));
+  const canSay = w => !w.mine || hasClip(w.hr);
+  function reviewBtn(p, getId, add) {
+    const id = getId(), s = p.srs[id];
+    if (s) return h("span", { class: "tag ok" }, "✓ In your reviews · " + (s[2] <= today() ? "due today" : "next in " + ivlLabel(s[2] - today())));
+    return h("button", { class: "btn small", onclick: e => {
+      const nid = add();
+      if (!p.srs[nid]) p.srs[nid] = [2.5, 0, today(), 0];
+      saveProfile(p); toast("Added. It comes up in your next lesson.");
+      e.currentTarget.replaceWith(reviewBtn(p, () => nid, add));
+    } }, "+ Add to review");
+  }
+  function addMineWord(p, e) {
+    const id = "m:" + norm(e.hr);
+    p.mine = p.mine || {};
+    p.mine[id] = [e.hr, e.en, entryNote(e)];
+    registerMine();
+    return id;
+  }
+  function dictEntry(p, e) {
+    const cw = courseWordFor(e.hr), id = cw ? cw.id : "m:" + norm(e.hr);
+    return h("article", { class: "dict-entry" },
+      h("div", { class: "dict-head" },
+        h("div", null, e.sense ? h("div", { class: "kicker", text: e.sense }) : null, h("div", { class: "dict-hr", text: e.hr }), h("div", { class: "en", text: e.en })),
+        cw || hasClip(e.hr) ? sayBtn(e.hr) : null),
+      h("div", { class: "chips" }, e.pos ? h("span", { class: "tag", text: e.pos }) : null, e.gender ? h("span", { class: "tag hot", text: e.gender }) : null,
+        cw ? h("span", { class: "tag ok", text: "In the course: " + TOPIC[cw.topic].en }) : null),
+      e.forms.length ? h("dl", { class: "dict-forms" }, e.forms.flatMap(([a, b]) => [h("dt", { text: a }), h("dd", { text: b })])) : null,
+      e.ex ? h("p", { class: "dict-ex" }, h("span", { class: "hrx", text: e.ex }), h("span", { class: "en", text: e.exEn })) : null,
+      e.note ? h("p", { class: "note", text: e.note }) : null,
+      p && !isKid() ? h("div", { class: "row" }, reviewBtn(p, () => id, () => (cw ? cw.id : addMineWord(p, e)))) : null);
+  }
+  function localRow(p, w) {
+    return h("div", { class: "wordrow" }, h("span", { class: "p", text: w.pic, "aria-hidden": "true" }),
+      h("div", null, h("div", { class: "hr" }, p ? h("span", { class: "dot" + (learned(p, w.id) ? " on" : ""), title: learned(p, w.id) ? "Learned" : "Not learned yet" }) : null, w.hr),
+        h("div", { class: "en", text: w.en }), w.note ? h("div", { class: "note", text: w.note }) : null,
+        p && !isKid() ? h("div", { class: "row" }, reviewBtn(p, () => w.id, () => w.id)) : null),
+      canSay(w) ? sayBtn(w.hr) : h("span"));
+  }
+  function viewDict() {
+    const p = me();
+    const wrap = h("main", { class: "wrap" }, subhead("Rječnik", "Dictionary · English to Croatian"));
+    const input = h("input", { type: "search", class: "dict-q", placeholder: "Type an English word", autocomplete: "off", autocapitalize: "off", spellcheck: "false", enterkeyhint: "search", "aria-label": "Word to look up", value: viewArg || "" });
+    const local = h("section"), ai = h("section", { "aria-live": "polite" });
+    let seq = 0;
+    const showLocal = () => {
+      const q = input.value.trim(), hits = dictLocal(q);
+      local.replaceChildren(...(hits.length ? [h("div", { class: "section-head" }, h("h2", { text: "In your course" }), h("p", { text: "Works offline" })),
+        h("div", { class: "wordlist" }, hits.map(w => localRow(p, w)))] : []));
+      return hits;
+    };
+    const mineList = () => {
+      const ids = Object.keys(p?.mine || {}).filter(id => BY_ID[id]);
+      if (!ids.length) return [];
+      return [h("div", { class: "section-head" }, h("h2", { text: "Your words" }), h("p", { text: ids.length + " added from the dictionary" })),
+        h("div", { class: "wordlist" }, ids.reverse().map(id => {
+          const w = BY_ID[id], s = p.srs[id];
+          return h("div", { class: "wordrow" }, h("span", { class: "p", "aria-hidden": "true" }, ic("pen")),
+            h("div", null, h("div", { class: "hr", text: w.hr }), h("div", { class: "en", text: w.en }), w.note ? h("div", { class: "note", text: w.note }) : null,
+              s ? h("small", { class: "count", text: s[2] <= today() ? "Review due today" : "Next review in " + ivlLabel(s[2] - today()) }) : null),
+            h("button", { class: "say", "aria-label": "Remove " + w.hr, onclick: () => { delete p.mine[id]; delete p.srs[id]; saveProfile(p); render(); } }, ic("close")));
+        }))];
+    };
+    async function lookUp(q) {
+      const my = ++seq, key = norm(q);
+      const show = (entries, from) => {
+        if (my !== seq) return;
+        ai.replaceChildren(h("div", { class: "section-head" }, h("h2", { text: "Dictionary" }), h("p", { text: from })),
+          entries.length ? h("div", { class: "dict-list" }, entries.map(e => dictEntry(p, e))) : h("p", { class: "notice", text: "No Croatian word found for “" + q + "”. Check the spelling, or try a simpler word." }),
+          entries.length ? h("p", { class: "count dict-warn" }, ic("hint"), "Answers outside the course come from AI and may contain mistakes. When it matters, check with a Croatian speaker.") : null);
+      };
+      const hit = dictCache()[key];
+      if (hit) return show(hit.entries, "Looked up before");
+      ai.replaceChildren(h("p", { class: "count", text: "Looking up “" + q + "”…" }));
+      const smp = await sampler();
+      if (my !== seq) return;
+      if (!smp) return ai.replaceChildren(h("p", { class: "notice" }, h("b", { text: "Words outside the course need the online dictionary" }),
+        navigator.onLine === false ? "You're offline. Course words above still work." : "It works when this device is signed in with the family email, the same sign-in that syncs progress. Course words above work any time."));
+      try {
+        const r = await smp.json(lookupPrompt(q), { modelTier: "default", effort: "low", cache: false });
+        const entries = dictClean(r);
+        dictRemember(key, entries);
+        show(entries, "AI dictionary");
+      } catch (err) {
+        if (my !== seq) return;
+        ai.replaceChildren(h("p", { class: "notice", text: err?.code === "rate_limited" ? "The dictionary is busy right now. Try again in a minute." : "The lookup didn't come back. Check your connection and try again." }));
+      }
+    }
+    const form = h("form", { class: "dict-form", role: "search", onsubmit: e => {
+      e.preventDefault();
+      const q = input.value.trim(); if (!q) return input.focus();
+      viewArg = q; input.blur();
+      showLocal(); lookUp(q.slice(0, 60));
+    } }, input, h("button", { class: "btn primary", type: "submit", "aria-label": "Look up" }, ic("search")));
+    input.addEventListener("input", () => { seq++; ai.replaceChildren(...(input.value.trim() ? [] : mineList())); showLocal(); });
+    wrap.append(form, local, ai);
+    if (viewArg) { showLocal(); lookUp(viewArg.slice(0, 60)); }
+    else { ai.replaceChildren(...mineList()); setTimeout(() => input.focus(), 50); }
     return wrap;
   }
 
@@ -1539,6 +1727,7 @@ body.kid .opt { font-size: 1.25rem; }
     const kid = isKid();
     let words = pool || practicePool(p, type === "pictap" || kid);
     if (type === "pictap" || (kid && type === "listen")) words = words.filter(w => TOPIC[w.topic].kids);
+    if (type === "listen" || type === "speak") words = words.filter(canSay);
     const types = kid && type === "listen" ? ["listenpic"] : [type];
     const q = sample(words, Math.min(10, words.length)).map(w => ({ type: types[0], w }));
     const names = { listen: "Listening", speak: "Speaking", type: "Writing", pictap: "Listen & tap", listenpic: "Listening" };
@@ -1786,7 +1975,7 @@ body.kid .opt { font-size: 1.25rem; }
     return again.length ? { ...again[0], again: true } : null;
   }
   // The quick round uses words the learner has known for a while: remembered at least twice, next review 3+ days away.
-  const quickPool = p => Object.entries(p.srs || {}).filter(([id, st]) => BY_ID[id] && !BY_ID[id].line && st[3] >= 2 && st[1] >= 3
+  const quickPool = p => Object.entries(p.srs || {}).filter(([id, st]) => BY_ID[id] && !BY_ID[id].line && !BY_ID[id].mine && st[3] >= 2 && st[1] >= 3
     && (!isKid() || (BY_ID[id].pic && TOPIC[BY_ID[id].topic].kids))).map(([id]) => id);
   // Once a grammar point has been taught, its answers in the daily lesson are timed too. A day only counts as clean when
   // at least two thirds of them come quickly, because knowing a rule and using it without thinking are different skills.
@@ -2463,8 +2652,8 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
       const back = h("div", { hidden: true, style: "display:grid;gap:8px;justify-items:center" }, h("div", { class: ex.reverse ? "big" : "en", text: ex.reverse ? w.hr : w.en }), w.note ? h("div", { class: "note", text: w.note }) : null);
       stage.append(h("div", { class: "prompt-label", text: ex.reverse ? "Say it in Croatian, out loud, then check" : "Do you remember this?" }),
         h("div", { class: "card" }, isKid() && w.pic ? h("div", { class: "bigpic", text: w.pic }) : null, h("div", { class: "big", text: ex.reverse ? w.en : w.hr }), back,
-          ex.reverse ? null : h("div", { class: "row center" }, sayBtn(w.hr))));
-      if (ex.reverse) back.append(sayBtn(w.hr));
+          ex.reverse || !canSay(w) ? null : h("div", { class: "row center" }, sayBtn(w.hr))));
+      if (ex.reverse && canSay(w)) back.append(sayBtn(w.hr));
       const s = p.srs[w.id];
       const rate = h("div", { class: "rate" }, [["Again", 0, "again"], ["Hard", 1, ""], ["Good", 2, "good"], ["Easy", 3, ""]].map(([label, g, cls]) => {
         const nxt = nextState(s, g);
@@ -2475,9 +2664,9 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
           session.idx++; render();
         } }, label, h("small", { text: ivlLabel(nxt[1]) }));
       }));
-      const reveal = h("button", { class: "btn primary", id: "continue", onclick: () => { back.hidden = false; reveal.replaceWith(rate); speak(w.hr); } }, "Show answer");
+      const reveal = h("button", { class: "btn primary", id: "continue", onclick: () => { back.hidden = false; reveal.replaceWith(rate); if (canSay(w)) speak(w.hr); } }, "Show answer");
       app.append(h("div", { class: "sheet" }, h("div", { class: "in" }, reveal)));
-      if (!ex.reverse) speak(w.hr);
+      if (!ex.reverse && canSay(w)) speak(w.hr);
     },
     match(ex, stage) {
       const words = ex.words;
