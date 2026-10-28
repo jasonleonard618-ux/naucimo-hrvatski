@@ -1376,7 +1376,8 @@ If it is not a real word, or you can't translate it, reply {"entries":[]}.`;
 Language: standard Croatian as spoken in Croatia (ijekavian; never Serbian or Bosnian forms). Say "ti" to them. Spell with č ć đ š ž.
 Learner: ${p.name}, a beginner (about CEFR A1).${kid ? "" : " Grammar they have had: " + (units.map(g => g.en).join("; ") || "none yet") + "."}
 Words they know (forms they have met): ${known || "only a few greetings"}
-Keep to those words and the most common little words (i, a, ali, je, sam, si, da, ne, to, što, kako, gdje, tko). Use at most ${kid ? "one new word" : "two new words"} per reply, only where the meaning is clear from context, and list each in "new".${focus.length ? "\nToday they learned: " + focus.join(", ") + ". Use one or two of these if it fits." : ""}
+${o.strict ? `Use ONLY words from that list, in the forms listed (names like Tomo, Medo, Ana, Split and Zagreb are fine). No other words at all: if you can't say something with them, say something simpler. List in "new" any word outside the list you still had to use (there should be none).`
+  : `Keep to those words and the most common little words (i, a, ali, je, sam, si, da, ne, to, što, kako, gdje, tko). Use at most ${kid ? "one new word" : "two new words"} per reply, only where the meaning is clear from context, and list each in "new".`}${focus.length ? "\nToday they learned: " + focus.join(", ") + ". Use one or two of these if it fits." : ""}
 
 Your reply: ${kid ? "one short sentence of at most 8 words, then a very easy question (yes or no, or this or that)" : "one or two short sentences, at most 18 words in all"}. React to what they actually said, as a real person would: agree, be surprised, or share a small detail about your own life (you have a dog called Medo, you like football, fish and the sea, and your sister Ana lives in Zagreb). Then usually ask one simple follow-up question so they have something to answer. Never ask the same question twice, and vary how you ask.
 ${topic}
@@ -1385,13 +1386,18 @@ Their last message: if it has a mistake, set "recast" to their own sentence said
 
 Shape: {"reply":"Croatian","en":"English translation of reply","recast":"","tip":"","new":[["new word as written in reply","English meaning"]],"ideas":[["short Croatian answer","English"]]}
 "ideas": three different short answers the learner could give to your question, using only words they know, ${kid ? "2 to 4" : "3 to 8"} words each.
-${hist ? "\nConversation so far:\n" + hist : ""}`;
+${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.redo.hr}". It uses words the learner doesn't know: ${o.redo.bad.join(", ")}. Write your reply again with only words they know.` : ""}`;
   }
   function tomoClean(r) {
     const pairs = (a, n) => (Array.isArray(a) ? a : []).filter(x => Array.isArray(x) && x.length >= 2).slice(0, n).map(([a, b]) => [str(a, 80), str(b, 120)]).filter(x => x[0]);
     const reply = str(r?.reply, 300);
     return reply ? { hr: reply, en: str(r.en, 300), recast: str(r.recast, 200), tip: str(r.tip, 200), new: pairs(r.new, 4), ideas: pairs(r.ideas, 3) } : null;
   }
+  // Words in a reply the learner hasn't met (Tomo's own names don't count). The app checks this itself rather than
+  // trusting the prompt: a reply over the limit is sent back once for a rewrite (opts.strict, the daily lesson, allows none;
+  // open chat allows TOMO_NEW), and answer ideas with unmet words are dropped.
+  const TOMO_NEW = 2, TOMO_NAMES = new Set(["tomo", "medo", "meda", "medom", "ana", "ane", "split", "splitu", "splita", "zagreb", "zagrebu", "zagreba"]);
+  const tomoUnknown = (p, k, text) => [...new Set(unknownIn(k, text))].filter(t => !TOMO_NAMES.has(t) && t !== norm(p.name) && !/^\d+$/.test(t));
   // Tomo's line: tap any word for its meaning; words new to the learner are underlined.
   function tomoLine(m, k, onTap) {
     const fresh = Object.fromEntries((m.new || []).map(([w, en]) => [norm(w), en]));
@@ -1462,7 +1468,22 @@ ${hist ? "\nConversation so far:\n" + hist : ""}`;
           navigator.onLine === false ? "You're offline right now." : "He works when this device is signed in with the family email, the same sign-in that syncs progress."));
         return opts.onUnavailable?.();
       }
-      const job = smp.json(tomoPrompt(p, c, { focus: opts.focus, spoken, switchTo: o.switchTo }), { modelTier: "default", effort: "low", cache: false }).then(tomoClean);
+      // One quiet retry when a reply doesn't come back (the function or the model can be slow to wake), then the rewrite check.
+      const call = async po => {
+        const go = () => smp.json(tomoPrompt(p, c, po), { modelTier: "default", effort: "low", cache: false }).then(tomoClean);
+        try { return await go(); } catch { await new Promise(res => setTimeout(res, 1500)); return go(); }
+      };
+      const job = (async () => {
+        const po = { focus: opts.focus, spoken, switchTo: o.switchTo, strict: opts.strict };
+        let r = await call(po);
+        const bad = r && tomoUnknown(p, k, r.hr);
+        if (r && bad.length > (opts.strict ? 0 : TOMO_NEW)) {
+          const again = await call({ ...po, redo: { hr: r.hr, bad } }).catch(() => null);
+          if (again && tomoUnknown(p, k, again.hr).length < bad.length) r = again;
+        }
+        if (r) r.ideas = r.ideas.filter(([hr]) => !tomoUnknown(p, k, hr).length);
+        return r;
+      })();
       c._wait = job;
       let r = null, err = null;
       try { r = await job; if (!r) err = { detail: "the reply was empty" }; } catch (e) { err = e; }
@@ -2722,7 +2743,7 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
       };
       stage.append(h("p", { class: "count", text: kid ? "Answer Tomo " + TOMO_TURNS + " times. Tap an answer or type your own."
           : "Reply to Tomo " + TOMO_TURNS + " times in your own words. Nothing here is marked: a mistake is just said back the way a Croatian would say it." }),
-        tomoChat(p, tomoNew(p, t && !t.core ? t.en.toLowerCase() : null), { turns: TOMO_TURNS, focus,
+        tomoChat(p, tomoNew(p, t && !t.core ? t.en.toLowerCase() : null), { turns: TOMO_TURNS, focus, strict: true,
           onEnd: () => setTimeout(() => next(kid ? "Bravo! Super razgovor!" : "Lijepo! Nice chat.", 15), 900),
           onUnavailable: () => next("Tomo will chat next time.", 0) }));
     },
