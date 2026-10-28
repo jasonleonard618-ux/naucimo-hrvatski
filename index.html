@@ -430,6 +430,12 @@ textarea.typebox:focus { box-shadow: inset 0 0 0 1px var(--ink); border-color: v
 .tomo-form .row { justify-content: space-between; }
 .tomo-av { width: 44px; height: 44px; border-radius: 50%; background: var(--p2); display: grid; place-items: center; flex: none; }
 .tomo-av .ic { width: 24px; height: 24px; }
+.tomo-flag { color: var(--muted); }
+.tomo-flag[aria-pressed="true"] { color: var(--lic, #c8102e); }
+.tomo-flag[aria-pressed="true"] .ic path { fill: currentColor; }
+.tcheck { display: grid; gap: 10px; }
+.tcheck .bubble { max-width: none; justify-self: stretch; }
+.tcheck-out { width: 100%; min-height: 220px; font: .82rem/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); white-space: pre-wrap; }
 /* A recast: the learner's line said back correctly, as the other speaker would */
 .recast { display: grid; gap: 6px; text-align: left; }
 .recast .bubble { max-width: 100%; }
@@ -613,6 +619,7 @@ body.kid .opt { font-size: 1.25rem; }
     search: "M10.5 17a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13zM15.4 15.4 20 20",
     dict: "M6 3.5h12.5v17H6a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2zM4 18.5a2 2 0 0 1 2-2h12.5M9 8h6M9 11h4",
     chat: "M3 4.5h12v8H8l-4 3v-3H3zM18 8.5h3v8h-1.5v3l-3.5-3h-5.5v-2.5",
+    flag: "M5.5 21V4M5.5 4.5h12l-2.5 4 2.5 4h-12",
   };
   const UI_EMOJI = { "🔊": "speaker", "🐢": "slow", "✓": "check", "✅": "check", "✕": "close", "←": "back", "→": "next", "▶": "play", "📅": "play", "🔁": "recall", "💬": "talk", "📐": "grammar",
     "🎧": "headphones", "🧩": "puzzle", "🗣": "mic", "🔤": "abc", "📖": "story", "✍": "pen", "👂": "ear", "⚡": "bolt", "💡": "hint", "🎙": "mic", "⭐": "star", "🌟": "star",
@@ -1026,13 +1033,13 @@ body.kid .opt { font-size: 1.25rem; }
     app.replaceChildren();
     if (session) return renderSession();
     const fn = { home: viewHome, learn: viewLearn, family: viewFamily, topic: viewTopic, profiles: viewProfiles, reading: viewReading, story: viewStory, alphabet: viewAlphabet,
-      talk: viewTalk, dialogue: viewDialogue, grammar: viewGrammar, unit: viewUnit, sounds: viewSounds, sound: viewSound, method: viewMethod, journey: viewJourney, dict: viewDict, tomo: viewTomo }[view] || viewHome;
+      talk: viewTalk, dialogue: viewDialogue, grammar: viewGrammar, unit: viewUnit, sounds: viewSounds, sound: viewSound, method: viewMethod, journey: viewJourney, dict: viewDict, tomo: viewTomo, tomocheck: viewTomoCheck }[view] || viewHome;
     app.append(fn(), tabBar());
   }
 
   // Floating tab bar. Every non-session view belongs to one tab; kids get no separate Talk tab (conversations live under Pictures).
   const TAB_OF = { home: "home", learn: "learn", dict: "learn", topic: "learn", reading: "learn", story: "learn", alphabet: "learn", grammar: "learn", unit: "learn", sounds: "learn", sound: "learn",
-    talk: "talk", dialogue: "talk", tomo: "talk", family: "family", profiles: "family", method: "family" };
+    talk: "talk", dialogue: "talk", tomo: "talk", family: "family", profiles: "family", method: "family", tomocheck: "family" };
   const tabOf = v => { const t = TAB_OF[v] || "home"; return t === "talk" && isKid() ? "learn" : t; };
   const ICON = {
     home: "M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-5h-6v5H5a1 1 0 0 1-1-1z",
@@ -1355,9 +1362,43 @@ If it is not a real word, or you can't translate it, reply {"entries":[]}.`;
     try { c = JSON.parse(localStorage.getItem(TOMO_KEY + p.id)); } catch {}
     return (tomoMem[p.id] = c && Array.isArray(c.msgs) ? c : tomoNew(p));
   }
-  const tomoNew = (p, topic) => ({ msgs: [], topic: topic || tomoTopic(p), since: 0 });
+  const tomoNew = (p, topic, where) => ({ id: Date.now(), where: where || "chat", msgs: [], topic: topic || tomoTopic(p), since: 0 });
   function tomoSave(p, c) {
-    try { localStorage.setItem(TOMO_KEY + p.id, JSON.stringify({ msgs: c.msgs.slice(-40), topic: c.topic, since: c.since })); } catch {}
+    try { localStorage.setItem(TOMO_KEY + p.id, JSON.stringify({ id: c.id, msgs: c.msgs.slice(-40), topic: c.topic, since: c.since })); } catch {}
+  }
+  // Past chats (open chats that were restarted, and daily-lesson chats) are kept on this device for the review page,
+  // naucimo.tomolog.<id>, the last TOMO_LOGS of them.
+  const TOMO_LOG = "naucimo.tomolog.", TOMO_LOGS = 20;
+  function tomoLogs(id) {
+    try { const a = JSON.parse(localStorage.getItem(TOMO_LOG + id)); return Array.isArray(a) ? a : []; } catch { return []; }
+  }
+  function tomoArchive(p, c) {
+    if (!c.msgs.some(m => m.who === "me")) return;
+    const msgs = c.msgs.map(({ who, hr, en, recast, tip, d, fl, flfix }) => ({ who, hr, en, recast, tip, d, fl, flfix }));
+    const logs = tomoLogs(p.id).filter(x => x.id !== c.id);
+    logs.push({ id: c.id || Date.now(), where: c.where || "chat", day: c.msgs[0].d || today(), msgs });
+    try { localStorage.setItem(TOMO_LOG + p.id, JSON.stringify(logs.slice(-TOMO_LOGS))); } catch {}
+  }
+  // "This looks wrong": a learner flags a line of Tomo's ("reply") or his correction of their own line ("fix"). Flags
+  // live on the profile (p.tflag, synced, the last TOMO_FLAGS) with the line, its English and the messages before it,
+  // so a Croatian speaker can go through them on the Check Tomo's Croatian page (viewTomoCheck). Nothing else uses them.
+  const TOMO_FLAGS = 60;
+  const tomoFlagged = (p, at) => !!at && (p.tflag || []).some(f => f.at === at);
+  function tomoFlag(p, c, m, kind) {
+    const cur = me(); if (cur?.id !== p.id) return;
+    const key = kind === "fix" ? "flfix" : "fl";
+    if (tomoFlagged(cur, m[key])) {
+      cur.tflag = cur.tflag.filter(f => f.at !== m[key]); delete m[key];
+      toast("Flag taken off.");
+    } else {
+      const i = c.msgs.indexOf(m);
+      m[key] = Date.now();
+      cur.tflag = [...(cur.tflag || []), { at: m[key], day: today(), kind, where: c.where || "chat",
+        hr: kind === "fix" ? m.recast : m.hr, en: kind === "fix" ? "" : m.en || "", said: kind === "fix" ? m.hr : "", tip: kind === "fix" ? m.tip || "" : "",
+        ctx: c.msgs.slice(Math.max(0, i - 4), i).map(x => [x.who, x.hr]) }].slice(-TOMO_FLAGS);
+      toast("Flagged for a Croatian speaker to check (Family, Check Tomo's Croatian).");
+    }
+    saveProfile(cur);
   }
   function tomoTopic(p, not) {
     const kid = p.kind === "kid", learned = (kid ? KID_ORDER : ADULT_ORDER).map(id => TOPIC[id]).filter(t => t && !t.core && t.ids.some(id => p.srs?.[id])).map(t => t.en.toLowerCase());
@@ -1374,6 +1415,7 @@ If it is not a real word, or you can't translate it, reply {"entries":[]}.`;
     return `You are Tomo, ${kid ? "a cheerful young man from Split chatting with a child (about 6 to 10) who is just starting Croatian" : "a friendly man in his thirties from Split chatting with an English-speaking adult who is learning Croatian"}. You are their conversation partner in a language app, not their teacher. Reply with ONLY one minified JSON object, no other text.
 
 Language: standard Croatian as spoken in Croatia (ijekavian; never Serbian or Bosnian forms). Say "ti" to them. Spell with č ć đ š ž.
+Punctuation: follow Croatian rules, not English ones. No comma before da, što, kad, ako, jer or dok when that part comes after the main clause ("Mislim da je lijepo."), but do use one before ali and around koji clauses. No emoji, dashes, ellipses, brackets or quotation marks: your reply is read aloud.
 Learner: ${p.name}, a beginner (about CEFR A1).${kid ? "" : " Grammar they have had: " + (units.map(g => g.en).join("; ") || "none yet") + "."}
 Words they know (forms they have met): ${known || "only a few greetings"}
 ${o.strict ? `Use ONLY words from that list, in the forms listed (names like Tomo, Medo, Ana, Split and Zagreb are fine). No other words at all: if you can't say something with them, say something simpler. List in "new" any word outside the list you still had to use (there should be none).`
@@ -1396,6 +1438,10 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
   // Words in a reply the learner hasn't met (Tomo's own names don't count). The app checks this itself rather than
   // trusting the prompt: a reply over the limit is sent back once for a rewrite (opts.strict, the daily lesson, allows none;
   // open chat allows TOMO_NEW), and answer ideas with unmet words are dropped.
+  // Tomo's lines are read by the device's own voice (never ElevenLabs, whose clips are made ahead for course text only).
+  // Speech engines read emoji out by name and stumble on quotes, dashes and ellipses, so those go before speaking.
+  const tomoSpoken = t => t.replace(/\s*\([^)]*\)/g, "").replace(/\p{Extended_Pictographic}[\uFE0F\u200D\p{Emoji_Modifier}]*/gu, "").replace(/["“”„‘’«»()[\]*_]/g, "")
+    .replace(/\s*(?:\.\.\.|…)/g, ".").replace(/\s+[—–-]\s+/g, ", ").replace(/\s+([,.!?])/g, "$1").replace(/\s+/g, " ").trim();
   const TOMO_NEW = 2, TOMO_NAMES = new Set(["tomo", "medo", "meda", "medom", "ana", "ane", "split", "splitu", "splita", "zagreb", "zagrebu", "zagreba"]);
   const tomoUnknown = (p, k, text) => [...new Set(unknownIn(k, text))].filter(t => !TOMO_NAMES.has(t) && t !== norm(p.name) && !/^\d+$/.test(t));
   // Tomo's line: tap any word for its meaning; words new to the learner are underlined.
@@ -1428,19 +1474,22 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
     const mine = () => c.msgs.filter(m => m.who === "me").length;
     const lock = on => { [input, send, ...keys.querySelectorAll("button"), ...ideas.querySelectorAll("button")].forEach(b => (b.disabled = on)); };
     let spoken = false;
+    const flagBtn = (m, kind) => kid ? null : h("button", { class: "minisay tomo-flag", "aria-pressed": String(tomoFlagged(me() || p, m[kind === "fix" ? "flfix" : "fl"])),
+      "aria-label": kind === "fix" ? "This correction looks wrong" : "This looks wrong", title: kind === "fix" ? "This correction looks wrong" : "This looks wrong",
+      onclick: () => { tomoFlag(p, c, m, kind); opts.onSave?.(c); draw(false); } }, ic("flag"));
     const bubble = m => {
       if (m.who === "me") {
         const said = new Set(norm(m.hr).split(" "));
         return h("div", { class: "bubble me" }, h("div", { class: "who" }, h("span", { text: p.name })), h("div", { class: "line", text: m.hr }),
           m.recast ? h("div", { class: "tomo-fix" }, h("div", { class: "who" }, h("span", { text: m.tip ? "Say it like this" : "In Croatian" }),
-            h("button", { class: "minisay", "aria-label": "Play this", onclick: () => speak(m.recast) }, "🔊")),
+            h("span", null, flagBtn(m, "fix"), h("button", { class: "minisay", "aria-label": "Play this", onclick: () => speak(tomoSpoken(m.recast)) }, "🔊"))),
             h("div", { class: "fixline" }, m.recast.split(/(\s+)/).map(t => (t.trim() && !said.has(norm(t)) ? h("mark", { text: t }) : t))),
             m.tip ? h("div", { class: "why" }, h("b", { text: "Why: " }), m.tip) : null) : null);
       }
       const en = h("div", { class: "ten", hidden: !easy, text: m.en });
       return h("div", { class: "bubble" }, h("div", { class: "who" }, h("span", { text: "Tomo" }),
         h("span", null, m.en ? h("button", { class: "linkbtn tomo-en", onclick: () => (en.hidden = !en.hidden) }, "EN") : null,
-          h("button", { class: "minisay", "aria-label": "Play this line", onclick: () => speak(m.hr) }, "🔊"))),
+          flagBtn(m, "reply"), h("button", { class: "minisay", "aria-label": "Play this line", onclick: () => speak(tomoSpoken(m.hr)) }, "🔊"))),
         tomoLine(m, k, showGloss), en);
     };
     function drawIdeas() {
@@ -1452,10 +1501,10 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
       if (kid) ideas.append(...tiles);
       else ideas.append(h("button", { class: "linkbtn", type: "button", onclick: () => ideas.replaceChildren(...tiles) }, "💡 Need an idea?"));
     }
-    function draw() {
+    function draw(scroll = true) {
       log.replaceChildren(...c.msgs.map(bubble));
       drawIdeas();
-      log.lastChild?.scrollIntoView?.({ block: "nearest", behavior: "smooth" });
+      if (scroll) log.lastChild?.scrollIntoView?.({ block: "nearest", behavior: "smooth" });
     }
     const ui = { draw, lock, status };
     c._ui = ui;
@@ -1500,17 +1549,17 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
         last.recast = r.recast && norm(r.recast) !== norm(last.hr) ? r.recast : "";
         last.tip = last.recast ? r.tip : "";
       }
-      c.msgs.push({ who: "t", hr: r.hr, en: r.en, new: r.new, ideas: r.ideas });
+      c.msgs.push({ who: "t", hr: r.hr, en: r.en, new: r.new, ideas: r.ideas, d: today() });
       opts.onSave?.(c);
       u.status.replaceChildren(); u.lock(false); u.draw();
-      if (voiceKind === "hr" || voiceKind === "near" || hasClip(r.hr)) speak(r.hr);
+      if (voiceKind === "hr" || voiceKind === "near" || hasClip(tomoSpoken(r.hr))) speak(tomoSpoken(r.hr));
       if (opts.turns && mine() >= opts.turns) { u.lock(true); return opts.onEnd?.(); }
       if (!kid && u === ui) input.focus({ preventScroll: true });
     }
     function say(text) {
       text = text.trim().slice(0, 200);
       if (!text || c._wait) return;
-      c.msgs.push({ who: "me", hr: text });
+      c.msgs.push({ who: "me", hr: text, d: today() });
       input.value = "";
       const cur = me(); // the synced copy, which may be newer than p
       if (cur?.id === p.id) { cur.tomo = { n: (cur.tomo?.n || 0) + 1, day: today() }; saveProfile(cur); }
@@ -1544,8 +1593,94 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
       kid ? "Tap an answer, or type your own. Tap any word to hear what it means."
         : "He sticks to words you know, with the odd new one underlined: tap any word for its meaning. Make mistakes freely. He'll show you how a Croatian would say it and keep talking. Nothing here is marked."));
     wrap.append(tomoChat(p, c, { onSave: c => tomoSave(p, c) }),
-      h("div", { class: "row" }, h("button", { class: "linkbtn", onclick: () => { if (c._wait) return; tomoSave(p, (tomoMem[p.id] = tomoNew(p, tomoTopic(p, c.topic)))); render(); } }, "Start a new chat")));
-    if (!kid) wrap.append(h("p", { class: "count dict-warn" }, ic("hint"), "Tomo is AI and can get things wrong now and then. When it matters, check with a Croatian speaker."));
+      h("div", { class: "row" }, h("button", { class: "linkbtn", onclick: () => { if (c._wait) return; tomoArchive(p, c); tomoSave(p, (tomoMem[p.id] = tomoNew(p, tomoTopic(p, c.topic)))); render(); } }, "Start a new chat")));
+    if (!kid) wrap.append(h("p", { class: "count dict-warn" }, ic("hint"), "Tomo is AI and can get things wrong now and then. If a line or a correction looks wrong, tap its flag. ",
+      h("button", { class: "linkbtn", onclick: () => go("tomocheck") }, "Check Tomo's Croatian")));
+    return wrap;
+  }
+
+  // Check Tomo's Croatian: where his Croatian comes from, the family's flags (all learners, synced), and a plain-text
+  // copy of the flags plus recent chats on this device to send to a Croatian speaker. Tomo's lines and corrections are
+  // numbered so the reviewer can answer "4: should be ...".
+  const dayDate = d => new Date(d * 86400000).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+  const TOMO_WHERE = { chat: "open chat", lesson: "daily lesson chat" };
+  function tomoReport() {
+    const ps = Object.values(store.profiles), flags = ps.flatMap(q => (q.tflag || []).map(f => ({ ...f, by: q.name }))).sort((a, b) => a.at - b.at);
+    const since = today() - 14, flagNo = {};
+    const chats = ps.flatMap(q => {
+      const open = tomoLoad(q), all = [...tomoLogs(q.id), { id: open.id, where: "chat", day: open.msgs[0]?.d, msgs: open.msgs }];
+      return all.filter(x => x.msgs.some(m => m.who === "me") && (x.day || today()) >= since && !(x !== all[all.length - 1] && x.id === open.id))
+        .slice(-6).map(x => ({ ...x, who: q.name + (q.kind === "kid" ? " (child)" : "") }));
+    }).sort((a, b) => (a.day || today()) - (b.day || today()));
+    let n = 0;
+    const out = ["Naučimo Hrvatski: please check Tomo's Croatian", "",
+      "Tomo is an AI chat partner (Google Gemini) in our family's app for learning Croatian. The learners are beginners, about A1.",
+      "Please check the numbered lines: Tomo's own lines and his corrections of the learners. Reply with the number and what is wrong,",
+      "for example \"4: should be 'Idem u školu.'\" or \"7: Serbian word, in Croatian say 'kruh'\". Standard Croatian is the goal.",
+      "Unnumbered \"Learner\" lines are the learners' own attempts and only give context. Hvala!", ""];
+    out.push("== Flagged by the family as looking wrong (" + flags.length + ") ==", "");
+    if (!flags.length) out.push("(none)", "");
+    for (const f of flags) {
+      out.push("Flagged by " + f.by + ", " + dayDate(f.day) + ", " + TOMO_WHERE[f.where] + ":");
+      for (const [who, hr] of f.ctx || []) out.push("      " + (who === "t" ? "Tomo" : "Learner") + ": " + hr);
+      flagNo[f.at] = n + 1;
+      if (f.kind === "fix") out.push("      Learner: " + f.said, "[" + ++n + "] Tomo's correction: " + f.hr, f.tip ? "      (Tomo's reason: " + f.tip + ")" : null);
+      else out.push("[" + ++n + "] Tomo: " + f.hr, f.en ? "      (English: " + f.en + ")" : null);
+      out.push("");
+    }
+    out.push("== Recent chats, last 14 days (" + chats.length + ") ==", "");
+    if (!chats.length) out.push("(none on this device)", "");
+    for (const x of chats) {
+      out.push("-- " + x.who + ", " + (x.day ? dayDate(x.day) : "earlier") + ", " + TOMO_WHERE[x.where] + " --");
+      for (const m of x.msgs) {
+        if (m.who === "t") out.push("[" + ++n + "] Tomo: " + m.hr + (flagNo[m.fl] ? "   (flagged, see " + flagNo[m.fl] + ")" : ""), m.en ? "      (English: " + m.en + ")" : null);
+        else {
+          out.push("      Learner: " + m.hr);
+          if (m.recast) out.push("[" + ++n + "] Tomo's correction: " + m.recast + (flagNo[m.flfix] ? "   (flagged, see " + flagNo[m.flfix] + ")" : ""), m.tip ? "      (Tomo's reason: " + m.tip + ")" : null);
+        }
+      }
+      out.push("");
+    }
+    return { text: out.filter(l => l != null).join("\n"), flags: flags.length, chats: chats.length, lines: n };
+  }
+  function viewTomoCheck() {
+    const wrap = h("main", { class: "wrap tcheck" }, subhead("Check Tomo's Croatian", "Flags and chats for a Croatian speaker"));
+    wrap.append(h("p", { class: "notice" }, h("b", { text: "Where Tomo's Croatian comes from" }),
+      " Tomo's replies and corrections are written by an AI (Google's Gemini). The app makes sure he keeps to words you know, but nothing checks his grammar. He is usually right, but he can slip on case endings or use a Serbian or Bosnian word. The real check is a Croatian speaker: flag lines that look wrong as you chat, then send them the text below."));
+    const ps = Object.values(store.profiles), flags = ps.flatMap(q => (q.tflag || []).map(f => ({ ...f, q }))).sort((a, b) => b.at - a.at);
+    wrap.append(h("div", { class: "section-head", style: "padding-inline:0" }, h("h2", { text: "Flagged lines (" + flags.length + ")" })));
+    if (!flags.length) wrap.append(h("p", { class: "count", text: "Nothing flagged yet. In a chat with Tomo, tap the flag on any line or correction that looks wrong." }));
+    for (const f of flags) wrap.append(h("div", { class: "bubble" },
+      h("div", { class: "who" }, h("span", { text: (f.kind === "fix" ? "Correction · " : "Tomo · ") + f.q.name + " · " + dayDate(f.day) }),
+        h("button", { class: "linkbtn", onclick: () => { const cur = store.profiles[f.q.id]; cur.tflag = (cur.tflag || []).filter(x => x.at !== f.at); saveProfile(cur); render(); } }, "Remove")),
+      f.kind === "fix" ? h("div", { class: "ten", text: f.q.name + " wrote: " + f.said }) : null,
+      h("div", { class: "line", text: f.hr }), f.en ? h("div", { class: "ten", text: f.en }) : f.tip ? h("div", { class: "ten", text: "Why: " + f.tip }) : null));
+    const r = tomoReport();
+    const out = h("textarea", { class: "tcheck-out", readonly: true, "aria-label": "Text to send to a Croatian speaker", spellcheck: "false" });
+    out.value = r.text;
+    const copy = async () => {
+      try { await navigator.clipboard.writeText(r.text); toast("Copied. Paste it into an email or message."); }
+      catch { out.focus(); out.select(); toast("Select all and copy the text."); }
+    };
+    const file = () => {
+      const a = h("a", { href: URL.createObjectURL(new Blob([r.text], { type: "text/plain;charset=utf-8" })), download: "tomo-check-" + new Date().toISOString().slice(0, 10) + ".txt" });
+      document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    };
+    wrap.append(h("div", { class: "section-head", style: "padding-inline:0" }, h("h2", { text: "Send to a Croatian speaker" })),
+      h("p", { class: "count", text: r.lines + " numbered lines: " + r.flags + " flagged, plus " + r.chats + " recent chat" + (r.chats === 1 ? "" : "s") + " from this device (flags come from every device; chats only from this one)." }),
+      h("div", { class: "actions" },
+        navigator.share ? h("button", { class: "btn primary", onclick: () => navigator.share({ title: "Please check Tomo's Croatian", text: r.text }).catch(() => {}) }, "Share") : null,
+        h("button", { class: "btn" + (navigator.share ? "" : " primary"), onclick: copy }, "Copy text"),
+        h("button", { class: "btn", onclick: file }, "Download as a file")),
+      out);
+    if (flags.length) {
+      const clear = h("button", { class: "linkbtn", onclick: () => {
+        if (!clear.dataset.sure) { clear.dataset.sure = "1"; clear.textContent = "Tap again to clear all " + flags.length + " flags"; return; }
+        for (const q of ps) if (q.tflag?.length) { q.tflag = []; saveProfile(q); }
+        toast("Flags cleared."); render();
+      } }, "Reviewed? Clear all flags");
+      wrap.append(h("div", { class: "row" }, clear));
+    }
     return wrap;
   }
 
@@ -1561,7 +1696,8 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
         h("span", { class: "num", text: xpWeek(q) + " XP" }))))));
     wrap.append(h("div", { class: "actions" },
       h("button", { class: "btn primary", onclick: () => go("profiles") }, "Switch or add a learner"),
-      isKid() ? null : h("button", { class: "btn", onclick: () => go("method") }, "How this app teaches")));
+      isKid() ? null : h("button", { class: "btn", onclick: () => go("method") }, "How this app teaches"),
+      isKid() ? null : h("button", { class: "btn", onclick: () => go("tomocheck") }, "Check Tomo's Croatian")));
     return wrap;
   }
 
@@ -2743,7 +2879,7 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
       };
       stage.append(h("p", { class: "count", text: kid ? "Answer Tomo " + TOMO_TURNS + " times. Tap an answer or type your own."
           : "Reply to Tomo " + TOMO_TURNS + " times in your own words. Nothing here is marked: a mistake is just said back the way a Croatian would say it." }),
-        tomoChat(p, tomoNew(p, t && !t.core ? t.en.toLowerCase() : null), { turns: TOMO_TURNS, focus, strict: true,
+        tomoChat(p, tomoNew(p, t && !t.core ? t.en.toLowerCase() : null, "lesson"), { turns: TOMO_TURNS, focus, strict: true, onSave: c => tomoArchive(p, c),
           onEnd: () => setTimeout(() => next(kid ? "Bravo! Super razgovor!" : "Lijepo! Nice chat.", 15), 900),
           onUnavailable: () => next("Tomo will chat next time.", 0) }));
     },
