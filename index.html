@@ -416,6 +416,20 @@ textarea.typebox:focus { box-shadow: inset 0 0 0 1px var(--ink); border-color: v
 /* Quick round */
 .quick { display: grid; gap: 16px; }
 .quick .score { font-family: var(--font-display); font-weight: 450; font-size: 1.3rem; text-align: center; }
+/* Tomo chat */
+.tomo { display: grid; gap: 12px; }
+.tomo-log { max-height: none; }
+.bubble .w.new { border-bottom: 2px solid var(--terra); }
+.tomo-en { font-size: .72rem; letter-spacing: .1em; padding: 0 6px; }
+.tomo-fix { margin-top: 6px; padding-top: 8px; border-top: 1px dashed color-mix(in srgb, var(--ink) 25%, transparent); display: grid; gap: 4px; }
+.tomo-fix .fixline { font-family: var(--font-display); font-size: 1.1rem; }
+.tomo-fix mark { background: color-mix(in srgb, var(--sun, #f5c451) 45%, transparent); color: inherit; border-radius: 4px; padding: 0 2px; }
+.tomo-ideas { min-height: 0; }
+.tomo-ideas .wtile { display: grid; text-align: left; gap: 2px; }
+.tomo-idea-en { font-family: var(--font-body); font-size: .78rem; color: var(--muted); }
+.tomo-form .row { justify-content: space-between; }
+.tomo-av { width: 44px; height: 44px; border-radius: 50%; background: var(--p2); display: grid; place-items: center; flex: none; }
+.tomo-av .ic { width: 24px; height: 24px; }
 /* A recast: the learner's line said back correctly, as the other speaker would */
 .recast { display: grid; gap: 6px; text-align: left; }
 .recast .bubble { max-width: 100%; }
@@ -598,10 +612,11 @@ body.kid .opt { font-size: 1.25rem; }
     boat: "M12 3v14M12 4.5 18.5 15H12zM4 18h16l-2 3H6z",
     search: "M10.5 17a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13zM15.4 15.4 20 20",
     dict: "M6 3.5h12.5v17H6a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2zM4 18.5a2 2 0 0 1 2-2h12.5M9 8h6M9 11h4",
+    chat: "M3 4.5h12v8H8l-4 3v-3H3zM18 8.5h3v8h-1.5v3l-3.5-3h-5.5v-2.5",
   };
   const UI_EMOJI = { "🔊": "speaker", "🐢": "slow", "✓": "check", "✅": "check", "✕": "close", "←": "back", "→": "next", "▶": "play", "📅": "play", "🔁": "recall", "💬": "talk", "📐": "grammar",
     "🎧": "headphones", "🧩": "puzzle", "🗣": "mic", "🔤": "abc", "📖": "story", "✍": "pen", "👂": "ear", "⚡": "bolt", "💡": "hint", "🎙": "mic", "⭐": "star", "🌟": "star",
-    "🔓": "unlock", "📷": "camera", "🧑": "person", "🧒": "child" };
+    "🔓": "unlock", "📷": "camera", "🧑": "person", "🧒": "child", "🗨": "chat" };
   const UI_RE = new RegExp("(" + [...Object.keys(UI_EMOJI), "🔥"].join("|") + ")\uFE0F? ?", "u");
   const LEAD_EMOJI = /^(?:\p{Extended_Pictographic}(?:\uFE0F|\u20E3|\u200D\p{Extended_Pictographic}|\p{Emoji_Modifier})*|[0-9#*]\uFE0F?\u20E3)+/u;
   const svgEl = html => { const t = document.createElement("template"); t.innerHTML = html; return t.content.firstChild; };
@@ -1011,13 +1026,13 @@ body.kid .opt { font-size: 1.25rem; }
     app.replaceChildren();
     if (session) return renderSession();
     const fn = { home: viewHome, learn: viewLearn, family: viewFamily, topic: viewTopic, profiles: viewProfiles, reading: viewReading, story: viewStory, alphabet: viewAlphabet,
-      talk: viewTalk, dialogue: viewDialogue, grammar: viewGrammar, unit: viewUnit, sounds: viewSounds, sound: viewSound, method: viewMethod, journey: viewJourney, dict: viewDict }[view] || viewHome;
+      talk: viewTalk, dialogue: viewDialogue, grammar: viewGrammar, unit: viewUnit, sounds: viewSounds, sound: viewSound, method: viewMethod, journey: viewJourney, dict: viewDict, tomo: viewTomo }[view] || viewHome;
     app.append(fn(), tabBar());
   }
 
   // Floating tab bar. Every non-session view belongs to one tab; kids get no separate Talk tab (conversations live under Pictures).
   const TAB_OF = { home: "home", learn: "learn", dict: "learn", topic: "learn", reading: "learn", story: "learn", alphabet: "learn", grammar: "learn", unit: "learn", sounds: "learn", sound: "learn",
-    talk: "talk", dialogue: "talk", family: "family", profiles: "family", method: "family" };
+    talk: "talk", dialogue: "talk", tomo: "talk", family: "family", profiles: "family", method: "family" };
   const tabOf = v => { const t = TAB_OF[v] || "home"; return t === "talk" && isKid() ? "learn" : t; };
   const ICON = {
     home: "M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-5h-6v5H5a1 1 0 0 1-1-1z",
@@ -1078,6 +1093,7 @@ body.kid .opt { font-size: 1.25rem; }
       P.check ? ["recall", "Check-up: " + unitName(P.check) + ", five sentences you haven't seen, to see if the rule stuck"] : null,
       P.unit ? ["grammar", "Grammar: " + unitName(P.unit) + (ruleSeen(p, P.unit) ? " (the chart and sentences, typed and timed)" : (planOf(p).reteach || {})[P.unit.id] ? " (back for another look, step by step)" : (p.gram || {})[P.unit.id] ? " (clearer explanation, step by step)" : " (new)")] : null,
       ["story", "A short story to read and listen to, and a one-minute quick round"],
+      courseProgress(p).done >= 1 ? ["chat", "Chat with Tomo: " + TOMO_TURNS + " replies in your own words, nothing marked"] : null,
       ["lock", "Lock it in: everything from today again, typed from memory"]].filter(Boolean);
     return h("div", { class: "daily" },
       h("div", { class: "boardrow" }, chessboard(steps.length, 0, 0), h("span", { class: "kicker", text: steps.length + " steps" })),
@@ -1140,13 +1156,15 @@ body.kid .opt { font-size: 1.25rem; }
         h("span", { class: "dict-lead", "aria-hidden": "true" }, ic("dict")), q, h("button", { class: "btn primary", type: "submit", "aria-label": "Look up" }, ic("search"))));
     }
     const tiles = kid
-      ? [["💬", "Talk", "Little conversations to copy", () => go("talk")],
+      ? [["🗨", "Chat with Tomo", "Talk with a friend from Split", () => go("tomo")],
+         ["💬", "Talk", "Little conversations to copy", () => go("talk")],
          ["🎧", "Listen & tap", "Hear a word, tap the picture", () => startPractice("pictap")],
          ["🧩", "Memory match", "Match pictures to words", () => startMatch()],
          ["🗣️", "Say it", "Copy the voice out loud", () => startPractice("speak")],
          ["🔤", "Alphabet", "Letters and their sounds", () => go("alphabet")],
          ["📖", "Stories", "Short stories to read", () => go("reading")]]
-      : [["📐", "Grammar", "Spot the pattern, then drill it", () => go("grammar")],
+      : [["🗨", "Chat with Tomo", "Free conversation, no script", () => go("tomo")],
+         ["📐", "Grammar", "Spot the pattern, then drill it", () => go("grammar")],
          ["👂", "Pronunciation", "Sound rules and ear training", () => go("sounds")],
          ["🎧", "Listening", "Hear it, pick the meaning", () => startPractice("listen")],
          ["🗣️", "Speaking", "Shadow the voice", () => startPractice("speak")],
@@ -1317,6 +1335,196 @@ If it is not a real word, or you can't translate it, reply {"entries":[]}.`;
     wrap.append(form, local, ai);
     if (viewArg) { showLocal(); lookUp(viewArg.slice(0, 60)); }
     else { ai.replaceChildren(...mineList()); setTimeout(() => input.focus(), 50); }
+    return wrap;
+  }
+
+  // ---------- Tomo, the chat partner ----------
+  // Unscripted typed (or spoken) conversation with an AI partner, through the same checker as Write it yourself.
+  // Tomo keeps to words the learner has met (knownSet) plus the odd new one, reacts and asks follow-ups, moves to a
+  // new topic every TOMO_SWITCH replies, and says a wrong line back correctly (a recast) without stopping the chat.
+  // Nothing here is marked or gates progress. Open chat lives in Learn (kept per learner on this device,
+  // naucimo.tomo.<id>); once the first milestone is done, the daily lesson has a short exchange of TOMO_TURNS replies.
+  const TOMO_KEY = "naucimo.tomo.", TOMO_TURNS = 3, TOMO_SWITCH = 5;
+  const TOMO_TOPICS = {
+    adult: ["your day", "family", "food you like", "the weekend", "work", "the weather", "the sea and summer", "your home", "your town", "hobbies", "Croatia"],
+    kid: ["animals", "colours", "food", "family", "games", "school", "the sea", "pets"] };
+  const tomoMem = {}; // the open chat per learner, so a reply still on its way lands in the chat after leaving and coming back
+  function tomoLoad(p) {
+    if (tomoMem[p.id]) return tomoMem[p.id];
+    let c = null;
+    try { c = JSON.parse(localStorage.getItem(TOMO_KEY + p.id)); } catch {}
+    return (tomoMem[p.id] = c && Array.isArray(c.msgs) ? c : tomoNew(p));
+  }
+  const tomoNew = (p, topic) => ({ msgs: [], topic: topic || tomoTopic(p), since: 0 });
+  function tomoSave(p, c) {
+    try { localStorage.setItem(TOMO_KEY + p.id, JSON.stringify({ msgs: c.msgs.slice(-40), topic: c.topic, since: c.since })); } catch {}
+  }
+  function tomoTopic(p, not) {
+    const kid = p.kind === "kid", learned = (kid ? KID_ORDER : ADULT_ORDER).map(id => TOPIC[id]).filter(t => t && !t.core && t.ids.some(id => p.srs?.[id])).map(t => t.en.toLowerCase());
+    return sample([...new Set([...learned, ...TOMO_TOPICS[kid ? "kid" : "adult"]])].filter(t => t !== not), 1)[0];
+  }
+  function tomoPrompt(p, c, o) {
+    const kid = p.kind === "kid", units = taughtUnits(p);
+    const known = [...knownSet(p, o.focus || [], units)].slice(0, 700).join(" ");
+    const focus = (o.focus || []).map(id => BY_ID[id]?.hr).filter(Boolean);
+    const hist = c.msgs.slice(-16).map(m => (m.who === "t" ? "Tomo: " : "Learner: ") + m.hr).join("\n");
+    const topic = !c.msgs.length ? `Start the conversation: say hello to ${p.name} and ask an easy question about ${c.topic}.`
+      : o.switchTo ? `In this reply, answer what they said, then move the chat naturally to a new topic: ${o.switchTo}.`
+      : `The topic is ${c.topic}, but follow the learner if they bring up something else.`;
+    return `You are Tomo, ${kid ? "a cheerful young man from Split chatting with a child (about 6 to 10) who is just starting Croatian" : "a friendly man in his thirties from Split chatting with an English-speaking adult who is learning Croatian"}. You are their conversation partner in a language app, not their teacher. Reply with ONLY one minified JSON object, no other text.
+
+Language: standard Croatian as spoken in Croatia (ijekavian; never Serbian or Bosnian forms). Say "ti" to them. Spell with č ć đ š ž.
+Learner: ${p.name}, a beginner (about CEFR A1).${kid ? "" : " Grammar they have had: " + (units.map(g => g.en).join("; ") || "none yet") + "."}
+Words they know (forms they have met): ${known || "only a few greetings"}
+Keep to those words and the most common little words (i, a, ali, je, sam, si, da, ne, to, što, kako, gdje, tko). Use at most ${kid ? "one new word" : "two new words"} per reply, only where the meaning is clear from context, and list each in "new".${focus.length ? "\nToday they learned: " + focus.join(", ") + ". Use one or two of these if it fits." : ""}
+
+Your reply: ${kid ? "one short sentence of at most 8 words, then a very easy question (yes or no, or this or that)" : "one or two short sentences, at most 18 words in all"}. React to what they actually said, as a real person would: agree, be surprised, or share a small detail about your own life (you have a dog called Medo, you like football, fish and the sea, and your sister Ana lives in Zagreb). Then usually ask one simple follow-up question so they have something to answer. Never ask the same question twice, and vary how you ask.
+${topic}
+
+Their last message: if it has a mistake, set "recast" to their own sentence said back correctly, the way a native speaker would say it (keep their words and meaning, change only what is wrong), and "tip" to one short, friendly English sentence about the main mistake. Ignore missing č ć đ š ž, capitals and punctuation${o.spoken ? " (it came through speech recognition)" : ""}. If they wrote in English or mixed in English words, "recast" is how to say it in Croatian and "tip" is "". If it is fine, both are "". Don't correct them inside "reply": just carry on the conversation.
+
+Shape: {"reply":"Croatian","en":"English translation of reply","recast":"","tip":"","new":[["new word as written in reply","English meaning"]],"ideas":[["short Croatian answer","English"]]}
+"ideas": three different short answers the learner could give to your question, using only words they know, ${kid ? "2 to 4" : "3 to 8"} words each.
+${hist ? "\nConversation so far:\n" + hist : ""}`;
+  }
+  function tomoClean(r) {
+    const pairs = (a, n) => (Array.isArray(a) ? a : []).filter(x => Array.isArray(x) && x.length >= 2).slice(0, n).map(([a, b]) => [str(a, 80), str(b, 120)]).filter(x => x[0]);
+    const reply = str(r?.reply, 300);
+    return reply ? { hr: reply, en: str(r.en, 300), recast: str(r.recast, 200), tip: str(r.tip, 200), new: pairs(r.new, 4), ideas: pairs(r.ideas, 3) } : null;
+  }
+  // Tomo's line: tap any word for its meaning; words new to the learner are underlined.
+  function tomoLine(m, k, onTap) {
+    const fresh = Object.fromEntries((m.new || []).map(([w, en]) => [norm(w), en]));
+    const el = h("div", { class: "line" });
+    for (const tok of m.hr.split(/(\s+)/)) {
+      const key = norm(tok), meaning = key && !key.includes(" ") && (fresh[key] || meaningOf(key));
+      if (!meaning) { el.append(tok); continue; }
+      const [, lead, word, tail] = tok.match(/^([^\p{L}]*)(.*?)([^\p{L}]*)$/u);
+      const span = h("span", { class: "w" + (fresh[key] || unknownIn(k, key).length ? " new" : ""), tabindex: 0, role: "button", text: word });
+      const act = () => { document.querySelectorAll(".w.sel").forEach(x => x.classList.remove("sel")); span.classList.add("sel"); onTap(word, meaning); };
+      span.onclick = act; span.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(); } };
+      el.append(lead, span, tail);
+    }
+    return el;
+  }
+  // The chat, shared by the Learn page and the daily lesson. opts: focus (word ids to bring in), turns (replies before
+  // onEnd), onSave(c), onEnd(), onUnavailable().
+  function tomoChat(p, c, opts = {}) {
+    const kid = p.kind === "kid", k = knownSet(p, opts.focus || [], taughtUnits(p)), easy = kid || k.size < 60;
+    const log = h("div", { class: "chat tomo-log" });
+    const gloss = h("div", { class: "gloss", hidden: true });
+    const showGloss = (word, meaning) => { gloss.hidden = false; gloss.replaceChildren(h("div", null, h("b", { text: word }), h("div", { text: meaning })), sayBtn(word)); speak(word); };
+    const status = h("div", { class: "count", "aria-live": "polite" });
+    const ideas = h("div", { class: "tiles tomo-ideas" });
+    const { input, keys } = typeBox("Your reply in Croatian", kid ? "Or type it here" : "Reply in Croatian");
+    input.id = "tomo-in";
+    const send = h("button", { class: "btn primary", type: "submit" }, "Send");
+    const mine = () => c.msgs.filter(m => m.who === "me").length;
+    const lock = on => { [input, send, ...keys.querySelectorAll("button"), ...ideas.querySelectorAll("button")].forEach(b => (b.disabled = on)); };
+    let spoken = false;
+    const bubble = m => {
+      if (m.who === "me") {
+        const said = new Set(norm(m.hr).split(" "));
+        return h("div", { class: "bubble me" }, h("div", { class: "who" }, h("span", { text: p.name })), h("div", { class: "line", text: m.hr }),
+          m.recast ? h("div", { class: "tomo-fix" }, h("div", { class: "who" }, h("span", { text: m.tip ? "Say it like this" : "In Croatian" }),
+            h("button", { class: "minisay", "aria-label": "Play this", onclick: () => speak(m.recast) }, "🔊")),
+            h("div", { class: "fixline" }, m.recast.split(/(\s+)/).map(t => (t.trim() && !said.has(norm(t)) ? h("mark", { text: t }) : t))),
+            m.tip ? h("div", { class: "why" }, h("b", { text: "Why: " }), m.tip) : null) : null);
+      }
+      const en = h("div", { class: "ten", hidden: !easy, text: m.en });
+      return h("div", { class: "bubble" }, h("div", { class: "who" }, h("span", { text: "Tomo" }),
+        h("span", null, m.en ? h("button", { class: "linkbtn tomo-en", onclick: () => (en.hidden = !en.hidden) }, "EN") : null,
+          h("button", { class: "minisay", "aria-label": "Play this line", onclick: () => speak(m.hr) }, "🔊"))),
+        tomoLine(m, k, showGloss), en);
+    };
+    function drawIdeas() {
+      const last = c.msgs[c.msgs.length - 1];
+      ideas.replaceChildren();
+      if (last?.who !== "t" || !last.ideas?.length || (opts.turns && mine() >= opts.turns)) return;
+      const tiles = last.ideas.map(([hr, en]) => h("button", { class: "wtile", type: "button", title: en, onclick: () => (kid ? say(hr) : ((input.value = hr), input.focus())) },
+        hr, kid ? h("small", { class: "tomo-idea-en", text: en }) : null));
+      if (kid) ideas.append(...tiles);
+      else ideas.append(h("button", { class: "linkbtn", type: "button", onclick: () => ideas.replaceChildren(...tiles) }, "💡 Need an idea?"));
+    }
+    function draw() {
+      log.replaceChildren(...c.msgs.map(bubble));
+      drawIdeas();
+      log.lastChild?.scrollIntoView?.({ block: "nearest", behavior: "smooth" });
+    }
+    const ui = { draw, lock, status };
+    c._ui = ui;
+    async function ask(o = {}) {
+      lock(true); ideas.replaceChildren();
+      c._ui.status.replaceChildren(kid ? "Tomo is thinking…" : "Tomo is typing…");
+      const smp = await sampler();
+      if (!smp) {
+        c._ui.status.replaceChildren(h("p", { class: "notice" }, h("b", { text: "Tomo needs the internet" }),
+          navigator.onLine === false ? "You're offline right now." : "He works when this device is signed in with the family email, the same sign-in that syncs progress."));
+        return opts.onUnavailable?.();
+      }
+      const job = smp.json(tomoPrompt(p, c, { focus: opts.focus, spoken, switchTo: o.switchTo }), { modelTier: "default", effort: "low", cache: false }).then(tomoClean);
+      c._wait = job;
+      let r = null, err = null;
+      try { r = await job; if (!r) err = { detail: "the reply was empty" }; } catch (e) { err = e; }
+      c._wait = null;
+      const u = c._ui; // the chat on screen now, which may be a newer copy if the learner left and came back
+      if (err) {
+        u.status.replaceChildren(h("p", { class: "notice" }, err?.code === "rate_limited" ? "Tomo is busy right now. Try again in a minute. " : "Tomo's reply didn't come back. ",
+          h("button", { class: "linkbtn", onclick: () => ask(o) }, "Try again"), err?.detail ? h("small", { class: "count", text: " Details: " + err.detail }) : null));
+        if (opts.onUnavailable && !c.msgs.length) opts.onUnavailable();
+        return;
+      }
+      const last = c.msgs[c.msgs.length - 1];
+      if (last?.who === "me") {
+        last.recast = r.recast && norm(r.recast) !== norm(last.hr) ? r.recast : "";
+        last.tip = last.recast ? r.tip : "";
+      }
+      c.msgs.push({ who: "t", hr: r.hr, en: r.en, new: r.new, ideas: r.ideas });
+      opts.onSave?.(c);
+      u.status.replaceChildren(); u.lock(false); u.draw();
+      if (voiceKind === "hr" || voiceKind === "near" || hasClip(r.hr)) speak(r.hr);
+      if (opts.turns && mine() >= opts.turns) { u.lock(true); return opts.onEnd?.(); }
+      if (!kid && u === ui) input.focus({ preventScroll: true });
+    }
+    function say(text) {
+      text = text.trim().slice(0, 200);
+      if (!text || c._wait) return;
+      c.msgs.push({ who: "me", hr: text });
+      input.value = "";
+      const cur = me(); // the synced copy, which may be newer than p
+      if (cur?.id === p.id) { cur.tomo = { n: (cur.tomo?.n || 0) + 1, day: today() }; saveProfile(cur); }
+      let switchTo = null;
+      if (++c.since >= TOMO_SWITCH) { switchTo = c.topic = tomoTopic(p, c.topic); c.since = 0; }
+      opts.onSave?.(c);
+      draw();
+      ask({ switchTo }).finally(() => { spoken = false; });
+    }
+    const form = h("form", { class: "form tomo-form", onsubmit: e => { e.preventDefault(); if (!input.value.trim()) return input.focus(); say(input.value); } },
+      input, h("div", { class: "row" }, keys, send));
+    const box = h("div", { class: "tomo" }, log, status, ideas, form);
+    if (!micBlocked) {
+      const mic = h("button", { class: "btn ghost", type: "button" }, "🎙️ Say it");
+      mic.onclick = () => { if (c._wait) return; listenOnce(status, alts => { status.replaceChildren(); spoken = true; say(alts[0]); }, () => { mic.remove(); status.textContent = "The microphone isn't available here, so type your reply."; }); };
+      box.append(h("div", { class: "row center" }, mic));
+    }
+    box.append(gloss);
+    draw();
+    if (c._wait) { lock(true); status.replaceChildren("Tomo is typing…"); }
+    else if (!c.msgs.length || c.msgs[c.msgs.length - 1].who === "me") ask();
+    else if (opts.turns && mine() >= opts.turns) opts.onEnd?.();
+    return box;
+  }
+  function viewTomo() {
+    const p = me(), kid = isKid();
+    const wrap = h("main", { class: "wrap" }, subhead("Tomo", kid ? "Chat with Tomo" : "Free chat in Croatian"));
+    if (!p) return wrap.append(h("p", { class: "notice", text: "Add a learner first." })), wrap;
+    const c = tomoLoad(p);
+    if (!c.msgs.length) wrap.append(h("p", { class: "notice" }, h("b", { text: kid ? "Tomo is from Split. Say hello!" : "Tomo is a chat partner from Split" }),
+      kid ? "Tap an answer, or type your own. Tap any word to hear what it means."
+        : "He sticks to words you know, with the odd new one underlined: tap any word for its meaning. Make mistakes freely. He'll show you how a Croatian would say it and keep talking. Nothing here is marked."));
+    wrap.append(tomoChat(p, c, { onSave: c => tomoSave(p, c) }),
+      h("div", { class: "row" }, h("button", { class: "linkbtn", onclick: () => { if (c._wait) return; tomoSave(p, (tomoMem[p.id] = tomoNew(p, tomoTopic(p, c.topic)))); render(); } }, "Start a new chat")));
+    if (!kid) wrap.append(h("p", { class: "count dict-warn" }, ic("hint"), "Tomo is AI and can get things wrong now and then. When it matters, check with a Croatian speaker."));
     return wrap;
   }
 
@@ -1517,6 +1725,8 @@ If it is not a real word, or you can't translate it, reply {"entries":[]}.`;
     const p = me(), kid = isKid(), nd = nextDialogue(p);
     const wrap = h("main", { class: "wrap" }, subhead("Razgovori", kid ? "Little conversations" : "Conversations · listen first, then take a part"));
     if (!kid) wrap.append(h("p", { class: "notice", text: "Each scene uses words from the course. Start with the one marked Up next: you'll already know most of its words, and you can work out the rest from context." }));
+    wrap.append(h("button", { class: "prow", style: "text-align:left", onclick: () => go("tomo") }, h("span", { class: "tomo-av" }, ic("chat")),
+      h("div", { class: "meta" }, h("b", { text: "Tomo" }), h("small", { text: kid ? "Chat with a friend from Split" : "Free chat: no script, just words you know" }))));
     wrap.append(h("div", { class: "plist" }, dialogueList().map(d => {
       const done = (p?.dlg || {})[d.id];
       return h("button", { class: "prow", style: "text-align:left", onclick: () => go("dialogue", d.id) },
@@ -1681,6 +1891,8 @@ If it is not a real word, or you can't translate it, reply {"entries":[]}.`;
         "Pronunciation has ear drills for sounds English merges (č/ć, s/š, z/ž, l/lj, n/nj) and for words that differ by one sound, like kosa and koza. Every recording has a slow version."],
       ["Output and interaction", "Trying to say things, and getting feedback, makes you test what you know.",
         "In conversations you take a part: the other voice speaks, you pick your reply, then type or say it yourself, then say it from memory. If your line is worded differently but natural, it counts. If it's wrong, you hear it back corrected, as the other person would say it (a recast), with a short reason, instead of just a red X. Where the microphone works, the app listens; otherwise you rate yourself."],
+      ["Unscripted conversation", "Scripted lessons build knowledge, but fluency is understanding and answering in real time when you can't predict what comes next.",
+        "Tomo is an AI chat partner from Split. He talks about whatever comes up, asks follow-up questions and changes the subject now and then, keeping to words you know plus the odd new one you can tap. A wrong line is said back the right way and the chat carries on. Once you finish the first milestone, every daily lesson includes a short chat with him using that day's words; any time, Learn has open chat. It's never marked, because AI can misjudge."],
       ["Spaced repetition", "Short sessions spread over days beat cramming, and getting something right inside a lesson mostly shows short-term memory, not learning.",
         "Today's lesson opens by asking for yesterday's words and grammar from memory before you see them, and ends by asking for today's new words again after the grammar has pushed them out of short-term memory. New words only unlock when everything from the last lesson comes back, a grammar point moves on only after two clean days and comes back as a check-up of fresh sentences three, seven and 21 days later (a miss sends it back into the lesson), and there's one lesson a day, because the overnight gap is part of the method. Words, conversation lines and grammar units come back on a schedule that stretches each time you remember them. The daily goal is small on purpose."],
       ["From knowing to doing", "Fluency is when rules stop being facts you remember and become habits.",
@@ -1871,7 +2083,7 @@ If it is not a real word, or you can't translate it, reply {"entries":[]}.`;
     if (o.t === "story") { e.s = STORY[String(o.w).slice(6)]; if (!e.s) throw 0; }
     if (o.t === "quick") e.ids = (e.ids || []).filter(id => BY_ID[id]);
     if (o.t === "write") e.w = { id: o.w, hr: o.ref, en: o.en };
-    else if (["rule", "gate", "story", "quick", "chart"].includes(o.t)) e.w = { id: o.w, hr: "", en: "" };
+    else if (["rule", "gate", "story", "quick", "chart", "tomo"].includes(o.t)) e.w = { id: o.w, hr: "", en: "" };
     else { e.w = BY_ID[o.w]; if (!e.w) throw 0; }
     return e;
   }
@@ -1914,6 +2126,8 @@ If it is not a real word, or you can't translate it, reply {"entries":[]}.`;
     if (st) add("Story", [{ type: "story", s: st.s, again: st.again, un: st.again ? [] : st.un, w: { id: "story:" + st.s.id, hr: "", en: "" } }]);
     const qp = quickPool(p);
     if (qp.length >= 6) add("Quick round", [{ type: "quick", ids: qp, w: { id: "quick", hr: "", en: "" } }]);
+    // Unscripted conversation once the first milestone is done (enough words to say something). Not marked.
+    if (courseProgress(p).done >= 1) add("Chat with Tomo", [{ type: "tomo", w: { id: "tomo", hr: "", en: "" } }]);
     if (!kid) add("Write it yourself", writePrompts(p, P, target, new Set([...s.queue, ...q].map(e => norm(e.w?.hr || "")))));
     if (target.length) add("Lock it in", shuffle(dWords(target)).map(recallEx));
     s.queue.push(...q);
@@ -2494,6 +2708,23 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
       if (!qs.length) done();
       stage.append(gloss);
       if (kid) body.play(0.85);
+    },
+    // A few replies to Tomo in the learner's own words, bringing in today's new words. It isn't marked: finishing,
+    // or Tomo being out of reach (offline, not signed in), just moves on.
+    tomo(ex, stage) {
+      const p = me(), kid = isKid(), focus = session.fresh || [], t = TOPIC[BY_ID[focus[0]]?.topic];
+      const next = (msg, xp) => {
+        session.xp += xp;
+        document.querySelectorAll(".sheet").forEach(x => x.remove());
+        app.append(h("div", { class: "sheet" + (xp ? " good" : "") }, h("div", { class: "in" }, xp ? vez() : null, h("div", { class: "msg", text: msg }),
+          h("button", { class: "btn primary", id: "continue", onclick: () => { session.idx++; render(); } }, "Continue"))));
+        $("#continue").focus({ preventScroll: true });
+      };
+      stage.append(h("p", { class: "count", text: kid ? "Answer Tomo " + TOMO_TURNS + " times. Tap an answer or type your own."
+          : "Reply to Tomo " + TOMO_TURNS + " times in your own words. Nothing here is marked: a mistake is just said back the way a Croatian would say it." }),
+        tomoChat(p, tomoNew(p, t && !t.core ? t.en.toLowerCase() : null), { turns: TOMO_TURNS, focus,
+          onEnd: () => setTimeout(() => next(kid ? "Bravo! Super razgovor!" : "Lijepo! Nice chat.", 15), 900),
+          onUnavailable: () => next("Tomo will chat next time.", 0) }));
     },
     // Quick round (fluency): words the learner has known for a while, as fast as they can for a minute. Reading and
     // listening alternate; kids hear the word and tap its picture. Misses cost nothing and only the score is kept.
