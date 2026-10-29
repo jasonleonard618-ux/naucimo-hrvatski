@@ -942,10 +942,10 @@ body.kid .opt { font-size: 1.25rem; }
   const COURSE_MILESTONES = {
     adult: [
       { hr: "Pozdrav", en: "Hello", topics: ["greet", "core1", "family", "core2"], grammar: ["biti", "present"] },
-      { hr: "Brojevi i pitanja", en: "Numbers and questions", topics: ["numbers", "core3", "phrases", "core4", "questions"], grammar: ["gender", "neg"] },
+      { hr: "Brojevi i pitanja", en: "Numbers and questions", topics: ["numbers", "core3", "phrases", "core4", "questions"], grammar: ["stems", "gender", "neg"] },
       { hr: "Svaki dan", en: "Every day", topics: ["verbs", "core5", "food", "time", "core6"], grammar: ["acc", "loc"] },
       { hr: "U gradu", en: "Around town", topics: ["home", "town", "describe", "body"], grammar: ["numbers", "past"] },
-      { hr: "Svijet oko nas", en: "The world around us", topics: ["nature", "colours", "animals", "clothes", "play"], grammar: ["future"] }],
+      { hr: "Svijet oko nas", en: "The world around us", topics: ["nature", "colours", "animals", "clothes", "play"], grammar: ["future", "aspect"] }],
     kid: [
       { hr: "Bok i boje", en: "Hello and colours", topics: ["greet", "colours", "numbers"], grammar: [] },
       { hr: "Životinje i obitelj", en: "Animals and family", topics: ["animals", "family"], grammar: [] },
@@ -2151,9 +2151,11 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
     const k = new Set(), addText = t => norm(t).split(" ").forEach(x => x && k.add(x));
     for (const id of [...Object.keys(p.srs || {}), ...extraIds]) if (BY_ID[id]) addText(BY_ID[id].hr);
     for (const g of units) for (const r of g.table.rows) r.forEach(c => addText(String(c).replace(/[()\/→]/g, " ")));
-    for (const g of units) for (const st of g.steps) if (!st.o) st.f.forEach(f => addText(f.a));
+    for (const g of units) for (const st of g.steps) if (!st.o) st.f.forEach(f => (!f.u || units.some(u => u.id === f.u)) && addText(f.a));
     return k;
   }
+  // An item marked u: "<unit>" (a present-tense drill that needs a stem from the "stems" unit, say) waits until that unit has started.
+  const unitReady = id => !id || taughtUnits(me() || {}).some(g => g.id === id);
   const unknownIn = (k, text) => norm(text).split(" ").filter(t => t && !k.has(t) && !(LEX[t] && LEX[t][1] !== "*" && k.has(norm(LEX[t][1]))));
   const unitsFor = (p, unit) => [...new Set([...taughtUnits(p), unit].filter(Boolean))];
   // Fill-in drills with only known words come first; if a unit has too few, the rest show the meaning of any new word.
@@ -2164,7 +2166,7 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
   const seenOn = id => me()?.gseen?.[id] ?? -1;
   const gapsOf = (g, n, typed, k, avoid) => {
     const all = shuffle(g.drills.map((d, i) => ({ i, d, id: "g:" + g.id + ":" + i, un: k ? unknownIn(k, fullOf(d).replace(d.a, "")) : [] })))
-      .map(x => ({ ...x, seen: seenOn(x.id), voiced: !hasAudio || hasClip(fullOf(x.d)) }));
+      .filter(x => unitReady(x.d.u)).map(x => ({ ...x, seen: seenOn(x.id), voiced: !hasAudio || hasClip(fullOf(x.d)) }));
     let pool = all.filter(x => !avoid?.has(x.id));
     if (pool.length < n) pool = all;
     pool.sort((a, b) => cost(a.un) - cost(b.un) || a.seen - b.seen || b.voiced - a.voiced);
@@ -2178,7 +2180,7 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
     const f = g.steps[k].f[i];
     return { type: "form", g, k, f, w: { id: "g:" + g.id + ":f" + k + "." + i, hr: f.a, en: f.en || "" } };
   };
-  const formsOf = (g, k, n) => shuffle(g.steps[k].f.map((_, i) => formItem(g, k, i))).sort((a, b) => seenOn(a.w.id) - seenOn(b.w.id)).slice(0, n);
+  const formsOf = (g, k, n) => shuffle(g.steps[k].f.flatMap((f, i) => unitReady(f.u) ? [formItem(g, k, i)] : [])).sort((a, b) => seenOn(a.w.id) - seenOn(b.w.id)).slice(0, n);
   // One form from each step (up to n), for days after the rule has been taught.
   const mixedForms = (g, n) => shuffle(g.steps.map((_, k) => formsOf(g, k, 1)[0])).slice(0, n);
   // The first time: each step of the rule, then two forms of just that step. Later: forms from memory.
@@ -2319,7 +2321,7 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
   // (used: normalised texts) are left out while there are others.
   function writePrompts(p, P, target, used) {
     const units = unitsFor(p, P.unit), k = knownSet(p, target, units), ok = t => !unknownIn(k, t).length;
-    const own = g => [...(g.write || []).map(([en, ref]) => ({ en, ref, tier: 0 })), ...g.drills.map(d => ({ en: d.en, ref: fullOf(d), tier: 1 }))];
+    const own = g => [...(g.write || []).filter(w => unitReady(w[2])).map(([en, ref]) => ({ en, ref, tier: 0 })), ...g.drills.filter(d => unitReady(d.u)).map(d => ({ en: d.en, ref: fullOf(d), tier: 1 }))];
     const learned = Object.keys(p.srs).map(id => BY_ID[id]).filter(Boolean);
     const lines = learned.filter(w => w.line && (!DLG[w.topic.slice(2)]?.grammar || units.some(g => g.id === DLG[w.topic.slice(2)].grammar))).map(w => ({ en: w.en, ref: w.hr, tier: 0 }));
     const phrases = learned.filter(w => !w.line && !w.mine && norm(w.hr).split(" ").length >= 3).map(w => ({ en: w.en, ref: w.hr, tier: 1 }));
@@ -2454,7 +2456,7 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
     render();
   }
   function startGrammar(g, speed) {
-    const items = g.drills.map((_, i) => gapItem(g, i));
+    const items = g.drills.flatMap((d, i) => unitReady(d.u) ? [gapItem(g, i)] : []);
     const q = speed ? sample(items, 8).map(x => ({ type: "gap", timed: 7000, ...x }))
       : [...shuffle(items).map(x => ({ type: "gap", ...x })), ...sample(items, 4).map(x => ({ type: "gaptype", ...x }))];
     session = { kind: speed ? "speed" : "grammar", title: speed ? "Speed round" : g.hr, unit: g.id, queue: q, idx: 0, right: 0, xp: 0, wrong: {},
@@ -2763,7 +2765,7 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
       const st = ex.g.steps[ex.k], f = ex.f, choices = f.o || st.o;
       const done = (ok, detail, opts = {}) => answer(ex, ok, detail, { ...opts, silent: !hasClip(f.a) });
       const miss = shown => h("span", null, shown, h("b", { text: f.a }), whyLine(ex));
-      stage.append(h("div", { class: "prompt-label", text: "Build the form · " + st.ask }), h("div", { class: "big", text: f.q }), f.en ? h("div", { class: "hint", text: f.en }) : null);
+      stage.append(h("div", { class: "prompt-label", text: "Build the form · " + st.ask }), h("div", { class: "big", text: f.q }), ...(f.en ? [h("div", { class: "hint", text: f.en })] : []));
       if (choices) return choiceList(stage, f.o ? shuffle(choices) : choices, x => x, x => x === f.a, ok => done(ok, ok ? null : miss("Correct: ")));
       const { input, keys } = typeBox("Your answer", "Type the answer");
       const check = h("button", { class: "btn primary", type: "submit" }, "Check");
