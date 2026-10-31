@@ -365,6 +365,13 @@ textarea.typebox:focus { box-shadow: inset 0 0 0 1px var(--ink); border-color: v
 .tiles.answer { border-bottom: 1.5px solid var(--line); padding-bottom: 10px; }
 .wtile { border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 8px 14px; font-family: var(--font-display); font-weight: 450; font-size: 1.15rem; min-height: 44px; }
 .wtile:disabled { opacity: .3; }
+.oath-full { font-family: var(--font-display); font-size: 1.3rem; line-height: 1.5; margin: 6px 0; }
+.oath-intro { display: grid; gap: 10px; }
+.oath-line { max-width: 100%; justify-self: stretch; }
+.oath-stage { display: grid; gap: 12px; }
+.oath-done { display: grid; gap: 2px; font-family: var(--font-display); font-size: 1.05rem; }
+.oath-done .miss { color: var(--muted); }
+.oath-notes { margin: 0; padding-left: 18px; display: grid; gap: 8px; }
 .gapline { font-family: var(--font-display); font-weight: 380; font-size: clamp(1.6rem, 7vw, 2.2rem); letter-spacing: -.02em; line-height: 1.3; }
 .gapline .gap { display: inline-block; min-width: 2.4em; border-bottom: 2px solid var(--ink); text-align: center; color: var(--terra); }
 .hint { color: var(--muted); font-weight: 500; }
@@ -513,6 +520,7 @@ body.kid .opt { font-size: 1.25rem; }
 
 <script src="content.js"></script>
 <script src="lessons.js"></script>
+<script src="oath.js"></script>
 <script src="audio-packs.js"></script>
 <script src="landmarks.js"></script>
 <script src="pics.js"></script>
@@ -620,10 +628,11 @@ body.kid .opt { font-size: 1.25rem; }
     dict: "M6 3.5h12.5v17H6a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2zM4 18.5a2 2 0 0 1 2-2h12.5M9 8h6M9 11h4",
     chat: "M3 4.5h12v8H8l-4 3v-3H3zM18 8.5h3v8h-1.5v3l-3.5-3h-5.5v-2.5",
     flag: "M5.5 21V4M5.5 4.5h12l-2.5 4 2.5 4h-12",
+    oath: "M12 3.5l7 2.8v5.2c0 4.3-2.9 7.6-7 9-4.1-1.4-7-4.7-7-9V6.3zM9 12l2 2 4-4.5",
   };
   const UI_EMOJI = { "🔊": "speaker", "🐢": "slow", "✓": "check", "✅": "check", "✕": "close", "←": "back", "→": "next", "▶": "play", "📅": "play", "🔁": "recall", "💬": "talk", "📐": "grammar",
     "🎧": "headphones", "🧩": "puzzle", "🗣": "mic", "🔤": "abc", "📖": "story", "✍": "pen", "👂": "ear", "⚡": "bolt", "💡": "hint", "🎙": "mic", "⭐": "star", "🌟": "star",
-    "🔓": "unlock", "📷": "camera", "🧑": "person", "🧒": "child", "🗨": "chat" };
+    "🔓": "unlock", "📷": "camera", "🧑": "person", "🧒": "child", "🗨": "chat", "🛡": "oath" };
   const UI_RE = new RegExp("(" + [...Object.keys(UI_EMOJI), "🔥"].join("|") + ")\uFE0F? ?", "u");
   const LEAD_EMOJI = /^(?:\p{Extended_Pictographic}(?:\uFE0F|\u20E3|\u200D\p{Extended_Pictographic}|\p{Emoji_Modifier})*|[0-9#*]\uFE0F?\u20E3)+/u;
   const svgEl = html => { const t = document.createElement("template"); t.innerHTML = html; return t.content.firstChild; };
@@ -1033,12 +1042,12 @@ body.kid .opt { font-size: 1.25rem; }
     app.replaceChildren();
     if (session) return renderSession();
     const fn = { home: viewHome, learn: viewLearn, family: viewFamily, topic: viewTopic, profiles: viewProfiles, reading: viewReading, story: viewStory, alphabet: viewAlphabet,
-      talk: viewTalk, dialogue: viewDialogue, grammar: viewGrammar, unit: viewUnit, sounds: viewSounds, sound: viewSound, method: viewMethod, journey: viewJourney, dict: viewDict, tomo: viewTomo, tomocheck: viewTomoCheck }[view] || viewHome;
+      talk: viewTalk, dialogue: viewDialogue, grammar: viewGrammar, unit: viewUnit, sounds: viewSounds, sound: viewSound, method: viewMethod, journey: viewJourney, dict: viewDict, tomo: viewTomo, tomocheck: viewTomoCheck, oath: viewOath }[view] || viewHome;
     app.append(fn(), tabBar());
   }
 
   // Floating tab bar. Every non-session view belongs to one tab; kids get no separate Talk tab (conversations live under Pictures).
-  const TAB_OF = { home: "home", learn: "learn", dict: "learn", topic: "learn", reading: "learn", story: "learn", alphabet: "learn", grammar: "learn", unit: "learn", sounds: "learn", sound: "learn",
+  const TAB_OF = { home: "home", learn: "learn", dict: "learn", oath: "learn", topic: "learn", reading: "learn", story: "learn", alphabet: "learn", grammar: "learn", unit: "learn", sounds: "learn", sound: "learn",
     talk: "talk", dialogue: "talk", tomo: "talk", family: "family", profiles: "family", method: "family", tomocheck: "family" };
   const tabOf = v => { const t = TAB_OF[v] || "home"; return t === "talk" && isKid() ? "learn" : t; };
   const ICON = {
@@ -1178,7 +1187,8 @@ body.kid .opt { font-size: 1.25rem; }
          ["✍️", "Writing", "Type it in Croatian", () => startPractice("type")],
          ["📖", "Reading", "Stories with tap-to-translate", () => go("reading")],
          ["🧩", "Memory match", "A quick picture game", () => startMatch()],
-         ["🔤", "Alphabet", "Letters and their sounds", () => go("alphabet")]];
+         ["🔤", "Alphabet", "Letters and their sounds", () => go("alphabet")],
+         ...(C.oath ? [["🛡", "Citizenship oath", "Prisega, line by line", () => go("oath")]] : [])];
     wrap.append(h("section", null,
       h("div", { class: "section-head" }, h("h2", { text: "Practice" }), h("p", { text: p ? "Uses words you've learned" : "Starts with everyday words" })),
       h("div", { class: "practice" }, tiles.map(([icn, t, s, fn]) => h("button", { class: "tile", onclick: () => { if (!me()) return toast("Add a learner first."); fn(); } }, ic(UI_EMOJI[icn.replace("\uFE0F", "")]), h("b", { text: t }), h("small", { text: s }))))));
@@ -1192,6 +1202,152 @@ body.kid .opt { font-size: 1.25rem; }
           h("span", { class: "count", text: n + " / " + t.ids.length + " learned" }));
       }))));
     if (kid) wrap.append(h("p", { class: "count" }, "Showing the picture topics for kids. ", h("button", { class: "linkbtn", onclick: () => go("profiles") }, "Switch learner")));
+    return wrap;
+  }
+
+  // ---------- citizenship oath ----------
+  // Prisega (oath.js): the oath new citizens say at their ceremony, line by line with meanings and audio, then two drills:
+  // putting each line's words in order, and saying or typing the whole oath from memory, one line at a time.
+  // p.oathF picks the woman's wording (hrvatska državljanka); p.oath = {best, day, runs} is the best from-memory score.
+  const OATH = C.oath;
+  const oathLines = p => OATH.lines.map(([hr, en, words, v]) => (p?.oathF && v?.f ? { hr: v.f[0], en, words: words.slice(0, 4).concat(v.f[1]) } : { hr, en, words }));
+  const oathText = p => oathLines(p).map(l => l.hr).join(" ");
+  function viewOath() {
+    if (!OATH) return viewLearn();
+    const p = me(), lines = oathLines(p), n = lines.length, rec = p?.oath || {};
+    const wrap = h("main", { class: "wrap" }, subhead("Prisega", OATH.en + (rec.best ? " · best from memory: " + rec.best + " of " + n + " lines" : "")));
+    const gloss = h("div", { class: "gloss", hidden: true });
+    const showGloss = (word, meaning) => { gloss.hidden = false; gloss.replaceChildren(h("div", null, h("b", { text: word }), h("div", { text: meaning })), hasClip(word) ? sayBtn(word) : h("span")); };
+    const rows = lines.map(l => {
+      const meanings = Object.fromEntries(l.words.map(([w, m]) => [w.toLowerCase(), m]));
+      const line = h("div", { class: "line" });
+      for (const tok of l.hr.split(/(\s+)/)) {
+        const m = tok.match(/^(.*?)([.,]*)$/), meaning = meanings[m[1].toLowerCase()];
+        if (!meaning) { line.append(tok); continue; }
+        const span = h("span", { class: "w", tabindex: 0, role: "button", text: m[1] });
+        const act = () => { document.querySelectorAll(".w.sel").forEach(x => x.classList.remove("sel")); span.classList.add("sel"); showGloss(m[1], meaning); };
+        span.onclick = act; span.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(); } };
+        line.append(span, m[2]);
+      }
+      return h("div", { class: "bubble oath-line" },
+        h("div", { class: "who" }, h("span"), h("button", { class: "minisay", "aria-label": "Play this line", onclick: () => speak(l.hr) }, "🔊")),
+        line, h("div", { class: "ten", text: l.en }));
+    });
+    let run = 0;
+    async function playAll(rate) {
+      const my = ++run;
+      // The whole oath as one recording when there is one, otherwise line by line.
+      if (hasClip(oathText(p))) { rows.forEach(b => b.classList.add("now")); await speak(oathText(p), rate); rows.forEach(b => b.classList.remove("now")); return; }
+      for (let i = 0; i < n; i++) {
+        rows.forEach((b, j) => b.classList.toggle("now", j === i));
+        const ok = await speak(lines[i].hr, rate);
+        if (!ok || my !== run || !wrap.isConnected) break;
+        await new Promise(r => setTimeout(r, 300));
+      }
+      rows.forEach(b => b.classList.remove("now"));
+    }
+    wrap.append(h("section", { class: "panel oath-intro" },
+      h("div", { class: "kicker", text: OATH.title }),
+      h("p", { class: "oath-full", text: "»" + oathText(p) + "«" }),
+      h("p", { class: "count", text: OATH.how }),
+      p ? h("div", { class: "seg", role: "group", "aria-label": "Wording" },
+        [["", "hrvatski državljanin (man)"], ["f", "hrvatska državljanka (woman)"]].map(([k, t]) => h("button", { type: "button", "aria-pressed": String(!!p.oathF === !!k), onclick: () => { p.oathF = !!k; saveProfile(p); render(); } }, t))) : null));
+    wrap.append(h("div", { class: "actions" },
+      h("button", { class: "btn primary", onclick: () => playAll(0.85) }, "🔊 Play the oath"),
+      h("button", { class: "btn", onclick: () => playAll(0.6) }, "🐢 Slowly")));
+    wrap.append(h("section", { class: "panel", style: "display:grid;gap:12px" },
+      h("h2", { text: "Line by line" }), h("p", { class: "count", text: "Tap a word for its meaning." }), h("div", { class: "chat" }, rows)));
+    const stage = h("section", { class: "panel oath-stage", "aria-live": "polite" });
+    const menu = () => stage.replaceChildren(
+      h("h2", { text: "Practise" }),
+      h("p", { class: "count", text: rec.best === n ? "You've said the whole oath from memory. Keep it fresh with a run every few days." : "Start by putting the words in order, then try it from memory. Hints and mistakes cost nothing here." }),
+      h("div", { class: "actions" },
+        h("button", { class: "btn", onclick: () => orderDrill(0) }, "🧩 Put the words in order"),
+        h("button", { class: "btn primary", onclick: () => memoryDrill() }, "🔁 Say it from memory")));
+    // Each line's words as shuffled tiles, tapped back into order.
+    function orderDrill(i) {
+      if (i >= n) { stage.replaceChildren(h("h2", { text: "Dobro!" }), h("p", { text: "All " + n + " lines in order. Next, try it from memory." }), h("div", { class: "actions" }, h("button", { class: "btn primary", onclick: () => memoryDrill() }, "🔁 Say it from memory"), h("button", { class: "btn", onclick: menu }, "Done"))); return; }
+      const want = lines[i].hr.split(" "), picked = [];
+      const ans = h("div", { class: "tiles answer" }), bank = h("div", { class: "tiles" }), out = h("div");
+      const tiles = shuffle(want.map((w, k) => [w, k])).map(([w]) => {
+        const b = h("button", { class: "wtile", type: "button", text: w.replace(/[.,]$/, "") });
+        b.onclick = () => {
+          b.disabled = true; picked.push(w);
+          ans.append(h("span", { class: "wtile", text: w.replace(/[.,]$/, "") }));
+          if (picked.length < want.length) return;
+          const ok = picked.join(" ") === want.join(" ");
+          if (ok) speak(lines[i].hr);
+          out.replaceChildren(h("p", null, h("b", { text: ok ? "✓ Right. " : "Not quite: " }), ok ? "" : lines[i].hr),
+            h("button", { class: "btn primary", onclick: () => (ok ? orderDrill(i + 1) : orderDrill(i)) }, ok ? "Next line →" : "Try again"));
+        };
+        return b;
+      });
+      bank.append(...tiles);
+      stage.replaceChildren(h("div", { class: "kicker", text: "Line " + (i + 1) + " of " + n }), h("p", { class: "en", text: lines[i].en }), ans, bank, out,
+        h("button", { class: "linkbtn", onclick: menu }, "← Back"));
+    }
+    // The oath line by line from its English, typed or (where the mic works) said. A hint or a near miss still moves on,
+    // but only lines said or typed right without a hint count toward the best score.
+    function memoryDrill() {
+      let i = 0, got = 0;
+      const done = [];
+      const close = (a, b) => lev(loose(a), loose(b)) <= Math.max(1, Math.floor(loose(b).length / 25));
+      const step = () => {
+        if (i >= n) return finish();
+        const target = lines[i].hr;
+        const input = h("input", { type: "text", class: "typebox", autocomplete: "off", autocapitalize: "sentences", spellcheck: "false", "aria-label": "Line " + (i + 1) + " in Croatian" });
+        const keys = h("div", { class: "keys" }, ["č", "ć", "đ", "š", "ž"].map(k => h("button", { class: "key", type: "button", onclick: () => {
+          const a = input.selectionStart ?? input.value.length, b = input.selectionEnd ?? a;
+          input.value = input.value.slice(0, a) + k + input.value.slice(b); input.focus(); input.setSelectionRange(a + 1, a + 1);
+        } }, k)));
+        const out = h("div", { "aria-live": "polite" }), status = h("small", { class: "count" });
+        let hinted = false, answered = false;
+        const result = (ok, heard) => {
+          if (answered) return; answered = true;
+          if (ok && !hinted) got++;
+          done.push([target, ok && !hinted]);
+          form.querySelectorAll("input,button").forEach(b => (b.disabled = true));
+          if (ok) speak(target);
+          const exact = ok && norm(heard) === norm(target);
+          out.replaceChildren(h("p", null, h("b", { text: ok ? (hinted ? "✓ Right, with a hint. " : "✓ Right. ") : "Not quite. " }), exact ? "" : ok ? "Watch the spelling: " : "It's: ", exact ? "" : h("b", { text: target })),
+            h("button", { class: "btn primary", onclick: () => { i++; step(); } }, i + 1 < n ? "Next line →" : "See how you did"));
+        };
+        const form = h("form", { class: "form", onsubmit: e => { e.preventDefault(); const v = input.value.trim(); if (!v) return input.focus(); result(close(v, target), v); } },
+          input, keys,
+          h("div", { class: "row" }, h("button", { class: "btn primary", type: "submit" }, "Check"),
+            !micBlocked ? h("button", { class: "btn", type: "button", onclick: () => listenOnce(status, alts => {
+              const best = alts.reduce((a, b) => (heardGap([b], target) < heardGap([a], target) ? b : a));
+              if (heardGap(alts, target) <= 0.15) result(true, target); else status.textContent = "I heard: " + best + ". Try again, or type it.";
+            }, () => { status.textContent = "The microphone isn't available here, so type it."; }) }, "🎙 Say it") : null,
+            h("button", { class: "linkbtn", type: "button", onclick: e => { hinted = true; e.currentTarget.replaceWith(h("span", { class: "hint", text: target.split(" ").map(w => w[0] + "…").join(" ") })); } }, "💡 Hint"),
+            h("button", { class: "linkbtn", type: "button", onclick: () => { hinted = true; result(false, ""); } }, "Show")),
+          status);
+        stage.replaceChildren(h("div", { class: "kicker", text: "From memory · line " + (i + 1) + " of " + n }),
+          done.length ? h("div", { class: "oath-done" }, done.map(([t, ok]) => h("div", { class: ok ? "" : "miss", text: t }))) : null,
+          h("p", { class: "en", text: lines[i].en }), form, out);
+        input.focus();
+      };
+      const finish = () => {
+        const p = me();
+        if (p) {
+          const fresh = (p.oath || {}).day !== today();
+          p.oath = { best: Math.max(got, (p.oath || {}).best || 0), day: today(), runs: ((p.oath || {}).runs || 0) + 1 };
+          if (fresh) addXp(p, got === n ? 10 : 5);
+          saveProfile(p);
+        }
+        stage.replaceChildren(licitar(), h("h2", { text: got === n ? "Bravo! The whole oath from memory." : got + " of " + n + " lines from memory" }),
+          h("div", { class: "oath-done" }, done.map(([t, ok]) => h("div", { class: ok ? "" : "miss" }, ok ? "✓ " : "· ", t))),
+          h("p", { class: "count", text: got === n ? "Say it out loud once more, slowly, as if at the ceremony." : "The lines in grey needed help. Listen to them once, then try again." }),
+          h("div", { class: "actions" }, h("button", { class: "btn primary", onclick: () => memoryDrill() }, "🔁 Again"), h("button", { class: "btn", onclick: () => render() }, "Done")));
+      };
+      step();
+    }
+    menu();
+    wrap.append(stage);
+    wrap.append(h("section", { class: "panel", style: "display:grid;gap:10px" }, h("h2", { text: "The grammar inside" }),
+      h("ul", { class: "oath-notes" }, OATH.notes.map(([t, x]) => h("li", null, h("b", { text: t }), " " + x)))));
+    wrap.append(h("p", { class: "count" }, "Source: " + OATH.source + ". ", h("a", { href: OATH.link, target: "_blank", rel: "noopener" }, "Official text"),
+      ". Check the wording against the form you're given at the ceremony."), gloss);
     return wrap;
   }
 
