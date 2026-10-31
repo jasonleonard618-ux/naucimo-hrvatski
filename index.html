@@ -503,6 +503,8 @@ body.kid .opt { font-size: 1.25rem; }
 .dict-ex { margin: 0; padding-left: 12px; border-left: 3px solid var(--terra); display: grid; gap: 2px; }
 .dict-ex .hrx { font-family: var(--font-display); font-style: italic; font-size: 1.08rem; }
 .dict-ex .en { font-size: .9rem; }
+.dict-quick { border-color: var(--ink); }
+.stale { opacity: .45; transition: opacity .15s; }
 .dict-warn { display: flex; gap: 8px; align-items: flex-start; }
 .dict-warn .ic { width: 18px; height: 18px; flex: none; margin-top: 1px; }
 .wordrow .p .ic { width: 22px; height: 22px; color: var(--terra); }
@@ -1215,6 +1217,50 @@ body.kid .opt { font-size: 1.25rem; }
     const ws = [...DICT_WORDS, ...TOPIC.mine.ids.map(id => BY_ID[id]).filter(w => me()?.mine?.[w.id])];
     return ws.map(w => [w, score(w)]).filter(x => x[1]).sort((a, b) => b[1] - a[1] || a[0].hr.length - b[0].hr.length).slice(0, 6).map(x => x[0]);
   }
+  // Quick translation: Google Translate's public web endpoint (the one its page widgets use), called straight from the browser.
+  // No key and no sign-in, and it answers in well under a second, so it shows as you type. It gives the main translation and,
+  // for single words, other translations by part of speech. The AI lookup below still adds gender, forms and an example.
+  // Kept on the device (naucimo.quick), so a word looked up once comes back instantly. Fails quietly: the AI lookup still runs.
+  const QUICK_KEY = "naucimo.quick", quickMem = {};
+  const quickCache = () => { try { return JSON.parse(localStorage.getItem(QUICK_KEY)) || {}; } catch { return {}; } };
+  async function quickGet(q, sl, tl) {
+    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 5000);
+    try {
+      const r = await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&dt=bd&dj=1&hl=en&sl=" + sl + "&tl=" + tl + "&q=" + encodeURIComponent(q), { signal: ctl.signal });
+      if (!r.ok) throw new Error("quick " + r.status);
+      return await r.json();
+    } finally { clearTimeout(t); }
+  }
+  async function quickLookup(q) {
+    const key = norm(q);
+    if (quickMem[key]) return quickMem[key];
+    const hit = quickCache()[key];
+    if (hit) return (quickMem[key] = hit.r);
+    // Croatian letters mean Croatian; otherwise let Google tell, and look a Croatian word up the other way round.
+    let from = /[čćđšž]/i.test(q) ? "hr" : "en", j = await quickGet(q, from === "hr" ? "hr" : "auto", from === "hr" ? "en" : "hr");
+    if (from === "en" && /^(hr|bs|sr)$/.test(j?.src || "")) { from = "hr"; j = await quickGet(q, "hr", "en"); }
+    const main = (j?.sentences || []).map(x => x.trans || "").join("").trim();
+    if (!main || norm(main) === key && !(j.dict || []).length) return null;
+    const groups = (j.dict || []).slice(0, 3).map(d => ({ pos: str(d.pos, 20), terms: (d.entry || []).slice(0, 4).map(e => str(e.word, 40)).filter(Boolean) }))
+      .filter(g => g.terms.length);
+    const r = { from, main: main.slice(0, 120), groups };
+    quickMem[key] = r;
+    const c = quickCache(); c[key] = { at: Date.now(), r };
+    for (const k of Object.keys(c).sort((a, b) => c[b].at - c[a].at).slice(300)) delete c[k];
+    try { localStorage.setItem(QUICK_KEY, JSON.stringify(c)); } catch {}
+    return r;
+  }
+  function quickCard(p, q, r) {
+    const e = { hr: r.from === "hr" ? q : r.main, en: r.from === "hr" ? r.main : q, sense: "", pos: r.groups[0]?.pos || "", gender: "", forms: [], ex: "", exEn: "", note: "" };
+    const cw = courseWordFor(e.hr);
+    return h("article", { class: "dict-entry dict-quick" },
+      h("div", { class: "dict-head" },
+        h("div", null, h("div", { class: "kicker", text: "Quick translation" }), h("div", { class: "dict-hr", text: e.hr }), h("div", { class: "en", text: e.en })),
+        cw || hasClip(e.hr) ? sayBtn(e.hr) : null),
+      r.groups.length ? h("dl", { class: "dict-forms" }, r.groups.flatMap(g => [h("dt", { text: g.pos || "also" }), h("dd", { text: g.terms.join(", ") })])) : null,
+      h("p", { class: "count", text: "From Google Translate." + (cw ? " In the course: " + TOPIC[cw.topic].en + "." : "") }),
+      p && !isKid() && e.hr.split(" ").length <= 4 ? h("div", { class: "row" }, reviewBtn(p, () => (cw ? cw.id : "m:" + norm(e.hr)), () => (cw ? cw.id : addMineWord(p, e)))) : null);
+  }
   const DICT_KEY = "naucimo.dict";
   const dictCache = () => { try { return JSON.parse(localStorage.getItem(DICT_KEY)) || {}; } catch { return {}; } };
   function dictRemember(q, entries) {
@@ -1286,8 +1332,17 @@ If it is not a real word, or you can't translate it, reply {"entries":[]}.`;
     const p = me();
     const wrap = h("main", { class: "wrap" }, subhead("Rječnik", "Dictionary · English to Croatian"));
     const input = h("input", { type: "search", class: "dict-q", placeholder: "Type an English word", autocomplete: "off", autocapitalize: "off", spellcheck: "false", enterkeyhint: "search", "aria-label": "Word to look up", value: viewArg || "" });
-    const local = h("section"), ai = h("section", { "aria-live": "polite" });
-    let seq = 0;
+    const local = h("section"), quick = h("section", { "aria-live": "polite" }), ai = h("section", { "aria-live": "polite" });
+    let seq = 0, qseq = 0, qtimer = 0;
+    // The quick translation comes up as you type (after a short pause) and straight away on Look up.
+    async function showQuick(q) {
+      const my = ++qseq; clearTimeout(qtimer);
+      if (q.length < 2 || navigator.onLine === false) return quick.replaceChildren();
+      const r = await quickLookup(q.slice(0, 60)).catch(() => null);
+      if (my !== qseq) return;
+      quick.classList.remove("stale");
+      quick.replaceChildren(...(r ? [quickCard(p, q.slice(0, 60), r)] : []));
+    }
     const showLocal = () => {
       const q = input.value.trim(), hits = dictLocal(q);
       local.replaceChildren(...(hits.length ? [h("div", { class: "section-head" }, h("h2", { text: "In your course" }), h("p", { text: "Works offline" })),
@@ -1306,19 +1361,24 @@ If it is not a real word, or you can't translate it, reply {"entries":[]}.`;
             h("button", { class: "say", "aria-label": "Remove " + w.hr, onclick: () => { delete p.mine[id]; delete p.srs[id]; saveProfile(p); render(); } }, ic("close")));
         }))];
     };
-    async function lookUp(q) {
+    async function lookUp(q, quickDone) {
       const my = ++seq, key = norm(q);
       const show = (entries, from) => {
         if (my !== seq) return;
-        ai.replaceChildren(h("div", { class: "section-head" }, h("h2", { text: "Dictionary" }), h("p", { text: from })),
+        if (!entries.length && quick.childElementCount) return ai.replaceChildren();
+        ai.replaceChildren(h("div", { class: "section-head" }, h("h2", { text: "Forms and example" }), h("p", { text: from })),
           entries.length ? h("div", { class: "dict-list" }, entries.map(e => dictEntry(p, e))) : h("p", { class: "notice", text: "No Croatian word found for “" + q + "”. Check the spelling, or try a simpler word." }),
           entries.length ? h("p", { class: "count dict-warn" }, ic("hint"), "Answers outside the course come from AI and may contain mistakes. When it matters, check with a Croatian speaker.") : null);
       };
       const hit = dictCache()[key];
       if (hit) return show(hit.entries, "Looked up before");
-      ai.replaceChildren(h("p", { class: "count", text: "Looking up “" + q + "”…" }));
+      ai.replaceChildren(h("p", { class: "count", text: "Loading forms and an example sentence…" }));
       const smp = await sampler();
       if (my !== seq) return;
+      if (!smp) await quickDone;
+      if (my !== seq) return;
+      if (!smp && quick.childElementCount) return ai.replaceChildren(h("p", { class: "count",
+        text: navigator.onLine === false ? "" : "Sign in with the family email on this device to also see forms and an example sentence." }));
       if (!smp) return ai.replaceChildren(h("p", { class: "notice" }, h("b", { text: "Words outside the course need the online dictionary" }),
         navigator.onLine === false ? "You're offline. Course words above still work." : "It works when this device is signed in with the family email, the same sign-in that syncs progress. Course words above work any time."));
       try {
@@ -1336,11 +1396,15 @@ If it is not a real word, or you can't translate it, reply {"entries":[]}.`;
       e.preventDefault();
       const q = input.value.trim(); if (!q) return input.focus();
       viewArg = q; input.blur();
-      showLocal(); lookUp(q.slice(0, 60));
+      showLocal(); lookUp(q.slice(0, 60), showQuick(q));
     } }, input, h("button", { class: "btn primary", type: "submit", "aria-label": "Look up" }, ic("search")));
-    input.addEventListener("input", () => { seq++; ai.replaceChildren(...(input.value.trim() ? [] : mineList())); showLocal(); });
-    wrap.append(form, local, ai);
-    if (viewArg) { showLocal(); lookUp(viewArg.slice(0, 60)); }
+    input.addEventListener("input", () => {
+      seq++; ai.replaceChildren(...(input.value.trim() ? [] : mineList())); showLocal();
+      const q = input.value.trim(); qseq++; clearTimeout(qtimer); quick.classList.add("stale");
+      if (q.length < 2) quick.replaceChildren(); else qtimer = setTimeout(() => showQuick(q), 300);
+    });
+    wrap.append(form, quick, local, ai);
+    if (viewArg) { showLocal(); lookUp(viewArg.slice(0, 60), showQuick(viewArg)); }
     else { ai.replaceChildren(...mineList()); setTimeout(() => input.focus(), 50); }
     return wrap;
   }
