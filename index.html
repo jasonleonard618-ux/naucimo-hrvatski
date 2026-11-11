@@ -801,6 +801,9 @@ body.kid .opt { font-size: 1.25rem; }
   }
   // How far the closest guess is from the target, as a share of its length (0 = exactly it).
   const heardGap = (alts, target) => Math.min(...alts.map(a => lev(loose(a), loose(target)) / Math.max(1, loose(target).length)));
+  // Close enough to count: about one slip in four letters, and always one slip, since recognisers mishear short words.
+  const heardClose = (alts, target) => Math.min(...alts.map(a => lev(loose(a), loose(target)))) <= Math.max(1, Math.floor(0.25 * loose(target).length));
+  const heardBest = (alts, target) => alts.reduce((a, b) => (lev(loose(b), loose(target)) < lev(loose(a), loose(target)) ? b : a));
 
   // ---------- storage ----------
   const LS_KEY = "naucimo.v1";
@@ -1098,12 +1101,13 @@ body.kid .opt { font-size: 1.25rem; }
     const steps = [
       P.warm.length ? ["recall", "Remember last time: " + P.warm.length + " words" + (P.warmUnit ? " + " + unitName(P.warmUnit) : "") + ". New words unlock only if all of them come back."] : null,
       P.due.length || P.units.length ? ["cards", "Review: " + (P.due.length ? P.due.length + " cards, English to Croatian" : "") + (P.units.length ? (P.due.length ? " + " : "") + unitName(GRAM[P.units[0]]) : "")] : null,
-      P.fresh.length ? ["spark", P.warm.length ? "Then either relearn what you missed, or " + P.fresh.length + " new words from " + P.topic.en : "New: " + P.fresh.length + " words from " + P.topic.en] : null,
+      P.fresh.length ? ["spark", (P.warm.length ? "Then either relearn what you missed, or " + P.fresh.length + " new words from " + P.topic.en : "New: " + P.fresh.length + " words from " + P.topic.en) + ", each said out loud"] : null,
       P.check ? ["recall", "Check-up: " + unitName(P.check) + ", five sentences you haven't seen, to see if the rule stuck"] : null,
       P.unit ? ["grammar", "Grammar: " + unitName(P.unit) + (ruleSeen(p, P.unit) ? " (the chart and sentences, typed and timed)" : (planOf(p).reteach || {})[P.unit.id] ? " (back for another look, step by step)" : (p.gram || {})[P.unit.id] ? " (clearer explanation, step by step)" : " (new)")] : null,
       ["story", "A short story to read and listen to, and a one-minute quick round"],
+      P.day >= SCENE_FROM && dialogueList().length ? ["talk", isKid() ? "A little conversation: listen and say your lines" : "Conversation: say your part of a scene out loud"] : null,
       courseProgress(p).done >= 1 ? ["chat", "Chat with Tomo: " + TOMO_TURNS + " replies in your own words, nothing marked"] : null,
-      ["lock", "Lock it in: everything from today again, typed from memory"]].filter(Boolean);
+      ["lock", "Lock it in: everything from today again, from memory, some said out loud"]].filter(Boolean);
     return h("div", { class: "daily" },
       h("div", { class: "boardrow" }, chessboard(steps.length, 0, 0), h("span", { class: "kicker", text: steps.length + " steps" })),
       h("ol", { class: "plan" }, steps.map(([i, t]) => h("li", null, ic(i), h("span", { text: isKid() ? t.replace(", typed from memory", " from memory").replace(", English to Croatian", "") : t })))),
@@ -2263,6 +2267,21 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
   }
   // A chart cell like "-am (čitam)" accepts the ending, the example, or both.
   const cellAnswers = c => { const t = String(c), m = t.match(/^(.*?)\s*\((.*)\)\s*$/); return m ? [t, m[1], m[2]] : [t]; };
+  // The day's conversation (from lesson day 3): your part of one scene, spoken. A scene whose words are mostly known
+  // (SCENE_KNOWN) is said from the English, typed or said, with a recast when it's off ("line"); until then, and always
+  // for kids, you hear each of your lines and say it after the voice ("speak"). Unfinished familiar scenes come first,
+  // then the scene practised longest ago; spoken-from-English scenes swap parts each time (p.scenes: id → {d, n, l}).
+  const SCENE_FROM = 3, SCENE_LINES = 4, SCENE_KNOWN = 0.7;
+  function sceneFor(p) {
+    const kid = isKid(), seen = p.scenes || {}, done = d => !!(p.dlg || {})[d.id], last = d => seen[d.id]?.d ?? -1;
+    const all = dialogueList().map(d => ({ d, k: knownShare(p, dialogueText(d)) }));
+    if (!all.length) return null;
+    const x = (!kid && all.find(x => !done(x.d) && x.k >= SCENE_KNOWN)) || all.sort((a, b) => last(a.d) - last(b.d) || done(a.d) - done(b.d))[0];
+    const mode = !kid && x.k >= SCENE_KNOWN ? "line" : "speak", role = mode === "line" && (seen[x.d.id]?.l || 0) % 2 ? "A" : "B";
+    const mine = x.d.lines.map((_, i) => i).filter(i => x.d.lines[i][0] === role && BY_ID[x.d.ids[i]]).slice(0, SCENE_LINES);
+    if (!mine.length) return null;
+    return { d: x.d, role, mode, items: mine.map(i => (mode === "line" ? { type: "line", w: BY_ID[x.d.ids[i]], d: x.d, i } : { type: "speak", w: BY_ID[x.d.ids[i]] })) };
+  }
   function startDaily() {
     const p = me(); if (!p) return;
     if (p.run && resumeDaily(p)) return;
@@ -2286,12 +2305,13 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
   }
   // An unfinished daily lesson is saved on the profile after every question (p.run), so leaving resumes it
   // at the same question instead of counting it as done.
-  const EX_KEYS = ["stage", "once", "retry", "reverse", "dictate", "en", "ref", "gloss", "k", "again", "un", "ids", "cells"];
+  const EX_KEYS = ["stage", "once", "retry", "reverse", "dictate", "en", "ref", "gloss", "k", "again", "un", "ids", "cells", "i"];
   function packEx(e) {
     const o = { t: e.type };
     for (const k of EX_KEYS) if (e[k] !== undefined) o[k] = e[k];
     if (e.g) o.g = e.g.id;
     if (e.w) o.w = e.w.id;
+    if (e.type === "line") o.dl = e.d.id;
     return o;
   }
   function unpackEx(o) {
@@ -2302,6 +2322,7 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
     if (o.t === "rule") { e.g = GRAM[o.g]; if (!e.g || (e.k !== undefined && !e.g.steps[e.k])) throw 0; }
     if (o.t === "chart") { e.g = GRAM[o.g]; if (!e.g || !(e.cells || []).every(([i, j]) => e.g.table.rows[i]?.[j] !== undefined)) throw 0; }
     if (o.t === "story") { e.s = STORY[String(o.w).slice(6)]; if (!e.s) throw 0; }
+    if (o.t === "line") { e.d = DLG[o.dl]; if (!e.d || e.i === undefined) throw 0; }
     if (o.t === "quick") e.ids = (e.ids || []).filter(id => BY_ID[id]);
     if (o.t === "write") e.w = { id: o.w, hr: o.ref, en: o.en };
     else if (["rule", "gate", "story", "quick", "chart", "tomo"].includes(o.t)) e.w = { id: o.w, hr: "", en: "" };
@@ -2313,7 +2334,7 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
     const P = s.plan;
     p.run = { day: s.day, idx: s.idx, q: s.queue.map(packEx), stages: s.stages, wrong: s.wrong, right: s.right, xp: s.xp,
       fresh: s.fresh, relearn: s.relearn, warm: s.warm, review: s.review, unit: s.unit || null, units: s.units, gated: !!s.gated,
-      timed: !!s.timed, speed: s.speed || null, read: s.read || null, quick: s.quick || null,
+      timed: !!s.timed, speed: s.speed || null, read: s.read || null, quick: s.quick || null, scene: s.scene || null,
       plan: { day: P.day, warm: P.warm, warmUnit: P.warmUnit?.id || null, due: P.due, fresh: P.fresh, unit: P.unit?.id || null, check: P.check?.id || null, units: P.units, dlg: P.dlg?.id || null } };
     saveProfile(p);
   }
@@ -2323,8 +2344,8 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
       const P = { ...r.plan, warmUnit: GRAM[r.plan.warmUnit] || null, unit: GRAM[r.plan.unit] || null, check: GRAM[r.plan.check] || null, dlg: DLG[r.plan.dlg] || null };
       session = { kind: "daily", title: "Day " + r.day, day: r.day, plan: P, queue: r.q.map(unpackEx), stages: r.stages, idx: Math.min(r.idx, r.q.length - 1),
         right: r.right, xp: r.xp, wrong: r.wrong || {}, fresh: r.fresh, relearn: r.relearn, review: r.review, warm: r.warm, unit: r.unit || undefined, units: r.units || [], gated: r.gated,
-        timed: r.timed, speed: r.speed || undefined, read: r.read || undefined, quick: r.quick || undefined,
-        next: P.dlg ? ["💬 Use it in a conversation: " + P.dlg.en, () => go("dialogue", P.dlg.id)] : null };
+        timed: r.timed, speed: r.speed || undefined, read: r.read || undefined, quick: r.quick || undefined, scene: r.scene || undefined,
+        next: P.dlg && !r.scene ? ["💬 Use it in a conversation: " + P.dlg.en, () => go("dialogue", P.dlg.id)] : null };
     } catch { delete p.run; saveProfile(p); return false; } // the course changed under it: start fresh
     render();
     return true;
@@ -2338,19 +2359,23 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
     s.fresh = missed.length ? [] : P.fresh;
     const target = [...missed, ...s.fresh];
     const meet = w => kid ? { type: Math.random() < .5 ? "pictap" : "listenpic", w } : { type: "type", dictate: true, w };
+    // Speaking: about one recall in three is answered out loud (adults say it from the English, kids copy the voice).
+    const voiced = list => list.map((e, i) => (i % 3 === 1 ? { type: kid ? "speak" : "sayit", w: e.w } : e));
     if (target.length) {
       add(missed.length ? "Relearn" : "New words", dWords(target).flatMap(w => [{ type: "intro", w }, meet(w)]));
-      add("Practice", shuffle(dWords(target)).map(recallEx));
+      add("Practice", voiced(shuffle(dWords(target)).map(recallEx)));
     }
     if (P.unit) add("Grammar", grammarStage(p, P.unit, 4, knownSet(p, target, unitsFor(p, P.unit)), new Set(s.queue.map(e => e.w?.id))));
     const st = pickStory(p, knownSet(p, target, unitsFor(p, P.unit)));
     if (st) add("Story", [{ type: "story", s: st.s, again: st.again, un: st.again ? [] : st.un, w: { id: "story:" + st.s.id, hr: "", en: "" } }]);
+    const sc = P.day >= SCENE_FROM ? sceneFor(p) : null;
+    if (sc) { add("Conversation", sc.items); s.scene = { id: sc.d.id, role: sc.role, mode: sc.mode }; s.next = null; }
     const qp = quickPool(p);
     if (qp.length >= 6) add("Quick round", [{ type: "quick", ids: qp, w: { id: "quick", hr: "", en: "" } }]);
     // Unscripted conversation once the first milestone is done (enough words to say something). Not marked.
     if (courseProgress(p).done >= 1) add("Chat with Tomo", [{ type: "tomo", w: { id: "tomo", hr: "", en: "" } }]);
     if (!kid) add("Write it yourself", writePrompts(p, P, target, new Set([...s.queue, ...q].map(e => norm(e.w?.hr || "")))));
-    if (target.length) add("Lock it in", shuffle(dWords(target)).map(recallEx));
+    if (target.length) add("Lock it in", voiced(shuffle(dWords(target)).map(recallEx)));
     s.queue.push(...q);
     s.stages = [...new Set(s.queue.map(e => e.stage).filter(Boolean))];
     if (!P.warm.length) return null;
@@ -3015,10 +3040,20 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
     },
     intro(ex, stage) {
       const w = ex.w;
-      stage.append(h("div", { class: "prompt-label", text: "New word" }),
+      stage.append(h("div", { class: "prompt-label", text: "New word · listen, then say it out loud" }),
         h("div", { class: "card" }, w.pic ? h("div", { class: "bigpic", text: w.pic, "aria-hidden": "true" }) : null,
           h("div", { class: "big", text: w.hr }), h("div", { class: "en", text: w.en }), w.note ? h("div", { class: "note", text: w.note }) : null,
           h("div", { class: "row center" }, h("button", { class: "btn", onclick: () => speak(w.hr) }, "🔊 Listen"), h("button", { class: "btn ghost", onclick: () => speak(w.hr, 0.55) }, "🐢 Slowly"))));
+      // Saying a new word the first time it's heard. Not marked: the mic only tells you whether it heard the word.
+      if (!micBlocked) {
+        const status = h("p", { class: "count", "aria-live": "polite" });
+        const mic = h("button", { class: "btn ghost", type: "button" }, "🎙️ Say it");
+        mic.onclick = () => listenOnce(status, alts => {
+          status.textContent = heardClose(alts, w.hr) ? (isKid() ? "Bravo! That sounded right." : "I heard " + heardBest(alts, w.hr) + ". That sounds right.")
+            : "I heard " + heardBest(alts, w.hr) + ". Listen once more and try again.";
+        }, () => { mic.remove(); status.textContent = "The microphone isn't available here. Say it out loud anyway."; });
+        stage.append(h("div", { class: "row center" }, mic), status);
+      }
       const sheet = h("div", { class: "sheet" }, h("div", { class: "in" }, h("button", { class: "btn primary", id: "continue", onclick: () => { session.idx++; render(); } }, "Got it")));
       app.append(sheet);
       speak(w.hr);
@@ -3085,6 +3120,26 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
       } else stage.append(h("div", { class: "prompt-label", text: "Write this in Croatian" }),
         h("div", { class: "row" }, w.pic ? h("span", { style: "font-size:2.4rem", text: w.pic, "aria-hidden": "true" }) : null, h("div", { class: "big", text: w.en })), form, help);
       setTimeout(() => input.focus(), 50);
+    },
+    // Recall out loud: the English, answered by voice. A close hearing counts; three mishearings count as a miss.
+    // Without a microphone (or on "Type it instead") it becomes the typed question.
+    sayit(ex, stage) {
+      if (micBlocked) return EX.type(ex, stage);
+      const w = ex.w, status = h("p", { class: "count", "aria-live": "polite" });
+      let tries = 0;
+      const mic = h("button", { class: "btn primary", type: "button" }, "🎙️ Say it");
+      const typeIt = h("button", { class: "linkbtn", type: "button", onclick: () => { ex.type = "type"; render(); } }, "Type it instead");
+      const done = (ok, detail, opts) => { mic.disabled = typeIt.disabled = true; answer(ex, ok, detail, opts); };
+      mic.onclick = () => listenOnce(status, alts => {
+        const best = heardBest(alts, w.hr);
+        if (heardClose(alts, w.hr)) return ex.hinted ? done(false, helped(w.hr), { msg: "Used a hint" }) : done(true, h("span", null, "I heard: ", h("b", { text: best })));
+        if (++tries < 3) status.textContent = "I heard: " + best + ". Try again, a little slower.";
+        else done(false, h("span", null, "I heard \u201c" + best + "\u201d. It's ", h("b", { text: w.hr })));
+      }, () => render()); // the mic is now off for this visit, so this shows the typed question
+      const help = helpRow(ex, letterHint(w.hr), () => done(false, h("span", null, "Answer: ", h("b", { text: w.hr })), { msg: "Here's the answer" }));
+      stage.append(h("div", { class: "prompt-label", text: "Say it in Croatian, out loud" }),
+        h("div", { class: "row" }, w.pic ? h("span", { style: "font-size:2.4rem", text: w.pic, "aria-hidden": "true" }) : null, h("div", { class: "big", text: w.en })),
+        h("div", { class: "row center" }, mic), status, h("div", { class: "row center" }, typeIt), help);
     },
     speak(ex, stage) {
       const w = ex.w;
@@ -3232,6 +3287,14 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
       if (s.kind === "daily" && s.queue.some(e => e.type === "rule" && e.g?.id === s.unit)) { (p.ruleRev = p.ruleRev || {})[s.unit] = GRAM[s.unit].rev || 1; if (p.plan?.reteach) delete p.plan.reteach[s.unit]; }
     }
     for (const u of s.units || []) { const m = misses("g:" + u + ":"); p.gram[u] = nextState(p.gram[u], m ? (m > 1 ? 0 : 1) : 2); }
+    if (s.kind === "daily" && s.scene && DLG[s.scene.id]) {
+      const sc = s.scene, r = (p.scenes = p.scenes || {})[sc.id] = Object.assign({ n: 0, l: 0 }, p.scenes[sc.id]);
+      r.d = t; r.n++;
+      if (sc.mode === "line") { // said from memory: the scene counts as done and its lines join the review cards
+        r.l++; (p.dlg = p.dlg || {})[sc.id] = true;
+        for (const e of s.queue) if (e.stage === "Conversation" && e.type === "line" && !p.srs[e.w.id]) p.srs[e.w.id] = s.wrong[e.w.id] ? [2.3, 0, t, 0] : [2.5, 1, t + 1, 1];
+      }
+    }
     if (s.kind === "ear") { p.snd = p.snd || {}; p.snd[s.sound] = Math.max(p.snd[s.sound] || 0, s.right / Math.max(1, s.queue.length)); }
   }
   let finishedSession = null;
