@@ -453,6 +453,8 @@ body.kid .opt { font-size: 1.25rem; }
 .prog-road { display: flex; gap: 6px; }
 .prog-lvl { font-size: .72rem; letter-spacing: .08em; font-weight: 600; padding: 2px 10px; border-radius: 999px; background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); color: var(--muted); }
 .prog-lvl.on { background: var(--cta); color: var(--cta-ink); }
+.prog-lvl.soon { opacity: .55; }
+.prog-soon-note { font-size: .72rem; color: var(--muted); align-self: center; margin-left: 4px; }
 .prog-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .prog-pct { font-family: var(--font-display); font-size: 1.8rem; font-weight: 400; font-variant-numeric: tabular-nums; }
 .prog-sub { margin: 0; color: var(--muted); font-size: .9rem; }
@@ -944,6 +946,10 @@ body.kid .opt { font-size: 1.25rem; }
   // The course so far covers about CEFR A1; milestones break it into stretches of two to four weeks so the bar keeps moving.
   const GRAM_WEIGHT = 8;
   const LEVELS = ["A1", "A2", "B1", "B2"];
+  // Levels that have lessons so far. The rest show on the road as "coming later" so nobody reads the road as a promise.
+  const LEVELS_BUILT = ["A1"];
+  const levelSoon = l => !LEVELS_BUILT.includes(l);
+  const soonLabel = () => { const s = LEVELS.filter(levelSoon); return s.length ? (s.length > 1 ? s[0] + " to " + s[s.length - 1] : s[0]) + " coming later" : ""; };
   const COURSE_MILESTONES = {
     adult: [
       { hr: "Pozdrav", en: "Hello", topics: ["greet", "core1", "family", "core2"], grammar: ["biti", "present"] },
@@ -987,7 +993,8 @@ body.kid .opt { font-size: 1.25rem; }
     const m = cp.ms[Math.min(cp.cur, n - 1)];
     return h("section", { class: "panel prog", "aria-label": "Course progress" },
       h("div", { class: "prog-road", "aria-label": "Road to fluency" }, LEVELS.map((l, i) =>
-        h("span", { class: "prog-lvl" + (l === cp.level ? " on" : ""), title: i === LEVELS.length - 1 ? "Fluent" : "", text: l }))),
+        h("span", { class: "prog-lvl" + (l === cp.level ? " on" : "") + (levelSoon(l) ? " soon" : ""), title: (i === LEVELS.length - 1 ? "Fluent. " : "") + (levelSoon(l) ? "Coming later: lessons not written yet" : ""), text: l })),
+        soonLabel() ? h("span", { class: "prog-soon-note", text: soonLabel() }) : null),
       h("div", { class: "prog-head" },
         h("h2", { text: cp.cur < n ? m.hr : cp.level + " complete" }),
         h("span", { class: "prog-pct", text: Math.floor(cp.pct * 100) + "%" })),
@@ -1010,7 +1017,7 @@ body.kid .opt { font-size: 1.25rem; }
       h("h2", { text: "Road to fluency" }),
       h("ol", { class: "prog-levels" }, LEVELS.map((l, i) => h("li", { class: i < L ? "prog-done" : i === L ? "prog-cur" : "" },
         h("b", { text: l }), h("span", { text: LEVEL_INFO[l] }),
-        h("small", { class: "count", text: i === L ? Math.floor(cp.pct * 100) + "% · you are here" : i < L ? "Done" : i === L + 1 ? "Comes after " + cp.level : "Later" })))),
+        h("small", { class: "count", text: i === L ? Math.floor(cp.pct * 100) + "% · you are here" : i < L ? "Done" : levelSoon(l) ? "Coming later · lessons not written yet" : i === L + 1 ? "Comes after " + cp.level : "Later" })))),
       h("div", { class: "prog-bar", role: "progressbar", "aria-label": cp.level + " progress", "aria-valuemin": 0, "aria-valuemax": 100, "aria-valuenow": Math.floor(cp.pct * 100) },
         cp.ms.map((s, i) => h("div", { class: "prog-seg" + (s.done ? " prog-done" : i === cp.cur ? " prog-cur" : ""), style: "flex:" + s.total },
           h("i", { style: "width:" + Math.round(s.pct * 100) + "%" }))))));
