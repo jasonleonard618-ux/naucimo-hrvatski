@@ -614,7 +614,117 @@ window.COURSE = {
       lines: ["Ovo je moje lice.", "Ovo su oči.", "Ovo je nos.", "Ovo su usta.", "I ovo su uši!"],
       pics: ["🙂", "👀", "👃", "👄", "👂"],
       translation: ["This is my face.", "These are eyes.", "This is a nose.", "This is a mouth.", "And these are ears!"],
-      questions: [{ q: "Što je nos?", en: "Which one is the nose?", options: ["👃", "👀", "👂"], answer: 0 }]}
+      questions: [{ q: "Što je nos?", en: "Which one is the nose?", options: ["👃", "👀", "👂"], answer: 0 }]},
+    // More graded stories (2026-11-12) so a new one comes every two or three lessons in the first 40, not just four.
+    { id: "s19", hr: "Oprostite!", en: "Excuse me!", level: "Beginner",
+      lines: ["— Oprostite! Ivan?", "— Ne. Zovem se Marko.", "— Oprostite! Ja sam Ana.", "— Drago mi je, Ana.", "— Drago mi je, Marko. Doviđenja!", "— Doviđenja!"],
+      translation: ["Excuse me! Ivan?", "No. My name is Marko.", "Sorry! I'm Ana.", "Nice to meet you, Ana.", "Nice to meet you, Marko. Goodbye!", "Goodbye!"],
+      questions: [
+        { q: "Kako se zove on?", en: "What is his name?", options: ["Marko", "Ivan", "Luka"], answer: 0 },
+        { q: "Je li on Ivan?", en: "Is he Ivan?", options: ["ne", "da"], answer: 0 }
+      ]},
+    { id: "s20", hr: "Ovo ili to?", en: "This or that?", level: "Beginner",
+      lines: ["— Dobar dan! Izvolite.", "— Dobar dan. Ovo, molim.", "— Ovo ili to?", "— To, molim. I ovo.", "— Još nešto?", "— Ne, samo to. Hvala!", "— Hvala. Doviđenja!"],
+      translation: ["Good afternoon! How can I help?", "Good afternoon. This one, please.", "This one or that one?", "That one, please. And this one.", "Anything else?", "No, just that. Thank you!", "Thank you. Goodbye!"],
+      questions: [
+        { q: "Što uzima kupac?", en: "What does the customer take?", options: ["this one and that one", "only this one", "nothing"], answer: 0 },
+        { q: "Želi li još nešto?", en: "Does the customer want anything else?", options: ["ne", "da"], answer: 0 }
+      ]},
+    { id: "s21", hr: "Ovo je moja mama", en: "This is my mum", level: "Beginner",
+      lines: ["— Bok, Ana! Ovo je moja mama.", "— Dobar dan! Drago mi je.", "— Drago mi je. Kako se zoveš?", "— Zovem se Ivan.", "— A gdje je tata?", "— Tata je tamo."],
+      translation: ["Hi, Ana! This is my mum.", "Good afternoon! Nice to meet you.", "Nice to meet you. What's your name?", "My name is Ivan.", "And where's dad?", "Dad is over there."],
+      questions: [
+        { q: "Kako se zove dečko?", en: "What is the boy called?", options: ["Ivan", "Marko", "Luka"], answer: 0 },
+        { q: "Gdje je tata?", en: "Where is dad?", options: ["tamo", "ovdje"], answer: 0 }
+      ]},
+    { id: "s22", hr: "A ovo?", en: "And this one?", level: "Beginner",
+      lines: ["— Ovo je moja baka, a ovo je moj djed.", "— A ovo?", "— To je moja teta, i to je moj ujak.", "— A dijete?", "— To je moj bratić. On je još dijete.", "— Kao moja obitelj!"],
+      translation: ["This is my grandma, and this is my grandpa.", "And this one?", "That's my aunt, and that's my uncle.", "And the child?", "That's my cousin. He's still a child.", "Like my family!"],
+      questions: [
+        { q: "Tko je dijete?", en: "Who is the child?", options: ["bratić", "ujak", "djed"], answer: 0 },
+        { q: "Tko je s tetom?", en: "Who is with the aunt?", options: ["ujak", "baka", "tata"], answer: 0 }
+      ]},
+    { id: "s23", hr: "Mi i oni", en: "Us and them", level: "Beginner", focus: "biti", marks: ["sam", "je", "smo", "su"],
+      lines: ["Ja sam Ana, a on je Marko.", "Mi smo brat i sestra.", "Ona je moja mama, a on je moj tata.", "Oni su moji roditelji.", "A vi? Kako se zovete?"],
+      translation: ["I'm Ana, and he's Marko.", "We're brother and sister.", "She's my mum, and he's my dad.", "They're my parents.", "And you? What are your names?"],
+      questions: [
+        { q: "Tko je Marko?", en: "Who is Marko?", options: ["Ana's brother", "Ana's dad", "Ana's uncle"], answer: 0 },
+        { q: "Tko su oni?", en: "Who are 'they'?", options: ["parents", "grandparents", "children"], answer: 0 }
+      ]},
+    { id: "s24", hr: "Netko je tamo!", en: "Someone's there!", level: "Beginner",
+      lines: ["— Mama, tamo je netko!", "— Ne, tamo nije nitko.", "— Ali tamo je nešto!", "— Ništa. To je samo tata!", "— Bok, tata!"],
+      translation: ["Mum, someone's there!", "No, there's nobody there.", "But there's something there!", "It's nothing. It's just dad!", "Hi, dad!"],
+      questions: [
+        { q: "Tko je tamo?", en: "Who is there?", options: ["tata", "baka", "nitko"], answer: 0 }
+      ]},
+    { id: "s25", hr: "Samo jedan", en: "Just one", level: "Beginner",
+      lines: ["— Mama, želim kolač!", "— Ne, ne možeš. Već je devet.", "— Samo jedan, molim!", "— Ne. Ne, ne, ne.", "— Ali mama, ja mogu jedan! Samo jedan!", "— Dobro. Samo jedan."],
+      translation: ["Mum, I want a cake!", "No, you can't. It's already nine.", "Just one, please!", "No. No, no, no.", "But mum, I can have one! Just one!", "OK. Just one."],
+      questions: [
+        { q: "Što želi dijete?", en: "What does the child want?", options: ["a cake", "water", "to sleep"], answer: 0 },
+        { q: "Koliko je sati?", en: "What time is it?", options: ["devet", "deset", "sedam"], answer: 0 }
+      ]},
+    { id: "s26", hr: "Dođi!", en: "Come here!", level: "Beginner",
+      lines: ["— Marko, dođi!", "— Ne mogu, mama.", "— Daj, dođi ovdje!", "— Ali mama, ja ne mogu!", "— Ovdje je nešto.", "— Nešto? Idem, idem!"],
+      translation: ["Marko, come here!", "I can't, mum.", "Come on, come here!", "But mum, I can't!", "There's something here.", "Something? I'm coming, I'm coming!"],
+      questions: [
+        { q: "Dolazi li Marko na kraju?", en: "Does Marko come in the end?", options: ["da", "ne"], answer: 0 }
+      ]},
+    { id: "s27", hr: "Gdje je zahod?", en: "Where's the toilet?", level: "Beginner",
+      lines: ["— Oprostite, gdje je zahod?", "— Zahod je tamo.", "— Molim? Ne razumijem. Možete li ponoviti, molim?", "— Naravno. Zahod je tamo.", "— Hvala!", "— Nema problema."],
+      translation: ["Excuse me, where's the toilet?", "The toilet is over there.", "Sorry? I don't understand. Could you repeat that, please?", "Of course. The toilet is over there.", "Thanks!", "No problem."],
+      questions: [
+        { q: "Gdje je zahod?", en: "Where is the toilet?", options: ["tamo", "ovdje"], answer: 0 },
+        { q: "Razumije li prvi put?", en: "Does the visitor understand the first time?", options: ["ne", "da"], answer: 0 }
+      ]},
+    { id: "s28", hr: "Umoran sam", en: "I'm tired", level: "Beginner",
+      lines: ["— Dobro jutro, Marko! Kako si?", "— Umoran sam.", "— Već?", "— Da. I gladan sam. I žedan.", "— Polako, polako. Idemo!", "— Može. Sve je u redu."],
+      translation: ["Good morning, Marko! How are you?", "I'm tired.", "Already?", "Yes. And I'm hungry. And thirsty.", "Easy, easy. Let's go!", "OK. Everything's fine."],
+      questions: [
+        { q: "Kako je Marko?", en: "How is Marko?", options: ["tired, hungry and thirsty", "fine", "happy"], answer: 0 },
+        { q: "Koje je doba dana?", en: "What time of day is it?", options: ["morning", "evening", "night"], answer: 0 }
+      ]},
+    { id: "s29", hr: "Baka ima rođendan", en: "Grandma's birthday", level: "Beginner",
+      lines: ["— Bok, Ana! Gdje si?", "— Ja sam kod bake.", "— Kod bake? Zašto?", "— Jer baka ima rođendan!", "— Sretan rođendan, bako!", "— Hvala! A tko je još kod bake?", "— Svi! Mama, tata, teta i ujak."],
+      translation: ["Hi, Ana! Where are you?", "I'm at grandma's.", "At grandma's? Why?", "Because it's grandma's birthday!", "Happy birthday, grandma!", "Thanks! And who else is at grandma's?", "Everyone! Mum, dad, aunt and uncle."],
+      questions: [
+        { q: "Gdje je Ana?", en: "Where is Ana?", options: ["kod bake", "kod tete", "tamo"], answer: 0 },
+        { q: "Tko ima rođendan?", en: "Whose birthday is it?", options: ["baka", "Ana", "ujak"], answer: 0 }
+      ]},
+    { id: "s30", hr: "Tko što radi?", en: "Who's doing what?", level: "Beginner", focus: "present", marks: ["kuh|a", "čit|a", "igr|aju", "gled|a", "spav|am"],
+      lines: ["Tata kuha.", "Mama čita.", "Brat i sestra igraju.", "Baka gleda.", "A ja? Ja spavam!", "Dobro jutro, svi!"],
+      translation: ["Dad is cooking.", "Mum is reading.", "My brother and sister are playing.", "Grandma is watching.", "And me? I'm sleeping!", "Good morning, everyone!"],
+      questions: [
+        { q: "Tko kuha?", en: "Who is cooking?", options: ["tata", "mama", "baka"], answer: 0 },
+        { q: "Što radi pripovjedač?", en: "What is the narrator doing?", options: ["sleeping", "reading", "playing"], answer: 0 }
+      ]},
+    { id: "s31", hr: "Učim puno", en: "I study a lot", level: "Beginner",
+      lines: ["— Govoriš li hrvatski?", "— Malo. Ali učim puno.", "— Stvarno? Ja nikad ne učim.", "— Onda ne govoriš hrvatski.", "— Možda. Ali razumijem jako puno!", "— Bolje je govoriti!"],
+      translation: ["Do you speak Croatian?", "A little. But I study a lot.", "Really? I never study.", "Then you don't speak Croatian.", "Maybe. But I understand a lot!", "Speaking is better!"],
+      questions: [
+        { q: "Tko puno uči?", en: "Who studies a lot?", options: ["the first speaker's friend", "nobody"], answer: 0 },
+        { q: "Što je bolje?", en: "What is better, says the friend?", options: ["speaking", "understanding"], answer: 0 }
+      ]},
+    { id: "k9", hr: "Na farmi", en: "On the farm", level: "Pictures", kids: true,
+      lines: ["Ovo je krava. Mu!", "Ovo je patka. Kva, kva!", "Ovo je kokoš. Kokodak!", "Ovo je pas. Vau, vau!", "Jedan, dva, tri, četiri!"],
+      pics: ["🐄", "🦆", "🐔", "🐶", "4️⃣"],
+      translation: ["This is a cow. Moo!", "This is a duck. Quack, quack!", "This is a hen. Cluck!", "This is a dog. Woof, woof!", "One, two, three, four!"],
+      questions: [{ q: "Tko kaže 'kva, kva'?", en: "Who says 'quack, quack'?", options: ["🦆", "🐄", "🐶"], answer: 0 }]},
+    { id: "k10", hr: "Boje životinja", en: "Animal colours", level: "Pictures", kids: true,
+      lines: ["Žaba je zelena.", "Leptir je žut.", "Slon je siv.", "Lav je smeđ.", "Dupin je siv.", "Koja je tvoja boja?"],
+      pics: ["🐸", "🦋", "🐘", "🦁", "🐬", "🎨"],
+      translation: ["The frog is green.", "The butterfly is yellow.", "The elephant is grey.", "The lion is brown.", "The dolphin is grey.", "Which colour is yours?"],
+      questions: [{ q: "Koje je boje žaba?", en: "What colour is the frog?", options: ["🟢", "🟡", "🔴"], answer: 0 }]},
+    { id: "k11", hr: "Da, molim!", en: "Yes, please!", level: "Pictures", kids: true,
+      lines: ["Jabuka? Ne, hvala.", "Banana? Ne, hvala.", "Kruh i sir? Da, molim!", "Mlijeko? Da, molim!", "Mmm! Hvala, mama!"],
+      pics: ["🍎", "🍌", "🍞🧀", "🥛", "😋"],
+      translation: ["An apple? No, thanks.", "A banana? No, thanks.", "Bread and cheese? Yes, please!", "Milk? Yes, please!", "Mmm! Thanks, mum!"],
+      questions: [{ q: "Što želi dijete?", en: "What does the child want?", options: ["🍞🧀", "🍎", "🍌"], answer: 0 }]},
+    { id: "k12", hr: "Moja soba", en: "My room", level: "Pictures", kids: true,
+      lines: ["Ovo je moja soba.", "Ovo je moj krevet.", "Ovo je moja lopta.", "Ovo je moja knjiga i moja olovka.", "A ovo je moj pas! Vau!"],
+      pics: ["🚪", "🛏️", "⚽", "📕✏️", "🐶"],
+      translation: ["This is my room.", "This is my bed.", "This is my ball.", "This is my book and my pencil.", "And this is my dog! Woof!"],
+      questions: [{ q: "Što je krevet?", en: "Which one is the bed?", options: ["🛏️", "⚽", "📕"], answer: 0 }]}
   ],
 
   alphabet: [

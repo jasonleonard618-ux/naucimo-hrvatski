@@ -2433,8 +2433,9 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
   // ---------- daily story and quick round ----------
   // The story step: the unread story this learner can follow with the fewest new words (about 93% of its words known
   // for adults; kids hear it with a picture per line, so they can take a few more), preferring one with one to three
-  // new words over one with none. If no unread story fits, one last read three or more days ago comes back for a re-read.
+  // new words over one with none. If no unread story fits, one read a week or more ago can come back for a re-read (at most one re-read a week).
   const STORY_RULE = { adult: [0.93, 3], kid: [0.85, 4] }; // must match tools/story-check.js
+  const STORY_AGAIN = 7; // days between re-reads
   const knownTok = (k, t) => k.has(t) || LEX[t]?.[1] === "*" || (!!LEX[t] && norm(LEX[t][1]).split(" ").every(x => k.has(x)));
   function storyGaps(k, s) {
     const toks = norm((s.lines || [s.text]).join(" ")).split(" ").filter(Boolean), un = toks.filter(t => !knownTok(k, t));
@@ -2448,7 +2449,9 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
     const fresh = fits.filter(x => !read[x.s.id]).sort((a, b) => !a.un.length - !b.un.length || a.un.length - b.un.length);
     if (fresh.length) return { ...fresh[0], again: false };
     const last = id => (read[id] === true ? 0 : read[id]); // stories read before this change were stored as true
-    const again = fits.filter(x => last(x.s.id) <= today() - 3).sort((a, b) => last(a.s.id) - last(b.s.id));
+    // Re-reads are rare: at most one a week, of a story last read a week or more ago. Otherwise the day has no story.
+    if (p.storyAgain > today() - STORY_AGAIN) return null;
+    const again = fits.filter(x => last(x.s.id) <= today() - STORY_AGAIN).sort((a, b) => last(a.s.id) - last(b.s.id));
     return again.length ? { ...again[0], again: true } : null;
   }
   // The quick round uses words the learner has known for a while: remembered at least twice, next review 3+ days away.
@@ -2944,7 +2947,7 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
       const qs = s.questions || [];
       let right = 0, n = 0;
       const done = () => {
-        const p = me(); p.stories = p.stories || {}; p.stories[s.id] = today(); saveProfile(p);
+        const p = me(); p.stories = p.stories || {}; p.stories[s.id] = today(); if (ex.again) p.storyAgain = today(); saveProfile(p);
         session.xp += 5 + 5 * right; session.read = { id: s.id, right, of: qs.length };
         app.append(h("div", { class: "sheet" + (right === qs.length ? " good" : "") }, h("div", { class: "in" },
           qs.length ? h("div", { class: "msg" }, right + " of " + qs.length + " right" + (kid && right === qs.length ? " ⭐" : "")) : null,
