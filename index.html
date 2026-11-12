@@ -248,6 +248,8 @@ p { margin: 0; }
 .big { font-family: var(--font-display); font-weight: 380; font-size: clamp(2.3rem, 10vw, 3.2rem); letter-spacing: -.03em; line-height: 1.05; overflow-wrap: anywhere; font-variation-settings: "opsz" 144; }
 .bigpic { font-size: clamp(5rem, 26vw, 7rem); line-height: 1; text-align: center; display: grid; place-items: center; }
 .bigpic .ic { stroke-width: 1.1; color: var(--terra); }
+.piccue { display: grid; justify-items: center; gap: 6px; }
+.piccue .bigpic { font-size: clamp(6rem, 34vw, 9rem); }
 /* Answers hidden until revealed must stay hidden even on elements whose class or inline style sets display. */
 [hidden] { display: none !important; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 24px 20px; display: grid; gap: 12px; justify-items: center; text-align: center; }
@@ -428,6 +430,13 @@ textarea.typebox:focus { box-shadow: inset 0 0 0 1px var(--ink); border-color: v
 .tomo-ideas .wtile { display: grid; text-align: left; gap: 2px; }
 .tomo-idea-en { font-family: var(--font-body); font-size: .78rem; color: var(--muted); }
 .tomo-form .row { justify-content: space-between; }
+.tomo-help { gap: 6px; flex-wrap: wrap; }
+.tomo-tool { border: 1px dashed var(--line); background: transparent; border-radius: 999px; padding: 6px 12px; font-family: var(--font-display); font-size: .95rem; min-height: 38px; color: inherit; }
+.tomo-tool:disabled { opacity: .5; }
+.tomo-mic { min-width: 60%; }
+.listen-card { display: grid; gap: 10px; text-align: center; justify-items: center; }
+.listen-line { min-height: 2.6em; display: grid; place-items: center; }
+.listen-pic { font-size: 6rem; }
 .tomo-av { width: 44px; height: 44px; border-radius: 50%; background: var(--p2); display: grid; place-items: center; flex: none; }
 .tomo-av .ic { width: 24px; height: 24px; }
 .tomo-flag { color: var(--muted); }
@@ -525,8 +534,8 @@ body.kid .opt { font-size: 1.25rem; }
   const C = window.COURSE;
   const COLORS = ["#0b5394", "#d01c2b", "#1d7f47", "#8a4fbf", "#c46a00", "#0f7c86", "#b0306a"];
   // Adults get the most frequent words early (Zipf's law): the "core" topics are drawn from the top ~450 words of spoken Croatian.
-  const ADULT_ORDER = ["greet", "core1", "family", "core2", "numbers", "core3", "phrases", "core4", "questions", "verbs", "core5", "food", "time", "core6", "home", "town", "describe", "body", "nature", "colours", "animals", "clothes", "play"];
-  const KID_ORDER = ["greet", "colours", "numbers", "animals", "family", "food", "body", "clothes", "play", "home", "nature"];
+  const ADULT_ORDER = ["greet", "toolbox", "core1", "family", "core2", "numbers", "core3", "phrases", "core4", "questions", "verbs", "core5", "food", "time", "core6", "home", "town", "describe", "body", "nature", "colours", "animals", "clothes", "play"];
+  const KID_ORDER = ["greet", "toolbox", "colours", "numbers", "animals", "family", "food", "body", "clothes", "play", "home", "nature"];
 
   // ---------- words ----------
   const WORDS = [];
@@ -644,6 +653,20 @@ body.kid .opt { font-size: 1.25rem; }
     if (!d) { const sp = document.createElement("span"); sp.className = "emo"; sp.textContent = e; return sp; }
     return svgEl('<svg class="art" viewBox="0 0 120 120" role="img" aria-label="' + d[0] + '">' + d[1] + "</svg>");
   }
+  // Picture first (Chris Lonsdale: connect the word straight to an image, not to English). For adults, a concrete word
+  // with a drawing is shown with its picture and the English stays behind "Show English", in new-word cards, review
+  // cards and recall questions. Kids see pictures everywhere already. Greetings, phrases and little words stay in English.
+  const NO_PIC_TOPICS = ["greet", "toolbox", "phrases", "questions"];
+  const picFirst = w => !isKid() && !!w?.pic && !!(window.PICS || {})[w.pic] && !w.line && !w.mine && !NO_PIC_TOPICS.includes(w.topic) && !TOPIC[w.topic]?.core;
+  function enReveal(w, cls = "en") {
+    const en = h("div", { class: cls, hidden: true, text: w.en });
+    const b = h("button", { class: "linkbtn", type: "button", onclick: () => { en.hidden = false; b.remove(); } }, "Show English");
+    return [en, b];
+  }
+  // The prompt for producing a word: its picture (picture-first words) or its English.
+  const recallCue = w => picFirst(w)
+    ? h("div", { class: "piccue" }, h("div", { class: "bigpic" }, art(w.pic)), ...enReveal(w))
+    : h("div", { class: "row" }, w.pic ? h("span", { style: "font-size:2.4rem", text: w.pic, "aria-hidden": "true" }) : null, h("div", { class: "big", text: w.en }));
   // Interface strings: an emoji from UI_EMOJI becomes its icon (🔥 becomes the licitar heart).
   function deco(str) {
     const out = []; let rest = str, m;
@@ -901,7 +924,7 @@ body.kid .opt { font-size: 1.25rem; }
   const ivlLabel = d => (d === 0 ? "now" : d < 30 ? d + "d" : Math.round(d / 30) + "mo");
   function topicOrder() { return (isKid() ? KID_ORDER : ADULT_ORDER).map(id => TOPIC[id]); }
   function nextTopic(p) {
-    for (const t of topicOrder()) if (t.ids.some(id => !p.srs[id])) return t;
+    for (const t of topicOrder()) if (t.ids.some(id => !hasWord(p, id))) return t;
     return topicOrder()[0];
   }
   // Grammar units use the same schedule as words, stored in p.gram.
@@ -911,6 +934,13 @@ body.kid .opt { font-size: 1.25rem; }
   // Rough share of a text's words this learner already knows (for picking input that's about 80%+ familiar).
   const WORD_BY_KEY = {};
   for (const w of WORDS) if (!w.line) WORD_BY_KEY[norm(w.hr)] = w;
+  // The same phrase in two topics (the toolbox repeats "Ne razumijem." and "Ne znam." from Useful phrases) is one card:
+  // once either copy is on the review schedule, the other counts as learned and isn't taught again.
+  const TWIN = {};
+  { const byText = {};
+    for (const w of WORDS) if (!w.line && !w.mine) (byText[norm(w.hr)] = byText[norm(w.hr)] || []).push(w.id);
+    for (const ids of Object.values(byText)) if (ids.length > 1) for (const id of ids) TWIN[id] = ids.filter(x => x !== id); }
+  const hasWord = (p, id) => !!p?.srs?.[id] || (TWIN[id] || []).some(t => p?.srs?.[t]);
   function knownShare(p, text) {
     const toks = norm(text).split(" ").filter(Boolean);
     let k = 0;
@@ -952,13 +982,13 @@ body.kid .opt { font-size: 1.25rem; }
   const soonLabel = () => { const s = LEVELS.filter(levelSoon); return s.length ? (s.length > 1 ? s[0] + " to " + s[s.length - 1] : s[0]) + " coming later" : ""; };
   const COURSE_MILESTONES = {
     adult: [
-      { hr: "Pozdrav", en: "Hello", topics: ["greet", "core1", "family", "core2"], grammar: ["biti", "present"] },
+      { hr: "Pozdrav", en: "Hello", topics: ["greet", "toolbox", "core1", "family", "core2"], grammar: ["biti", "present"] },
       { hr: "Brojevi i pitanja", en: "Numbers and questions", topics: ["numbers", "core3", "phrases", "core4", "questions"], grammar: ["gender", "neg"] },
       { hr: "Svaki dan", en: "Every day", topics: ["verbs", "core5", "food", "time", "core6"], grammar: ["acc", "loc"] },
       { hr: "U gradu", en: "Around town", topics: ["home", "town", "describe", "body"], grammar: ["numbers", "past"] },
       { hr: "Svijet oko nas", en: "The world around us", topics: ["nature", "colours", "animals", "clothes", "play"], grammar: ["future"] }],
     kid: [
-      { hr: "Bok i boje", en: "Hello and colours", topics: ["greet", "colours", "numbers"], grammar: [] },
+      { hr: "Bok i boje", en: "Hello and colours", topics: ["greet", "toolbox", "colours", "numbers"], grammar: [] },
       { hr: "Životinje i obitelj", en: "Animals and family", topics: ["animals", "family"], grammar: [] },
       { hr: "Hrana i ja", en: "Food and me", topics: ["food", "body", "clothes"], grammar: [] },
       { hr: "Igra i dom", en: "Play and home", topics: ["play", "home", "nature"], grammar: [] }] };
@@ -968,9 +998,9 @@ body.kid .opt { font-size: 1.25rem; }
     const clean = planOf(p).clean || {};
     const ms = COURSE_MILESTONES[p.kind === "kid" ? "kid" : "adult"].map(m => {
       const ids = m.topics.flatMap(t => TOPIC[t]?.ids || []), gs = m.grammar.filter(g => GRAM[g]);
-      const topics = m.topics.filter(t => TOPIC[t]).map(t => ({ t: TOPIC[t], have: TOPIC[t].ids.filter(id => p.srs?.[id]).length, total: TOPIC[t].ids.length }));
+      const topics = m.topics.filter(t => TOPIC[t]).map(t => ({ t: TOPIC[t], have: TOPIC[t].ids.filter(id => hasWord(p, id)).length, total: TOPIC[t].ids.length }));
       const grammar = gs.map(g => ({ g: GRAM[g], done: (clean[g] || 0) >= MASTERED }));
-      const w = ids.filter(id => p.srs?.[id]).length;
+      const w = ids.filter(id => hasWord(p, id)).length;
       const have = w + GRAM_WEIGHT * grammar.filter(g => g.done).length, total = ids.length + GRAM_WEIGHT * gs.length;
       return { hr: m.hr, en: m.en, have, total, pct: total ? have / total : 1, done: have >= total, words: [w, ids.length], topics, grammar };
     });
@@ -1045,12 +1075,12 @@ body.kid .opt { font-size: 1.25rem; }
     app.replaceChildren();
     if (session) return renderSession();
     const fn = { home: viewHome, learn: viewLearn, family: viewFamily, topic: viewTopic, profiles: viewProfiles, reading: viewReading, story: viewStory, alphabet: viewAlphabet,
-      talk: viewTalk, dialogue: viewDialogue, grammar: viewGrammar, unit: viewUnit, sounds: viewSounds, sound: viewSound, method: viewMethod, journey: viewJourney, dict: viewDict, tomo: viewTomo, tomocheck: viewTomoCheck }[view] || viewHome;
+      talk: viewTalk, dialogue: viewDialogue, grammar: viewGrammar, unit: viewUnit, sounds: viewSounds, sound: viewSound, method: viewMethod, journey: viewJourney, dict: viewDict, tomo: viewTomo, tomocheck: viewTomoCheck, listen: viewListen }[view] || viewHome;
     app.append(fn(), tabBar());
   }
 
   // Floating tab bar. Every non-session view belongs to one tab; kids get no separate Talk tab (conversations live under Pictures).
-  const TAB_OF = { home: "home", learn: "learn", dict: "learn", topic: "learn", reading: "learn", story: "learn", alphabet: "learn", grammar: "learn", unit: "learn", sounds: "learn", sound: "learn",
+  const TAB_OF = { home: "home", learn: "learn", dict: "learn", listen: "learn", topic: "learn", reading: "learn", story: "learn", alphabet: "learn", grammar: "learn", unit: "learn", sounds: "learn", sound: "learn",
     talk: "talk", dialogue: "talk", tomo: "talk", family: "family", profiles: "family", method: "family", tomocheck: "family" };
   const tabOf = v => { const t = TAB_OF[v] || "home"; return t === "talk" && isKid() ? "learn" : t; };
   const ICON = {
@@ -1113,7 +1143,7 @@ body.kid .opt { font-size: 1.25rem; }
       P.unit ? ["grammar", "Grammar: " + unitName(P.unit) + (ruleSeen(p, P.unit) ? " (the chart and sentences, typed and timed)" : (planOf(p).reteach || {})[P.unit.id] ? " (back for another look, step by step)" : (p.gram || {})[P.unit.id] ? " (clearer explanation, step by step)" : " (new)")] : null,
       ["story", "A short story to read and listen to, and a one-minute quick round"],
       P.day >= SCENE_FROM && dialogueList().length ? ["talk", isKid() ? "A little conversation: listen and say your lines" : "Conversation: say your part of a scene out loud"] : null,
-      courseProgress(p).done >= 1 ? ["chat", "Chat with Tomo: " + TOMO_TURNS + " replies in your own words, nothing marked"] : null,
+      P.day >= TOMO_FROM ? ["chat", "Chat with Tomo: " + tomoTurns(p) + " replies, out loud if you can. He helps you say what you mean"] : null,
       ["lock", "Lock it in: everything from today again, from memory, some said out loud"]].filter(Boolean);
     return h("div", { class: "daily" },
       h("div", { class: "boardrow" }, chessboard(steps.length, 0, 0), h("span", { class: "kicker", text: steps.length + " steps" })),
@@ -1162,6 +1192,7 @@ body.kid .opt { font-size: 1.25rem; }
     wrap.append(progressCard(p));
     wrap.append(h("div", { class: "actions" },
       h("button", { class: "btn", disabled: !due, onclick: () => startReview() }, due ? "🔁 Review " + due + " item" + (due > 1 ? "s" : "") : "✓ No reviews due"),
+      h("button", { class: "btn", onclick: () => go("listen") }, "🎧 Listen hands-free"),
       nd ? h("button", { class: "btn", onclick: () => go("dialogue", nd.id) }, "💬 " + (kid ? "Talk: " : "Conversation: ") + nd.en) : null,
       nu ? h("button", { class: "btn", onclick: () => go("unit", nu.id) }, "📐 Grammar: " + nu.en.split(":")[0]) : null));
     return wrap;
@@ -1178,12 +1209,14 @@ body.kid .opt { font-size: 1.25rem; }
     const tiles = kid
       ? [["🗨", "Chat with Tomo", "Talk with a friend from Split", () => go("tomo")],
          ["💬", "Talk", "Little conversations to copy", () => go("talk")],
+         ["🎧", "Listen", "Stories and words, hands-free", () => go("listen")],
          ["🎧", "Listen & tap", "Hear a word, tap the picture", () => startPractice("pictap")],
          ["🧩", "Memory match", "Match pictures to words", () => startMatch()],
          ["🗣️", "Say it", "Copy the voice out loud", () => startPractice("speak")],
          ["🔤", "Alphabet", "Letters and their sounds", () => go("alphabet")],
          ["📖", "Stories", "Short stories to read", () => go("reading")]]
       : [["🗨", "Chat with Tomo", "Free conversation, no script", () => go("tomo")],
+         ["🎧", "Listen hands-free", "Everything you've met, on repeat", () => go("listen")],
          ["📐", "Grammar", "Spot the pattern, then drill it", () => go("grammar")],
          ["👂", "Pronunciation", "Sound rules and ear training", () => go("sounds")],
          ["🎧", "Listening", "Hear it, pick the meaning", () => startPractice("listen")],
@@ -1425,8 +1458,16 @@ If it is not a real word, or you can't translate it, reply {"entries":[]}.`;
   // Tomo keeps to words the learner has met (knownSet) plus the odd new one, reacts and asks follow-ups, moves to a
   // new topic every TOMO_SWITCH replies, and says a wrong line back correctly (a recast) without stopping the chat.
   // Nothing here is marked or gates progress. Open chat lives in Learn (kept per learner on this device,
-  // naucimo.tomo.<id>); once the first milestone is done, the daily lesson has a short exchange of TOMO_TURNS replies.
-  const TOMO_KEY = "naucimo.tomo.", TOMO_TURNS = 3, TOMO_SWITCH = 5;
+  // naucimo.tomo.<id>). Tomo is also a set part of every daily lesson from lesson day TOMO_FROM: tomoTurns(p) replies
+  // (more once the first milestone is done), voice first. He works as a "language parent" (Chris Lonsdale): he shows he
+  // understood, says a wrong line back right instead of marking it, and handles the toolbox phrases (Ne razumijem,
+  // Polako, Kako se kaže…?), which don't count as replies.
+  const TOMO_KEY = "naucimo.tomo.", TOMO_SWITCH = 5, TOMO_FROM = 2;
+  const tomoTurns = p => (courseProgress(p).done >= 1 ? 5 : 3);
+  const TOMO_TOOL = /^\s*(ne razumijem|molim\s*\?|još jednom|jos jednom|polako|ponovi|kako se (to )?ka[zž]e|[sš]to (to )?zna[cč]i)/i;
+  const TOMO_ASK = /kako se (to )?ka[zž]e|[sš]to (to )?zna[cč]i/i;
+  const tomoHelpers = kid => kid ? [["Ne razumijem.", "I don't understand."], ["Još jednom, molim.", "Once more, please."]]
+    : [["Ne razumijem.", "I don't understand."], ["Polako, molim.", "Slowly, please."], ["Još jednom, molim.", "Once more, please."], ["Kako se kaže …?", "How do you say …?"]];
   const TOMO_TOPICS = {
     adult: ["your day", "family", "food you like", "the weekend", "work", "the weather", "the sea and summer", "your home", "your town", "hobbies", "Croatia"],
     kid: ["animals", "colours", "food", "family", "games", "school", "the sea", "pets"] };
@@ -1496,10 +1537,11 @@ Words they know (forms they have met): ${known || "only a few greetings"}
 ${o.strict ? `Use ONLY words from that list, in the forms listed (names like Tomo, Medo, Ana, Split and Zagreb are fine). No other words at all: if you can't say something with them, say something simpler. List in "new" any word outside the list you still had to use (there should be none).`
   : `Keep to those words and the most common little words (i, a, ali, je, sam, si, da, ne, to, što, kako, gdje, tko). Use at most ${kid ? "one new word" : "two new words"} per reply, only where the meaning is clear from context, and list each in "new".`}${focus.length ? "\nToday they learned: " + focus.join(", ") + ". Use one or two of these if it fits." : ""}
 
-Your reply: ${kid ? "one short sentence of at most 8 words, then a very easy question (yes or no, or this or that)" : "one or two short sentences, at most 18 words in all"}. React to what they actually said, as a real person would: agree, be surprised, or share a small detail about your own life (you have a dog called Medo, you like football, fish and the sea, and your sister Ana lives in Zagreb). Then usually ask one simple follow-up question so they have something to answer. Never ask the same question twice, and vary how you ask.
+Your reply: ${kid ? "one short sentence of at most 8 words, then a very easy question (yes or no, or this or that)" : "one or two short sentences, at most 18 words in all"}. Be a patient "language parent": work hard to understand what they mean, even from broken Croatian or a mix with English, and show that you understood by briefly saying their meaning back in correct Croatian when it is natural (they write "ja imati pas", you start "Aha, imaš psa!"). Never tell them they made a mistake. React to what they actually said, as a real person would: agree, be surprised, or share a small detail about your own life (you have a dog called Medo, you like football, fish and the sea, and your sister Ana lives in Zagreb). Then usually ask one simple follow-up question so they have something to answer. Never ask the same question twice, and vary how you ask.
 ${topic}
 
 Their last message: if it has a mistake, set "recast" to their own sentence said back correctly, the way a native speaker would say it (keep their words and meaning, change only what is wrong), and "tip" to one short, friendly English sentence about the main mistake. Ignore missing č ć đ š ž, capitals and punctuation${o.spoken ? " (it came through speech recognition)" : ""}. If they wrote in English or mixed in English words, "recast" is how to say it in Croatian and "tip" is "". If it is fine, both are "". Don't correct them inside "reply": just carry on the conversation.
+Toolbox phrases are good, never recast them. If their last message is Ne razumijem, Molim?, Još jednom or Polako (they didn't follow you), say your last line again in a shorter, simpler way with words they surely know, and don't move on. If they ask how to say something (Kako se kaže X? or Kako se to kaže, where X may be English) or what a word means (Što znači X?), answer in one short sentence (for example: Pas. Kažemo pas.), list that word in "new" with its English meaning, then carry on.
 
 Shape: {"reply":"Croatian","en":"English translation of reply","recast":"","tip":"","new":[["new word as written in reply","English meaning"]],"ideas":[["short Croatian answer","English"]]}
 "ideas": three different short answers the learner could give to your question, using only words they know, ${kid ? "2 to 4" : "3 to 8"} words each.
@@ -1546,20 +1588,25 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
     const { input, keys } = typeBox("Your reply in Croatian", kid ? "Or type it here" : "Reply in Croatian");
     input.id = "tomo-in";
     const send = h("button", { class: "btn primary", type: "submit" }, "Send");
-    const mine = () => c.msgs.filter(m => m.who === "me").length;
-    const lock = on => { [input, send, ...keys.querySelectorAll("button"), ...ideas.querySelectorAll("button")].forEach(b => (b.disabled = on)); };
+    const mine = () => c.msgs.filter(m => m.who === "me" && !TOMO_TOOL.test(m.hr)).length;
+    const lock = on => { [input, send, ...keys.querySelectorAll("button"), ...ideas.querySelectorAll("button"), ...ui.helpers].forEach(b => (b.disabled = on)); };
     let spoken = false;
     const flagBtn = (m, kind) => kid ? null : h("button", { class: "minisay tomo-flag", "aria-pressed": String(tomoFlagged(me() || p, m[kind === "fix" ? "flfix" : "fl"])),
       "aria-label": kind === "fix" ? "This correction looks wrong" : "This looks wrong", title: kind === "fix" ? "This correction looks wrong" : "This looks wrong",
       onclick: () => { tomoFlag(p, c, m, kind); opts.onSave?.(c); draw(false); } }, ic("flag"));
+    // The reason behind a recast stays folded away: the chat is for being understood, not for being marked.
+    const tipToggle = tip => {
+      const why = h("div", { class: "why", hidden: true }, h("b", { text: "Why: " }), tip);
+      return h("div", null, h("button", { class: "linkbtn", type: "button", onclick: e => { why.hidden = !why.hidden; e.currentTarget.textContent = why.hidden ? "Why?" : "Hide why"; } }, "Why?"), why);
+    };
     const bubble = m => {
       if (m.who === "me") {
         const said = new Set(norm(m.hr).split(" "));
         return h("div", { class: "bubble me" }, h("div", { class: "who" }, h("span", { text: p.name })), h("div", { class: "line", text: m.hr }),
-          m.recast ? h("div", { class: "tomo-fix" }, h("div", { class: "who" }, h("span", { text: m.tip ? "Say it like this" : "In Croatian" }),
+          m.recast ? h("div", { class: "tomo-fix" }, h("div", { class: "who" }, h("span", { text: m.tip ? "Tomo understood" : "In Croatian" }),
             h("span", null, flagBtn(m, "fix"), h("button", { class: "minisay", "aria-label": "Play this", onclick: () => speak(tomoSpoken(m.recast)) }, "🔊"))),
             h("div", { class: "fixline" }, m.recast.split(/(\s+)/).map(t => (t.trim() && !said.has(norm(t)) ? h("mark", { text: t }) : t))),
-            m.tip ? h("div", { class: "why" }, h("b", { text: "Why: " }), m.tip) : null) : null);
+            m.tip ? tipToggle(m.tip) : null) : null);
       }
       const en = h("div", { class: "ten", hidden: !easy, text: m.en });
       return h("div", { class: "bubble" }, h("div", { class: "who" }, h("span", { text: "Tomo" }),
@@ -1581,7 +1628,7 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
       drawIdeas();
       if (scroll) log.lastChild?.scrollIntoView?.({ block: "nearest", behavior: "smooth" });
     }
-    const ui = { draw, lock, status };
+    const ui = { draw, lock, status, helpers: [] };
     c._ui = ui;
     async function ask(o = {}) {
       lock(true); ideas.replaceChildren();
@@ -1601,7 +1648,9 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
         const po = { focus: opts.focus, spoken, switchTo: o.switchTo, strict: opts.strict };
         let r = await call(po);
         const bad = r && tomoUnknown(p, k, r.hr);
-        if (r && bad.length > (opts.strict ? 0 : TOMO_NEW)) {
+        // Asking "Kako se kaže…?" or "Što znači…?" means a new word is the answer, so that reply may bring in two more.
+        const asked = TOMO_ASK.test(c.msgs.filter(m => m.who === "me").at(-1)?.hr || "") ? 2 : 0;
+        if (r && bad.length > (opts.strict ? 0 : TOMO_NEW) + asked) {
           const again = await call({ ...po, redo: { hr: r.hr, bad } }).catch(() => null);
           if (again && tomoUnknown(p, k, again.hr).length < bad.length) r = again;
         }
@@ -1646,12 +1695,23 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
     }
     const form = h("form", { class: "form tomo-form", onsubmit: e => { e.preventDefault(); if (!input.value.trim()) return input.focus(); say(input.value); } },
       input, h("div", { class: "row" }, keys, send));
-    const box = h("div", { class: "tomo" }, log, status, ideas, form);
+    // Toolbox phrases, one tap away: they don't count as replies, and Tomo answers them by saying it again more simply
+    // or by giving the word asked for. "Kako se kaže …?" is finished by typing the English word.
+    const helpers = h("div", { class: "row center tomo-help" }, tomoHelpers(kid).map(([hr, en]) => h("button", { class: "tomo-tool", type: "button", title: en, onclick: () => {
+      if (c._wait) return;
+      if (hr.includes("…")) { input.value = "Kako se kaže "; input.focus(); input.setSelectionRange(input.value.length, input.value.length); return; }
+      say(hr);
+    } }, hr)));
+    ui.helpers = [...helpers.querySelectorAll("button")];
+    const box = h("div", { class: "tomo" }, log, status, ideas);
+    // Voice first: where there's a microphone, speaking is the big button and typing is the fallback.
     if (!micBlocked) {
-      const mic = h("button", { class: "btn ghost", type: "button" }, "🎙️ Say it");
-      mic.onclick = () => { if (c._wait) return; listenOnce(status, alts => { status.replaceChildren(); spoken = true; say(alts[0]); }, () => { mic.remove(); status.textContent = "The microphone isn't available here, so type your reply."; }); };
+      const mic = h("button", { class: "btn primary tomo-mic", type: "button" }, "🎙️ Say your reply");
+      send.classList.remove("primary");
+      mic.onclick = () => { if (c._wait) return; listenOnce(status, alts => { status.replaceChildren(); spoken = true; say(alts[0]); }, () => { mic.remove(); send.classList.add("primary"); status.textContent = "The microphone isn't available here, so type your reply."; }); };
       box.append(h("div", { class: "row center" }, mic));
     }
+    box.append(helpers, form);
     box.append(gloss);
     draw();
     if (c._wait) { lock(true); status.replaceChildren("Tomo is typing…"); }
@@ -1953,6 +2013,81 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
   // The colour key under a story whose grammar point the learner has had.
   const markLegend = g => h("p", { class: "legend" }, h("span", { class: "end", text: "Coloured" }), ": " + g.en);
 
+  // ---------- hands-free listening ----------
+  // Chris Lonsdale's first action is "listen a lot", including while doing something else. This plays what the learner
+  // has met, over and over: stories they've read, conversations they've practised, and words they know (with a pause
+  // after each word to say it back). Only recorded lines play when the course has recordings, since many phones have
+  // no Croatian voice of their own. Nothing is marked or saved.
+  function listenTracks(p) {
+    const kid = isKid(), ok = t => !hasAudio || hasClip(t), out = [];
+    for (const st of C.stories) {
+      if (!!st.kids !== kid || !p.stories?.[st.id]) continue;
+      const lines = st.lines || [st.text], tr = Array.isArray(st.translation) ? st.translation : [];
+      if (lines.every(ok)) out.push({ kind: "Story", title: st.hr, en: st.en, lines: lines.map((hr, i) => ({ hr, en: tr[i] || "" })) });
+    }
+    for (const d of dialogueList()) {
+      if (!p.dlg?.[d.id] && !p.scenes?.[d.id]) continue;
+      const lines = d.lines.map(([who, hr, en]) => ({ hr, en, alt: who === "A" }));
+      if (lines.every(l => ok(l.hr))) out.push({ kind: "Conversation", title: d.hr || d.en, en: d.en, lines });
+    }
+    const words = shuffle(Object.keys(p.srs || {}).map(id => BY_ID[id]).filter(w => w && !w.line && !w.mine && ok(w.hr))).slice(0, 60);
+    for (let i = 0; i < words.length; i += 12) out.push({ kind: "Words", title: kid ? "Words you know" : "Words you know: say each one back", en: "", lines: words.slice(i, i + 12).map(w => ({ hr: w.hr, en: w.en, pic: w.pic })) });
+    return shuffle(out);
+  }
+  function viewListen() {
+    const p = me(), kid = isKid();
+    const wrap = h("main", { class: "wrap" }, subhead("Slušaj", kid ? "Listen to stories and words you know" : "Listen hands-free: stories, conversations and words you've met"));
+    if (!p) return wrap;
+    const tracks = listenTracks(p);
+    if (!tracks.length) { wrap.append(h("p", { class: "notice", text: "Nothing to play yet. Stories, conversations and words from your lessons show up here." })); return wrap; }
+    let run = 0, playing = false, ti = 0, li = 0, slow = false, showText = true, showEn = false;
+    const kindEl = h("div", { class: "kicker" }), titleEl = h("h2"), lineEl = h("div", { class: "big listen-line" }), enEl = h("div", { class: "en" }), picEl = h("div", { class: "bigpic listen-pic" });
+    const playBtn = h("button", { class: "btn primary", onclick: () => (playing ? pause() : loop()) });
+    const textBtn = h("button", { class: "btn ghost", onclick: () => { showText = !showText; draw(); } });
+    const enBtn = h("button", { class: "btn ghost", onclick: () => { showEn = !showEn; draw(); } });
+    const slowBtn = h("button", { class: "btn ghost", onclick: () => { slow = !slow; draw(); } });
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+    function draw() {
+      const t = tracks[ti], l = t.lines[li];
+      kindEl.textContent = t.kind + " · " + (ti + 1) + " of " + tracks.length;
+      titleEl.textContent = t.title;
+      lineEl.textContent = showText ? l.hr : "· · ·";
+      enEl.textContent = showEn ? l.en : ""; enEl.hidden = !showEn || !l.en;
+      picEl.replaceChildren(...(kid && l.pic ? [art(l.pic)] : [])); picEl.hidden = !(kid && l.pic);
+      playBtn.replaceChildren(...deco(playing ? "Pause" : "▶ Play"));
+      textBtn.textContent = showText ? "Hide the Croatian" : "Show the Croatian";
+      enBtn.textContent = showEn ? "Hide English" : "Show English";
+      slowBtn.replaceChildren(...deco(slow ? "🐢 Slow: on" : "🐢 Slow: off"));
+    }
+    const step = n => { li = 0; ti = (ti + n + tracks.length) % tracks.length; draw(); if (playing) loop(); };
+    function pause() { run++; playing = false; stopAudio(); draw(); }
+    async function loop() {
+      const my = ++run; playing = true; draw();
+      if ("mediaSession" in navigator) try {
+        navigator.mediaSession.metadata = new MediaMetadata({ title: tracks[ti].title, artist: "Naučimo" });
+        navigator.mediaSession.setActionHandler("pause", pause); navigator.mediaSession.setActionHandler("play", loop);
+        navigator.mediaSession.setActionHandler("nexttrack", () => step(1));
+      } catch {}
+      while (my === run && wrap.isConnected) {
+        const t = tracks[ti], l = t.lines[li];
+        draw();
+        await speak(l.hr, slow ? 0.6 : 0.85, !!l.alt);
+        if (my !== run || !wrap.isConnected) break;
+        await wait(t.kind === "Words" ? 2200 : 700); // words: time to say each one back
+        if (my !== run || !wrap.isConnected) break;
+        if (++li >= t.lines.length) { li = 0; ti = (ti + 1) % tracks.length; await wait(1500); }
+      }
+      if (my === run) playing = false;
+    }
+    draw();
+    wrap.append(h("p", { class: "notice", text: kid ? "Press play and just listen, while you draw or play." : "Press play and keep it going while you cook, drive or walk. You don't need to follow every word: your ear gets used to the sounds and the meaning comes. It plays everything you've met, over and over." }),
+      h("section", { class: "card listen-card" }, kindEl, titleEl, picEl, lineEl, enEl,
+        h("div", { class: "row center" }, h("button", { class: "btn ghost", "aria-label": "Previous", onclick: () => step(-1) }, "←"), playBtn, h("button", { class: "btn ghost", "aria-label": "Next", onclick: () => step(1) }, "→"))),
+      h("div", { class: "row center" }, textBtn, kid ? null : enBtn, slowBtn),
+      h("p", { class: "count", text: "Keep this screen open: some phones stop the sound when the screen locks." }));
+    return wrap;
+  }
+
   function viewTalk() {
     const p = me(), kid = isKid(), nd = nextDialogue(p);
     const wrap = h("main", { class: "wrap" }, subhead("Razgovori", kid ? "Little conversations" : "Conversations · listen first, then take a part"));
@@ -2212,7 +2347,7 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
     const warmUnit = !kid && GRAM[pl.last?.unit] ? GRAM[pl.last.unit] : null;
     const due = dueIds(p).filter(id => !warm.includes(id)).slice(0, kid ? 5 : 8);
     const topic = nextTopic(p);
-    const fresh = topic.ids.filter(id => !p.srs[id]).slice(0, kid ? 4 : 5);
+    const fresh = topic.ids.filter(id => !hasWord(p, id)).slice(0, kid ? 4 : 5);
     const unit = currentUnit(p), check = checkUnit(p);
     const units = kid ? [] : dueUnits(p).filter(u => u !== unit?.id && u !== check?.id).slice(0, 1);
     return { day: pl.day + 1, doneToday: pl.date === today(), warm, warmUnit, due, topic, fresh, unit, check, units, dlg: nextDialogue(p) };
@@ -2379,8 +2514,8 @@ ${hist ? "\nConversation so far:\n" + hist : ""}${o.redo ? `\n\nYou wrote: "${o.
     if (sc) { add("Conversation", sc.items); s.scene = { id: sc.d.id, role: sc.role, mode: sc.mode }; s.next = null; }
     const qp = quickPool(p);
     if (qp.length >= 6) add("Quick round", [{ type: "quick", ids: qp, w: { id: "quick", hr: "", en: "" } }]);
-    // Unscripted conversation once the first milestone is done (enough words to say something). Not marked.
-    if (courseProgress(p).done >= 1) add("Chat with Tomo", [{ type: "tomo", w: { id: "tomo", hr: "", en: "" } }]);
+    // Unscripted conversation with Tomo, a set part of every lesson from day TOMO_FROM. Not marked.
+    if (P.day >= TOMO_FROM) add("Chat with Tomo", [{ type: "tomo", w: { id: "tomo", hr: "", en: "" } }]);
     if (!kid) add("Write it yourself", writePrompts(p, P, target, new Set([...s.queue, ...q].map(e => norm(e.w?.hr || "")))));
     if (target.length) add("Lock it in", voiced(shuffle(dWords(target)).map(recallEx)));
     s.queue.push(...q);
@@ -2935,12 +3070,20 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
       }, { marks: g ? s.marks : [], un: ex.un });
       let en = false;
       const enBtn = h("button", { class: "btn ghost", onclick: () => { en = !en; body.english(en); enBtn.textContent = en ? "Hide English" : "Show English"; } }, "Show English");
-      stage.append(h("div", { class: "prompt-label", text: kid ? "Listen to the story" : ex.again ? "A story you've read before. Read it again, a little faster, without the English." : "Read the story. Tap any word you don't know." }),
-        storyHead(s.hr, s.en),
-        h("div", { class: "actions" }, h("button", { class: "btn primary", onclick: () => body.play(0.85) }, "🔊 Listen"),
-          h("button", { class: "btn", onclick: () => body.play(0.6) }, "🐢 Slowly"), kid ? null : enBtn),
-        ...[g ? markLegend(g) : null, !kid && ex.un?.length ? h("p", { class: "legend", text: "New: " + ex.un.join(", ") + ". They're underlined: tap one for its meaning." }) : null].filter(Boolean),
-        body.el);
+      // Ears first (Chris Lonsdale: listen a lot, get the meaning before the words): an adult hears a new story once
+      // without the text, then reads it. Kids already hear it with a picture per line.
+      const earFirst = !kid && !ex.again;
+      const label = h("div", { class: "prompt-label", text: kid ? "Listen to the story" : ex.again ? "A story you've read before. Read it again, a little faster, without the English."
+        : earFirst ? "Listen first, without the text. Catch what you can: who is it about, and what happens?" : "Read the story. Tap any word you don't know." });
+      const view = h("div", { class: "storyview", hidden: earFirst }, ...[g ? markLegend(g) : null, !kid && ex.un?.length ? h("p", { class: "legend", text: "New: " + ex.un.join(", ") + ". They're underlined: tap one for its meaning." }) : null].filter(Boolean), body.el);
+      const showText = () => { if (!view.hidden) return; view.hidden = false; reveal.remove(); enBtn.hidden = false; label.textContent = "Now read it. Tap any word you don't know."; };
+      const reveal = h("button", { class: "btn", hidden: true, onclick: () => { stopAudio(); showText(); } }, "Show the text");
+      if (earFirst) enBtn.hidden = true;
+      const listen = async rate => { if (earFirst && view.hidden) setTimeout(() => (reveal.hidden = false), 1500); await body.play(rate); if (earFirst && view.hidden && body.el.isConnected) reveal.hidden = false; };
+      stage.append(label, storyHead(s.hr, s.en),
+        h("div", { class: "actions" }, h("button", { class: "btn primary", onclick: () => listen(0.85) }, "🔊 Listen"),
+          h("button", { class: "btn", onclick: () => listen(0.6) }, "🐢 Slowly"), kid ? null : enBtn, earFirst ? reveal : null),
+        view);
       const qs = s.questions || [];
       let right = 0, n = 0;
       const done = () => {
@@ -2951,21 +3094,22 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
           h("button", { class: "btn primary", id: "continue", onclick: () => { session.idx++; render(); } }, "Continue"))));
         $("#continue").focus({ preventScroll: true });
       };
-      if (qs.length) stage.append(h("h2", { text: kid ? "Pitanja" : "Pitanja · Questions" }));
+      if (qs.length) view.append(h("h2", { text: kid ? "Pitanja" : "Pitanja · Questions" }));
       for (const q of qs) {
         const block = h("div", { class: "qblock" }, h("div", null, h("div", { class: "q", text: q.q }), h("div", { class: "qen", text: q.en })));
-        stage.append(block);
+        view.append(block);
         const pics = q.options.every(o => !/\p{L}/u.test(o));
         choiceList(block, q.options, x => x, x => x === q.options[q.answer], ok => { if (ok) right++; if (++n === qs.length) done(); }, pics ? "picopts" : "options", pics ? "picopt" : "opt");
       }
       if (!qs.length) done();
       stage.append(gloss);
-      if (kid) body.play(0.85);
+      if (kid || earFirst) listen(0.85);
     },
-    // A few replies to Tomo in the learner's own words, bringing in today's new words. It isn't marked: finishing,
-    // or Tomo being out of reach (offline, not signed in), just moves on.
+    // A few replies to Tomo in the learner's own words, bringing in today's new words. It isn't marked, but it is part of
+    // the lesson: there's no skip while he can be reached. If he can't (offline, not signed in), the learner can try
+    // again or leave it for today.
     tomo(ex, stage) {
-      const p = me(), kid = isKid(), focus = session.fresh || [], t = TOPIC[BY_ID[focus[0]]?.topic];
+      const p = me(), kid = isKid(), focus = session.fresh || [], t = TOPIC[BY_ID[focus[0]]?.topic], turns = tomoTurns(p);
       const next = (msg, xp) => {
         session.xp += xp;
         document.querySelectorAll(".sheet").forEach(x => x.remove());
@@ -2973,11 +3117,17 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
           h("button", { class: "btn primary", id: "continue", onclick: () => { session.idx++; render(); } }, "Continue"))));
         $("#continue").focus({ preventScroll: true });
       };
-      stage.append(h("p", { class: "count", text: kid ? "Answer Tomo " + TOMO_TURNS + " times. Tap an answer or type your own."
-          : "Reply to Tomo " + TOMO_TURNS + " times in your own words. Nothing here is marked: a mistake is just said back the way a Croatian would say it." }),
-        tomoChat(p, tomoNew(p, t && !t.core ? t.en.toLowerCase() : null, "lesson"), { turns: TOMO_TURNS, focus, strict: true, onSave: c => tomoArchive(p, c),
+      const away = () => {
+        document.querySelectorAll(".sheet").forEach(x => x.remove());
+        app.append(h("div", { class: "sheet" }, h("div", { class: "in" }, h("div", { class: "msg", text: "Tomo can't be reached right now." }),
+          h("div", { class: "row" }, h("button", { class: "btn", style: "flex:1", onclick: () => { session.idx++; render(); } }, "Skip for today"),
+            h("button", { class: "btn primary", style: "flex:2", id: "continue", onclick: () => render() }, "Try again")))));
+      };
+      stage.append(h("p", { class: "count", text: kid ? "Talk with Tomo! Say an answer, or tap one. If you don't understand, tap Ne razumijem."
+          : "Reply to Tomo " + turns + " times" + (micBlocked ? "" : ", out loud if you can") + ". Nothing is marked: say what you mean any way you can, even with English words, and he'll show you how a Croatian would say it. Stuck? Use your toolbox phrases." }),
+        tomoChat(p, tomoNew(p, t && !t.core ? t.en.toLowerCase() : null, "lesson"), { turns, focus, strict: true, onSave: c => tomoArchive(p, c),
           onEnd: () => setTimeout(() => next(kid ? "Bravo! Super razgovor!" : "Lijepo! Nice chat.", 15), 900),
-          onUnavailable: () => next("Tomo will chat next time.", 0) }));
+          onUnavailable: away }));
     },
     // Quick round (fluency): words the learner has known for a while, as fast as they can for a minute. Reading and
     // listening alternate; kids hear the word and tap its picture. Misses cost nothing and only the score is kept.
@@ -3047,9 +3197,10 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
     },
     intro(ex, stage) {
       const w = ex.w;
-      stage.append(h("div", { class: "prompt-label", text: "New word · listen, then say it out loud" }),
-        h("div", { class: "card" }, w.pic ? h("div", { class: "bigpic", text: w.pic, "aria-hidden": "true" }) : null,
-          h("div", { class: "big", text: w.hr }), h("div", { class: "en", text: w.en }), w.note ? h("div", { class: "note", text: w.note }) : null,
+      const pf = picFirst(w);
+      stage.append(h("div", { class: "prompt-label", text: pf ? "New word · look, listen, then say it out loud" : "New word · listen, then say it out loud" }),
+        h("div", { class: "card" }, pf ? h("div", { class: "bigpic" }, art(w.pic)) : w.pic ? h("div", { class: "bigpic", text: w.pic, "aria-hidden": "true" }) : null,
+          h("div", { class: "big", text: w.hr }), ...(pf ? enReveal(w) : [h("div", { class: "en", text: w.en })]), w.note ? h("div", { class: "note", text: w.note }) : null,
           h("div", { class: "row center" }, h("button", { class: "btn", onclick: () => speak(w.hr) }, "🔊 Listen"), h("button", { class: "btn ghost", onclick: () => speak(w.hr, 0.55) }, "🐢 Slowly"))));
       // Saying a new word the first time it's heard. Not marked: the mic only tells you whether it heard the word.
       if (!micBlocked) {
@@ -3124,8 +3275,7 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
           h("button", { class: "playbig", type: "button", "aria-label": "Play again", onclick: () => speak(w.hr) }, "🔊"),
           h("div", { class: "row center" }, h("button", { class: "linkbtn", type: "button", onclick: () => speak(w.hr, 0.55) }, "🐢 Play slowly")), form, help);
         speak(w.hr);
-      } else stage.append(h("div", { class: "prompt-label", text: "Write this in Croatian" }),
-        h("div", { class: "row" }, w.pic ? h("span", { style: "font-size:2.4rem", text: w.pic, "aria-hidden": "true" }) : null, h("div", { class: "big", text: w.en })), form, help);
+      } else stage.append(h("div", { class: "prompt-label", text: picFirst(w) ? "What's this in Croatian? Write it" : "Write this in Croatian" }), recallCue(w), form, help);
       setTimeout(() => input.focus(), 50);
     },
     // Recall out loud: the English, answered by voice. A close hearing counts; three mishearings count as a miss.
@@ -3144,8 +3294,7 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
         else done(false, h("span", null, "I heard \u201c" + best + "\u201d. It's ", h("b", { text: w.hr })));
       }, () => render()); // the mic is now off for this visit, so this shows the typed question
       const help = helpRow(ex, letterHint(w.hr), () => done(false, h("span", null, "Answer: ", h("b", { text: w.hr })), { msg: "Here's the answer" }));
-      stage.append(h("div", { class: "prompt-label", text: "Say it in Croatian, out loud" }),
-        h("div", { class: "row" }, w.pic ? h("span", { style: "font-size:2.4rem", text: w.pic, "aria-hidden": "true" }) : null, h("div", { class: "big", text: w.en })),
+      stage.append(h("div", { class: "prompt-label", text: picFirst(w) ? "What's this? Say it in Croatian, out loud" : "Say it in Croatian, out loud" }), recallCue(w),
         h("div", { class: "row center" }, mic), status, h("div", { class: "row center" }, typeIt), help);
     },
     speak(ex, stage) {
@@ -3176,7 +3325,8 @@ Reply with exactly this shape: {"ok":bool,"recast":string,"tip":string}
       const w = ex.w, p = me();
       const back = h("div", { hidden: true, style: "display:grid;gap:8px;justify-items:center" }, h("div", { class: ex.reverse ? "big" : "en", text: ex.reverse ? w.hr : w.en }), w.note ? h("div", { class: "note", text: w.note }) : null);
       stage.append(h("div", { class: "prompt-label", text: ex.reverse ? "Say it in Croatian, out loud, then check" : "Do you remember this?" }),
-        h("div", { class: "card" }, isKid() && w.pic ? h("div", { class: "bigpic", text: w.pic }) : null, h("div", { class: "big", text: ex.reverse ? w.en : w.hr }), back,
+        h("div", { class: "card" }, isKid() && w.pic ? h("div", { class: "bigpic", text: w.pic }) : null,
+          ex.reverse && picFirst(w) ? recallCue(w) : h("div", { class: "big", text: ex.reverse ? w.en : w.hr }), back,
           ex.reverse || !canSay(w) ? null : h("div", { class: "row center" }, sayBtn(w.hr))));
       if (ex.reverse && canSay(w)) back.append(sayBtn(w.hr));
       const s = p.srs[w.id];

@@ -430,6 +430,17 @@ window.COURSE = {
       ["Oprosti.", "Sorry. (informal)", "🙏", "Formal: 'Oprostite.'"],
       ["U redu.", "OK. / All right.", "👌"],
       ["Evo!", "Here you go! / Here it is!", "🫴"]
+    ]},
+    // Week-one toolbox (Chris Lonsdale): the phrases that let a beginner learn from anyone, taught right after greetings.
+    // "Što je ovo?", "Ne razumijem." and "Ne znam." are also in "phrases"; the app treats same-text words as one card (TWIN in index.html).
+    { id: "toolbox", hr: "Alati za učenje", en: "Your toolbox", pic: "🧰", kids: true, words: [
+      ["Što je ovo?", "What is this?", "👉", "Point at something and ask. The answer starts To je… = That's a…"],
+      ["Kako se to kaže na hrvatskom?", "How do you say that in Croatian?", "🗣️", "Or name the thing in English: Kako se kaže dog? = How do you say dog?"],
+      ["Što to znači?", "What does that mean?", "❓", "Or name the word: Što znači pas? = What does pas mean?"],
+      ["Ne razumijem.", "I don't understand.", "😕"],
+      ["Još jednom, molim.", "Once more, please.", "🔁", "Didn't catch it? Even just Molim? = Pardon?"],
+      ["Polako, molim.", "Slowly, please.", "🐢"],
+      ["Ne znam.", "I don't know.", "🤷"]
     ]}
   ],
   stories: [
