@@ -489,6 +489,16 @@ body.kid .opt { font-size: 1.25rem; }
 .prog-items li small { white-space: nowrap; }
 .prog-items li { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-top: 1px solid var(--line); font-size: .92rem; }
 .prog-items li.prog-done span::after { content: " ✓"; color: var(--good); }
+.prog-items li.prog-gram { display: grid; grid-template-columns: 1fr; gap: 2px; }
+.prog-items li.prog-gram.prog-done span::after { content: none; }
+.prog-gtop { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.prog-gst { color: var(--muted); font-size: .82rem; white-space: normal !important; }
+.prog-g-now .prog-gst, .prog-g-check .prog-gst { color: var(--ink); }
+.prog-steps { display: inline-flex; gap: 3px; flex: none; margin-left: auto; }
+.prog-steps i { width: 12px; height: 12px; border-radius: 3px; background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line); }
+.prog-steps i.ck { border-radius: 50%; }
+.prog-steps i.on { background: var(--good); box-shadow: none; }
+.prog-steps i.next { box-shadow: inset 0 0 0 2px var(--terra); }
 .prog-cheer { margin: 4px 0 0; padding: 10px 14px; border-radius: 14px; background: var(--good-soft); }
 .prog-cheer b { display: inline-flex; gap: 6px; align-items: center; }
 .wordrow .p { width: 44px; height: 44px; border-radius: 12px; background: var(--art-tile); font-size: 2.1rem; }
@@ -1012,7 +1022,7 @@ body.kid .opt { font-size: 1.25rem; }
     const ms = COURSE_MILESTONES[p.kind === "kid" ? "kid" : "adult"].map(m => {
       const ids = m.topics.flatMap(t => TOPIC[t]?.ids || []), gs = m.grammar.filter(g => GRAM[g]);
       const topics = m.topics.filter(t => TOPIC[t]).map(t => ({ t: TOPIC[t], have: TOPIC[t].ids.filter(id => hasWord(p, id)).length, total: TOPIC[t].ids.length }));
-      const grammar = gs.map(g => ({ g: GRAM[g], done: (clean[g] || 0) >= MASTERED }));
+      const grammar = gs.map(g => ({ g: GRAM[g], done: (clean[g] || 0) >= MASTERED, st: gramState(p, g) }));
       const w = ids.filter(id => hasWord(p, id)).length;
       const have = w + GRAM_WEIGHT * grammar.filter(g => g.done).length, total = ids.length + GRAM_WEIGHT * gs.length;
       return { hr: m.hr, en: m.en, have, total, pct: total ? have / total : 1, done: have >= total, words: [w, ids.length], topics, grammar };
@@ -1024,6 +1034,23 @@ body.kid .opt { font-size: 1.25rem; }
     const wordDays = ms.flatMap(m => m.topics).reduce((a, x) => a + Math.ceil((x.total - x.have) / perDay), 0);
     const daysLeft = Math.max(wordDays, 2 * ms.flatMap(m => m.grammar).filter(g => !g.done).length);
     return { level: LEVELS[0], pct: total ? have / total : 0, cur: cur < 0 ? ms.length : cur, done, daysLeft, ms };
+  }
+  // Where one grammar unit stands, for the journey page. A unit takes three steps: two clean days in the daily lesson
+  // (every grammar answer right, at a steady pace), then a check-up a few days later. After that it is learned, with
+  // more check-ups at 7 and 21 days. step = steps done (0-3); state: todo | now | waiting | check | learned; next = when it moves on.
+  function gramState(p, id) {
+    const pl = planOf(p), c = (pl.clean || {})[id] || 0, ck = (pl.check || {})[id], t = today();
+    const lessonDone = pl.date === t, cur = currentUnit(p);
+    const inDays = d => d <= 0 ? (lessonDone ? "tomorrow" : "today") : d === 1 ? "tomorrow" : "in " + d + " days";
+    const nextLesson = lessonDone ? "tomorrow" : "today";
+    if (c >= MASTERED) return { step: 3, state: "learned", label: "Learned",
+      next: ck ? "Refresher check-up " + inDays(ck.due - t) : "Fully learned" };
+    if (c >= 2) return { step: 2, state: "check", label: "2 of 2 clean days",
+      next: ck ? (ck.due - t <= 0 ? "Check-up in " + (nextLesson === "today" ? "today's" : "tomorrow's") + " lesson" : "Check-up " + inDays(ck.due - t)) : "Check-up coming up soon" };
+    if (cur && cur.id === id) return { step: c, state: "now", label: c + " of 2 clean days",
+      next: (pl.reopen === id ? "Back for another go. " : "") + (c ? "Next" : "First") + " clean day possible " + nextLesson };
+    if (c) return { step: c, state: "waiting", label: c + " of 2 clean days", next: "Picks up again after the unit in progress" };
+    return { step: 0, state: "todo", label: "Not started", next: "Starts once the units before it are done" };
   }
   // Home card: the road to fluency (A1 → B2), then this level's milestones as one bar in sections. Finishing a milestone
   // is celebrated for the rest of that day (p.msSeen, p.msDay); a profile that already had progress before this card existed starts without a backlog.
@@ -1068,14 +1095,18 @@ body.kid .opt { font-size: 1.25rem; }
       h("div", { class: "prog-head" },
         h("h2", null, h("span", { class: "prog-num", text: m.done ? "✓" : String(i + 1) }), m.hr),
         h("span", { class: "count", text: m.done ? "Done" : Math.round(m.pct * 100) + "%" })),
-      h("p", { class: "prog-sub", text: m.en + " · " + m.words[0] + " of " + m.words[1] + " words" + (m.grammar.length ? " · " + m.grammar.filter(g => g.done).length + " of " + m.grammar.length + " grammar points" : "") }),
+      h("p", { class: "prog-sub", text: m.en + " · " + m.words[0] + " of " + m.words[1] + " words" + (m.grammar.length ? " · " + m.grammar.filter(g => g.done).length + " of " + m.grammar.length + " grammar points learned" + (m.grammar.some(g => !g.done && g.st.step) ? ", " + m.grammar.filter(g => !g.done && g.st.step).length + " on the way" : "") : "") }),
       h("div", { class: "prog-bar" }, h("div", { class: "prog-seg" + (m.done ? " prog-done" : ""), style: "flex:1" }, h("i", { style: "width:" + Math.round(m.pct * 100) + "%" }))),
       h("ul", { class: "prog-items" },
         m.topics.map(x => h("li", { class: x.have >= x.total ? "prog-done" : "" }, h("span", { class: "prog-tn" }, x.t.pic ? art(x.t.pic) : null, x.t.hr + " · " + x.t.en), h("small", { class: "count", text: x.have + " / " + x.total }))),
-        m.grammar.map(x => h("li", { class: x.done ? "prog-done" : "" }, h("span", null, "📐 " + x.g.en.split(":")[0]), h("small", { class: "count", text: x.done ? "✓" : "" })))))));
+        m.grammar.map(x => h("li", { class: "prog-gram prog-g-" + x.st.state + (x.done ? " prog-done" : "") },
+          h("div", { class: "prog-gtop" }, h("span", null, "📐 " + x.g.en.split(":")[0]),
+            h("span", { class: "prog-steps", role: "img", "aria-label": x.st.step + " of 3 steps: two clean days, then a check-up" },
+              [0, 1, 2].map(k => h("i", { class: (k < x.st.step ? "on" : k === x.st.step && x.st.state !== "todo" && x.st.state !== "waiting" ? "next" : "") + (k === 2 ? " ck" : "") })))),
+          h("small", { class: "prog-gst", text: x.st.label + " · " + x.st.next })))))));
     wrap.append(h("p", { class: "count", text: kid
       ? "Each day's lesson brings a few new words. Finish a lesson every day to fill the bar!"
-      : "Progress comes from the daily lesson: a word counts once a lesson has introduced it, and a grammar point counts once it has had two clean days and passed a check-up a few days later. Days to go assumes a lesson every day with everything recalled. A2 and beyond need new lessons, which are still to come." }));
+      : "Progress comes from the daily lesson: a word counts once a lesson has introduced it, and a grammar point counts once it has had two clean days and passed a check-up a few days later. A clean day is a lesson where every answer for that grammar point was right, at a steady pace. The three squares beside each grammar point are those steps: two clean days, then the check-up. Days to go assumes a lesson every day with everything recalled. A2 and beyond need new lessons, which are still to come." }));
     return wrap;
   }
 
