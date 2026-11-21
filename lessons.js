@@ -172,6 +172,11 @@ Object.assign(window.COURSE, {
   // Word forms in the conversations that aren't plain course words: form -> [meaning, base course word (for "known" estimates)].
   // A base of "*" marks a very common little word that counts as known from the start.
   lexicon: {
+    // Forms used in the 2026-11-12 stories.
+    "moji": ["my (plural)", "*"], "nije": ["is not", "*"], "možeš": ["you can", "mogu"], "zahod": ["toilet", "Gdje je zahod?"], "razumijem": ["I understand", "Ne razumijem."],
+    "možete": ["you can (polite)", "Možete li ponoviti, molim?"], "ponoviti": ["to repeat", "Možete li ponoviti, molim?"], "žedan": ["thirsty (a man says)", "Žedan sam."], "redu": ["order (u redu = fine, OK)", "Sve je u redu."],
+    "rođendan": ["birthday", "Sretan rođendan!"], "gleda": ["watches", "gledati"], "spavam": ["I sleep / I'm sleeping", "spavati"], "zelena": ["green (feminine)", "zelen"],
+    "mu": ["moo (a cow's sound)", "*"], "kva": ["quack (a duck's sound)", "*"], "kokodak": ["cluck (a hen's sound)", "*"],
     "hoćeš": ["do you want / will you", "htjeti"], "hoću": ["I want / I will", "htjeti"], "igrati": ["to play", "igrati"], "se": ["oneself (part of the verb)", "*"],
     "zoveš": ["you are called", "zovem se"], "zovem": ["I am called", "zovem se"], "zove": ["is called", "zovem se"], "ti": ["you", "*"], "ja": ["I", "*"], "sam": ["am", "*"], "si": ["are (you)", "*"], "je": ["is", "*"],
     "imaš": ["you have", "imati"], "imam": ["I have", "imati"], "ima": ["has", "imati"], "imate": ["you have (formal)", "imati"], "imaju": ["they have", "imati"],
